@@ -180,32 +180,51 @@ def retrieve_hybrid(
 ) -> List[Dict[str, Any]]:
     """
     Hybrid retrieval: kết hợp dense và sparse bằng Reciprocal Rank Fusion (RRF).
-
-    Mạnh ở: giữ được cả nghĩa (dense) lẫn keyword chính xác (sparse)
-    Phù hợp khi: corpus lẫn lộn ngôn ngữ tự nhiên và tên riêng/mã lỗi/điều khoản
-
-    Args:
-        dense_weight: Trọng số cho dense score (0-1)
-        sparse_weight: Trọng số cho sparse score (0-1)
-
-    TODO Sprint 3 (nếu chọn hybrid):
-    1. Chạy retrieve_dense() → dense_results
-    2. Chạy retrieve_sparse() → sparse_results
-    3. Merge bằng RRF:
-       RRF_score(doc) = dense_weight * (1 / (60 + dense_rank)) +
-                        sparse_weight * (1 / (60 + sparse_rank))
-       60 là hằng số RRF tiêu chuẩn
-    4. Sort theo RRF score giảm dần, trả về top_k
-
-    Khi nào dùng hybrid (từ slide):
-    - Corpus có cả câu tự nhiên VÀ tên riêng, mã lỗi, điều khoản
-    - Query như "Approval Matrix" khi doc đổi tên thành "Access Control SOP"
     """
-    # TODO Sprint 3: Implement hybrid RRF
-    # Tạm thời fallback về dense
-    print("[retrieve_hybrid] Chưa implement RRF — fallback về dense")
-    return retrieve_dense(query, top_k)
+    # 1. Lấy kết quả từ 2 phương pháp
+    # (Đảm bảo lấy đủ top_k cho mỗi phương pháp để dễ trộn)
+    dense_results = retrieve_dense(query, top_k=top_k)
+    sparse_results = retrieve_sparse(query, top_k=top_k)
 
+    # 2. Tạo Dictionary để lưu trữ và tính điểm RRF cho từng chunk
+    # Key là chunk text (hoặc id), Value là Dict chứa metadata và rrf_score
+    rrf_scores: Dict[str, Dict[str, Any]] = {}
+    
+    # Hằng số tiêu chuẩn cho RRF
+    K = 60 
+
+    # 3. Tính điểm RRF cho Dense Results
+    # Lưu ý: enumerate bắt đầu từ 1 vì rank cao nhất là 1
+    for rank, doc in enumerate(dense_results, 1):
+        doc_text = doc["text"]
+        if doc_text not in rrf_scores:
+            rrf_scores[doc_text] = {"text": doc_text, "metadata": doc["metadata"], "rrf_score": 0}
+        
+        # Công thức RRF cho dense
+        rrf_scores[doc_text]["rrf_score"] += dense_weight * (1.0 / (K + rank))
+
+    # 4. Tính điểm RRF cho Sparse Results
+    for rank, doc in enumerate(sparse_results, 1):
+        doc_text = doc["text"]
+        if doc_text not in rrf_scores:
+            rrf_scores[doc_text] = {"text": doc_text, "metadata": doc["metadata"], "rrf_score": 0}
+            
+        # Công thức RRF cộng dồn cho sparse
+        rrf_scores[doc_text]["rrf_score"] += sparse_weight * (1.0 / (K + rank))
+
+    # 5. Chuyển dict thành list, đổi tên rrf_score thành score để tương thích với các hàm khác
+    merged_results = []
+    for item in rrf_scores.values():
+        merged_results.append({
+            "text": item["text"],
+            "metadata": item["metadata"],
+            "score": item["rrf_score"]
+        })
+
+    # 6. Sắp xếp list giảm dần theo điểm RRF và cắt lấy top_k
+    merged_results.sort(key=lambda x: x["score"], reverse=True)
+    
+    return merged_results[:top_k]
 
 # =============================================================================
 # RERANK (Sprint 3 alternative)
