@@ -116,7 +116,7 @@
 | Strategy | **Hybrid** (Dense + Sparse kết hợp RRF) | Thêm BM25 sparse search |
 | Top-k search | 10 | Giữ nguyên |
 | Top-k select | 3 | Giữ nguyên |
-| Rerank | Không thực sự hoạt động (hàm `rerank()` chỉ trả `candidates[:top_k]`) | Config ghi `use_rerank=True` nhưng rerank chưa implement cross-encoder |
+| Rerank | Không (đã sửa `use_rerank=False` trong VARIANT_CONFIG) | Hàm `rerank()` chỉ trả `candidates[:top_k]` (chưa implement cross-encoder), nên config đã được sửa thành `False` để tránh misleading |
 | Query transform | Không sử dụng | N/A |
 | Fusion method | **Reciprocal Rank Fusion (RRF)** với K=60 | Dense weight 0.6, Sparse weight 0.4 |
 
@@ -195,7 +195,7 @@ Answer:
 | Generation lỗi | Answer không grounded / bịa | `score_faithfulness()` trong eval.py |
 | Token overload | Context quá dài → lost in the middle | Kiểm tra độ dài context_block |
 | **Dependency lỗi** | **Module `rank_bm25` chưa cài → hybrid crash toàn bộ** | **`pip install rank-bm25` và chạy lại** |
-| Rerank chưa implement | `use_rerank=True` nhưng hàm chỉ trả `candidates[:top_k]` | Kiểm tra `rerank()` trong rag_answer.py |
+| Rerank chưa implement | Hàm `rerank()` chỉ trả `candidates[:top_k]` (pass-through). VARIANT_CONFIG đã sửa `use_rerank=False` | Kiểm tra `rerank()` trong rag_answer.py |
 
 ---
 

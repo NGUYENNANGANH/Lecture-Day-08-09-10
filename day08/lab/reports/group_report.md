@@ -254,7 +254,7 @@ Ngoài ra, trong quy trình xử lý sự cố P1, nếu không có phản hồi
 
 2. **False abstain** (q07, q10): Prompt grounding quá nghiêm khắc khiến LLM abstain khi lẽ ra nên suy luận từ context. q07: context có "Approval Matrix" nhưng LLM không dám map alias. q10: LLM nên trả lời "không có quy trình đặc biệt cho VIP".
 
-3. **Rerank chưa implement**: `rerank()` chỉ return `candidates[:top_k]` (pass-through), nhưng `VARIANT_CONFIG` set `use_rerank=True`. Điều này gây misleading.
+3. **Rerank chưa implement**: `rerank()` chỉ return `candidates[:top_k]` (pass-through). `VARIANT_CONFIG` đã được sửa thành `use_rerank=False` để tránh misleading.
 
 4. **BM25 tokenization đơn giản**: `doc.lower().split()` không có stemming, stopword removal, hay xử lý tiếng Việt. Hiệu quả BM25 trên corpus tiếng Việt có thể không tối ưu.
 

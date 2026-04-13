@@ -75,6 +75,7 @@ retrieval_mode = "hybrid"     # ← BIẾN DUY NHẤT THAY ĐỔI
 dense_weight = 0.6            # Weight cho dense trong RRF
 sparse_weight = 0.4           # Weight cho sparse (BM25) trong RRF
 rrf_k = 60                    # Hằng số RRF tiêu chuẩn
+use_rerank = False            # Rerank chưa implement cross-encoder → giữ False
 # Các tham số còn lại giữ nguyên như baseline
 ```
 
@@ -100,7 +101,7 @@ ERROR: No module named 'rank_bm25'
 **Nhận xét:**
 > - **Variant 1 không chạy được** do thiếu cài đặt `rank-bm25`. Đây là lỗi environment setup, không phải lỗi logic code.
 > - Code `retrieve_sparse()` và `retrieve_hybrid()` đã được implement đầy đủ: BM25 tokenization, RRF fusion với weighted ranks. Logic code đúng nhưng không test được.
-> - Ngoài ra, `VARIANT_CONFIG` trong `eval.py` set `use_rerank=True`, nhưng hàm `rerank()` trong `rag_answer.py` **chưa implement cross-encoder** (chỉ trả `candidates[:top_k]`). Điều này có nghĩa rerank không tạo ra sự khác biệt nào.
+> - `VARIANT_CONFIG` trong `eval.py` đã được sửa thành `use_rerank=False` vì hàm `rerank()` trong `rag_answer.py` **chưa implement cross-encoder** (chỉ trả `candidates[:top_k]`). Thay đổi này loại bỏ config misleading.
 
 **Phân tích kỳ vọng (nếu hybrid chạy đúng):**
 
