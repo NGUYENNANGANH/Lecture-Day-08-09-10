@@ -45,7 +45,7 @@ Về RRF fusion, tôi hiểu rằng **cộng dồn rank** thay vì cộng dồn 
 
 1. **Indexing**: Kiểm tra file `sla_p1_2026.txt` — chunking theo heading `===` tạo 5 chunk riêng biệt. Thông tin "phản hồi ban đầu: 15 phút" nằm ở **Phần 2** (SLA theo mức ưu tiên), còn "resolution từ 6h xuống 4h" nằm ở **Phần 5** (Lịch sử phiên bản). Hai section khác nhau = **hai chunk tách rời**. `build_index()` (hàm tôi implement) index đúng theo thiết kế, nhưng vô tình tách hai thông tin liên quan vào hai chunk.
 
-2. **Retrieval**: ⚠️ **Đây là failure point.** Với `top_k_select=3`, pipeline chỉ chọn 3 chunk đưa vào prompt. Query "thay đổi so với phiên bản trước" khớp semantic mạnh nhất với **Phần 5** (lịch sử phiên bản) → chunk này rank cao. Chunk **Phần 2** (SLA chi tiết) có thể bị đẩy xuống ngoài top-3 vì embedding ít liên quan đến từ "thay đổi" và "phiên bản trước".
+2. **Retrieval**: **Đây là failure point.** Với `top_k_select=3`, pipeline chỉ chọn 3 chunk đưa vào prompt. Query "thay đổi so với phiên bản trước" khớp semantic mạnh nhất với **Phần 5** (lịch sử phiên bản) → chunk này rank cao. Chunk **Phần 2** (SLA chi tiết) có thể bị đẩy xuống ngoài top-3 vì embedding ít liên quan đến từ "thay đổi" và "phiên bản trước".
 
 3. **Generation**: LLM trả lời đúng từ context nhận được (Phần 5), nhưng thiếu context Phần 2 → incomplete.
 
