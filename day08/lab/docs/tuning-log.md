@@ -7,7 +7,6 @@
 
 ## Baseline (Sprint 2)
 
-<<<<<<< HEAD
 **Ngày:** 2026-04-13  
 **Config:**
 ```
@@ -19,16 +18,6 @@ top_k_select = 3
 use_rerank = False
 llm_model = gpt-4o-mini
 embedding_model = text-embedding-3-small
-=======
-**Ngày:** 13/04/2026
-**Config:**
-```
-retrieval_mode = "dense"
-top_k_search = 10
-top_k_select = 3
-use_rerank = False
-llm_model = "gpt-4o-mini"
->>>>>>> 2a4875a (feat: finish tuning log and grading)
 ```
 
 **Scorecard Baseline:**
@@ -38,7 +27,6 @@ llm_model = "gpt-4o-mini"
 | Answer Relevance | 5.00 /5 |
 | Context Recall | 5.00 /5 |
 | Completeness | 3.40 /5 |
-<<<<<<< HEAD
 
 **Per-Question Detail:**
 | ID | Category | Faith. | Relev. | Recall | Compl. | Ghi chú |
@@ -68,26 +56,11 @@ llm_model = "gpt-4o-mini"
 - [x] **Generation: Prompt grounding quá nghiêm** → q07 và q10 false abstain khi context có nhưng LLM không dám suy luận
 - [ ] Generation: Context quá dài → lost in the middle → **Ít khả năng** (chỉ 3 chunks)
 - [x] **Generation: LLM trả lời thiếu chi tiết** → q01, q08 thiếu thông tin phụ dù chunk có
-=======
-
-**Câu hỏi yếu nhất (điểm thấp):**
-> q07 (Approval Matrix): Faithfulness = 1/5, Completeness = 1/5. Pipeline lấy được file liên quan (Recall = 5) nhưng có thể chunk chứa từ khoá "Approval Matrix" bị trôi xuống dưới, khiến LLM trả lời "Không đủ dữ liệu".
-> q10 (Khách hàng VIP): Completeness = 1/5. Đây là câu hỏi mẹo (không có quy trình riêng cho VIP trong doc), model trả lời không đủ dữ liệu nhưng mất điểm completeness so với đáp án kỳ vọng.
-
-**Giả thuyết nguyên nhân (Error Tree):**
-- [ ] Indexing: Chunking cắt giữa điều khoản
-- [ ] Indexing: Metadata thiếu effective_date
-- [x] Retrieval: Dense bỏ lỡ exact keyword / alias
-- [x] Retrieval: Top-k quá ít → thiếu evidence
-- [ ] Generation: Prompt không đủ grounding
-- [x] Generation: Context quá dài → lost in the middle
->>>>>>> 2a4875a (feat: finish tuning log and grading)
 
 ---
 
 ## Variant 1 (Sprint 3) — Hybrid Retrieval
 
-<<<<<<< HEAD
 **Ngày:** 2026-04-13  
 **Biến thay đổi:** `retrieval_mode` từ `"dense"` → `"hybrid"` (Dense + BM25 Sparse + RRF fusion)  
 **Lý do chọn biến này:**
@@ -95,12 +68,6 @@ llm_model = "gpt-4o-mini"
 > 1. **q07 (alias query)**: Dense retrieval đã retrieve đúng source nhưng vấn đề nằm ở generation. Tuy nhiên, hybrid có thể cải thiện ranking — BM25 match keyword "Approval Matrix" trực tiếp trong text "Ghi chú: Tài liệu này trước đây có tên Approval Matrix for System Access" → chunk chứa alias sẽ được rank cao hơn.
 > 2. **Corpus đặc thù**: Có cả ngôn ngữ tự nhiên (policy mô tả quy trình) lẫn keyword kỹ thuật (SLA P1, Level 3, ERR-403). Dense mạnh ở semantic matching nhưng BM25 bổ trợ exact term matching.
 > 3. **A/B Rule**: Chỉ đổi DUY NHẤT retrieval_mode, giữ nguyên tất cả tham số khác.
-=======
-**Ngày:** 13/04/2026
-**Biến thay đổi:** `retrieval_mode="hybrid"` và `use_rerank = True`
-**Lý do chọn biến này:**
-> Dựa trên kết quả Baseline, q07 thất bại do query sử dụng tên cũ (alias "Approval Matrix"). Chọn Hybrid để kết hợp khả năng tìm kiếm theo ngữ nghĩa (Dense) và bắt chính xác từ khoá (Sparse/BM25). Đồng thời bật Rerank để hy vọng đẩy chunk chứa từ khoá lên top 3.
->>>>>>> 2a4875a (feat: finish tuning log and grading)
 
 **Config thay đổi:**
 ```
@@ -123,7 +90,6 @@ ERROR: No module named 'rank_bm25'
 **Scorecard Variant 1 (thực tế — crashed):**
 | Metric | Baseline | Variant 1 | Delta |
 |--------|----------|-----------|-------|
-<<<<<<< HEAD
 | Faithfulness | 4.40/5 | 1.00/5 | -3.40 |
 | Answer Relevance | 5.00/5 | 1.00/5 | -4.00 |
 | Context Recall | 5.00/5 | 1.00/5 | -4.00 |
@@ -156,24 +122,6 @@ Tuy nhiên, hybrid cũng có **rủi ro**:
 > - **Baseline vẫn là cấu hình hoạt động duy nhất** với kết quả khá tốt: Faithfulness 4.40, Relevance 5.00, Context Recall 5.00.
 > - Điểm yếu chính của baseline nằm ở **Completeness (3.40/5)** — LLM trả lời đúng nhưng thiếu chi tiết, và **false abstain** ở q07 (alias) và q10 (VIP query).
 > - **Khuyến nghị**: Cài `pip install rank-bm25`, chạy lại eval.py để có kết quả hybrid thực tế.
-=======
-| Faithfulness | 4.40/5 | 4.00/5 | -0.40 |
-| Answer Relevance | 5.00/5 | 5.00/5 | 0.00 |
-| Context Recall | 5.00/5 | 5.00/5 | 0.00 |
-| Completeness | 3.40/5 | 3.20/5 | -0.20 |
-
-**Nhận xét:**
-Không cải thiện như kỳ vọng: Ở câu q07, dù dùng hybrid, điểm vẫn giữ nguyên (1/5). Có thể hàm retrieve_sparse cài đặt đơn giản chưa đủ mạnh để bắt alias, hoặc Reranker đã đánh giá chunk chứa "Approval Matrix" có relevance thấp và loại bỏ nó trước khi đưa vào prompt.
-
-Tệ hơn ở q06 & q10: - Ở q06 (Escalation), completeness giảm từ 5 xuống 3.
-
-Ở q10 (Khách VIP), faithfulness giảm từ 5 xuống 1.
-
-Lý do: Reranker có thể đã hoạt động không tốt với các văn bản tiếng Việt hoặc làm mất các chunk mang tính context rộng, khiến model sinh ra câu trả lời kém chính xác hơn so với Baseline.
-
-**Kết luận:**
-Trong lần thử nghiệm này, Variant (Hybrid + Rerank) không tốt hơn Baseline (Dense). Bằng chứng là Faithfulness tổng thể giảm 0.40 và Completeness giảm 0.20. Điều này cho thấy Reranker (nếu chưa được fine-tune cho tiếng Việt/domain cụ thể) có thể làm nhiễu kết quả thay vì cải thiện nó.
->>>>>>> 2a4875a (feat: finish tuning log and grading)
 
 ---
 
