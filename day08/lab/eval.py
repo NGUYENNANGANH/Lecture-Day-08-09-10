@@ -24,8 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from dotenv.main import load_dotenv
-
-from .rag_answer import rag_answer
+from rag_answer import rag_answer
 
 load_dotenv()
 

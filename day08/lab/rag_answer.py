@@ -25,8 +25,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 from dotenv import load_dotenv
-
-from .index import DOCS_DIR
+from index import DOCS_DIR
 
 load_dotenv()
 
