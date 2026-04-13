@@ -194,7 +194,7 @@ Answer:
 | Retrieval lỗi | Không tìm được expected source | `score_context_recall()` trong eval.py |
 | Generation lỗi | Answer không grounded / bịa | `score_faithfulness()` trong eval.py |
 | Token overload | Context quá dài → lost in the middle | Kiểm tra độ dài context_block |
-| **Dependency lỗi** | **Module `rank_bm25` chưa cài → hybrid crash toàn bộ** | **`pip install rank-bm25` và chạy lại** |
+| **Sparse noise** | **BM25 whitespace tokenization quá đơn giản cho tiếng Việt → hybrid thêm noise, kết quả kém hơn baseline** | **Dùng Vietnamese tokenizer (`underthesea`) thay vì `lower().split()`** |
 | Rerank chưa implement | Hàm `rerank()` chỉ trả `candidates[:top_k]` (pass-through). VARIANT_CONFIG đã sửa `use_rerank=False` | Kiểm tra `rerank()` trong rag_answer.py |
 
 ---

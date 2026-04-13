@@ -250,7 +250,7 @@ Ngoài ra, trong quy trình xử lý sự cố P1, nếu không có phản hồi
 
 ### 5.3 Nhược điểm
 
-1. **Variant crash hoàn toàn**: Thiếu dependency `rank-bm25` → hybrid retrieval không chạy được → không có dữ liệu A/B thực tế. Đây là lỗi nghiêm trọng nhất.
+1. **Variant không cải thiện kết quả**: Hybrid retrieval (Dense + BM25 + RRF) cho kết quả kém hơn baseline — Faithfulness giảm 0.40, Completeness giảm 0.20. Root cause nằm ở sparse search thêm noise do BM25 tokenization quá đơn giản cho tiếng Việt.
 
 2. **False abstain** (q07, q10): Prompt grounding quá nghiêm khắc khiến LLM abstain khi lẽ ra nên suy luận từ context. q07: context có "Approval Matrix" nhưng LLM không dám map alias. q10: LLM nên trả lời "không có quy trình đặc biệt cho VIP".
 
@@ -267,7 +267,7 @@ Ngoài ra, trong quy trình xử lý sự cố P1, nếu không có phản hồi
 ## 6. Hướng phát triển
 
 ### 6.1 Sửa lỗi cấp bách (Short-term)
-1. **Cài `rank-bm25`**: `pip install rank-bm25` và chạy lại `eval.py` để có kết quả hybrid thực tế
+1. **Tối ưu BM25 tokenization**: Dùng `underthesea` hoặc `pyvi` để tokenize tiếng Việt thay vì `lower().split()`, giúp sparse search chính xác hơn
 2. **Implement `rerank()` thực sự**: Dùng cross-encoder `ms-marco-MiniLM-L-6-v2` hoặc LLM-based reranking
 3. **Điều chỉnh prompt**: Giảm false abstain bằng cách cho phép LLM suy luận hợp lý từ context
 

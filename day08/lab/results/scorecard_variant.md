@@ -1,5 +1,5 @@
-# Scorecard: variant_hybrid_rerank
-Generated: 2026-04-13 16:27
+# Scorecard: variant_hybrid
+Generated: 2026-04-13 17:27
 
 ## Summary
 
