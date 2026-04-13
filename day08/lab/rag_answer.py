@@ -76,10 +76,30 @@ def retrieve_dense(query: str, top_k: int = TOP_K_SEARCH) -> List[Dict[str, Any]
         # Lưu ý: distances trong ChromaDB cosine = 1 - similarity
         # Score = 1 - distance
     """
-    raise NotImplementedError(
-        "TODO Sprint 2: Implement retrieve_dense().\n"
-        "Tham khảo comment trong hàm để biết cách query ChromaDB."
+    import chromadb
+    from index import get_embedding, CHROMA_DB_DIR
+
+    client = chromadb.PersistentClient(path=str(CHROMA_DB_DIR))
+    collection = client.get_collection("rag_lab")
+
+    query_embedding = get_embedding(query)
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_k,
+        include=["documents", "metadatas", "distances"]
     )
+
+    # Chuyển kết quả ChromaDB thành list of dicts
+    # Lưu ý: ChromaDB cosine distance = 1 - similarity → Score = 1 - distance
+    chunks = []
+    for i in range(len(results["documents"][0])):
+        chunks.append({
+            "text": results["documents"][0][i],
+            "metadata": results["metadatas"][0][i],
+            "score": 1 - results["distances"][0][i],  # cosine similarity
+        })
+
+    return chunks
 
 
 # =============================================================================
@@ -274,11 +294,14 @@ def build_grounded_prompt(query: str, context_block: str) -> str:
     - Thêm ngôn ngữ phản hồi (tiếng Việt vs tiếng Anh)
     - Điều chỉnh tone phù hợp với use case (CS helpdesk, IT support)
     """
-    prompt = f"""Answer only from the retrieved context below.
-If the context is insufficient to answer the question, say you do not know and do not make up information.
-Cite the source field (in brackets like [1]) when possible.
-Keep your answer short, clear, and factual.
-Respond in the same language as the question.
+    prompt = f"""You are a precise helpdesk assistant. Follow these rules strictly:
+
+1. Answer ONLY using information explicitly stated in the retrieved context below.
+2. If the context does NOT contain a direct answer to the question, respond exactly: "Không đủ dữ liệu để trả lời câu hỏi này."
+3. Do NOT guess, infer, or use your own knowledge. If the specific term, code, or concept in the question is not mentioned in the context, you must abstain.
+4. Cite sources using bracket notation like [1], [2] matching the context numbers.
+5. Keep your answer short, clear, and factual.
+6. Respond in the same language as the question.
 
 Question: {query}
 
@@ -316,10 +339,15 @@ def call_llm(prompt: str) -> str:
 
     Lưu ý: Dùng temperature=0 hoặc thấp để output ổn định cho evaluation.
     """
-    raise NotImplementedError(
-        "TODO Sprint 2: Implement call_llm().\n"
-        "Chọn Option A (OpenAI) hoặc Option B (Gemini) trong TODO comment."
+    from openai import OpenAI
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    response = client.chat.completions.create(
+        model=LLM_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,     # temperature=0 để output ổn định, dễ đánh giá
+        max_tokens=512,
     )
+    return response.choices[0].message.content
 
 
 def rag_answer(
