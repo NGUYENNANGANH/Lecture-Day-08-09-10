@@ -5,4 +5,9 @@
 # Grading questions — không public trước 17:00
 day08/lab/data/grading_questions.json
 
+
+# Bỏ qua file chứa API Key
 .env
+
+# Bỏ qua thư mục chứa Vector Database
+chroma_db/
