@@ -1,6 +1,6 @@
 # Báo Cáo Cá Nhân — Lab Day 08: RAG Pipeline
 
-**Họ và tên:** Dương Thị Phương Thảo  
+**Họ và tên:** Dương Phương Thảo  
 **Vai trò trong nhóm:** Team Leader  
 **Ngày nộp:** 2026-04-14  
 **Độ dài yêu cầu:** 500–800 từ
