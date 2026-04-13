@@ -17,12 +17,17 @@ A/B Rule (từ slide):
   Đổi đồng thời chunking + hybrid + rerank + prompt = không biết biến nào có tác dụng.
 """
 
-import json
 import csv
-from pathlib import Path
-from typing import List, Dict, Any, Optional
+import json
 from datetime import datetime
-from rag_answer import rag_answer
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from dotenv.main import load_dotenv
+
+from .rag_answer import rag_answer
+
+load_dotenv()
 
 # =============================================================================
 # CẤU HÌNH
@@ -43,10 +48,10 @@ BASELINE_CONFIG = {
 # Cấu hình variant (Sprint 3 — điều chỉnh theo lựa chọn của nhóm)
 # TODO Sprint 4: Cập nhật VARIANT_CONFIG theo variant nhóm đã implement
 VARIANT_CONFIG = {
-    "retrieval_mode": "hybrid",   # Hoặc "dense" nếu chỉ đổi rerank
+    "retrieval_mode": "hybrid",  # Hoặc "dense" nếu chỉ đổi rerank
     "top_k_search": 10,
     "top_k_select": 3,
-    "use_rerank": True,           # Hoặc False nếu variant là hybrid không rerank
+    "use_rerank": True,  # Hoặc False nếu variant là hybrid không rerank
     "label": "variant_hybrid_rerank",
 }
 
@@ -55,6 +60,7 @@ VARIANT_CONFIG = {
 # SCORING FUNCTIONS
 # 4 metrics từ slide: Faithfulness, Answer Relevance, Context Recall, Completeness
 # =============================================================================
+
 
 def score_faithfulness(
     answer: str,
@@ -90,10 +96,24 @@ def score_faithfulness(
     """
     # TODO Sprint 4: Implement scoring
     # Tạm thời trả về None (yêu cầu chấm thủ công)
-    return {
-        "score": None,
-        "notes": "TODO: Chấm thủ công hoặc implement LLM-as-Judge",
-    }
+    if not chunks_used:
+        # If no chunks were found, model should ideally abstain
+        score = 5 if "không" in answer.lower() or "biết" in answer.lower() else 1
+        return {
+            "score": score,
+            "notes": "Abstain check: high score if correctly admitted ignorance.",
+        }
+
+    # Simple grounding check: do key terms from the answer exist in the context?
+    context_text = " ".join([c["text"].lower() for c in chunks_used])
+    answer_words = [
+        w for w in answer.lower().split() if len(w) > 4
+    ]  # Check significant words
+    matches = sum(1 for w in answer_words if w in context_text)
+    grounding_ratio = matches / len(answer_words) if answer_words else 1
+
+    score = 5 if grounding_ratio > 0.7 else (3 if grounding_ratio > 0.4 else 1)
+    return {"score": score, "notes": f"Grounding ratio: {grounding_ratio:.2%}"}
 
 
 def score_answer_relevance(
@@ -113,10 +133,18 @@ def score_answer_relevance(
 
     TODO Sprint 4: Implement tương tự score_faithfulness
     """
-    return {
-        "score": None,
-        "notes": "TODO: Implement score_answer_relevance",
-    }
+    if "không đủ dữ liệu" in answer.lower() or "do not know" in answer.lower():
+        # Valid abstain answers are technically relevant
+        return {"score": 5, "notes": "Valid abstain response."}
+
+    query_keywords = [w for w in query.lower().replace("?", "").split() if len(w) > 3]
+    answer_lower = answer.lower()
+
+    matches = sum(1 for k in query_keywords if k in answer_lower)
+    relevance_ratio = matches / len(query_keywords) if query_keywords else 1
+
+    score = 5 if relevance_ratio > 0.5 else (3 if relevance_ratio > 0.2 else 1)
+    return {"score": score, "notes": f"Query keyword overlap: {relevance_ratio:.2%}"}
 
 
 def score_context_recall(
@@ -146,32 +174,25 @@ def score_context_recall(
         # Câu hỏi không có expected source (ví dụ: "Không đủ dữ liệu" cases)
         return {"score": None, "recall": None, "notes": "No expected sources"}
 
-    retrieved_sources = {
-        c.get("metadata", {}).get("source", "")
-        for c in chunks_used
-    }
+    retrieved_sources = {c.get("metadata", {}).get("source", "") for c in chunks_used}
 
     # TODO: Kiểm tra matching theo partial path (vì source paths có thể khác format)
+    retrieved_sources = {
+        c.get("metadata", {}).get("source", "").lower() for c in chunks_used
+    }
     found = 0
-    missing = []
     for expected in expected_sources:
-        # Kiểm tra partial match (tên file)
-        expected_name = expected.split("/")[-1].replace(".pdf", "").replace(".md", "")
-        matched = any(expected_name.lower() in r.lower() for r in retrieved_sources)
-        if matched:
+        # Check for partial matches in filenames (e.g., 'refund-v4' in 'policy/refund-v4.pdf')
+        expected_clean = expected.split("/")[-1].split(".")[0].lower()
+        if any(expected_clean in r for r in retrieved_sources):
             found += 1
-        else:
-            missing.append(expected)
 
-    recall = found / len(expected_sources) if expected_sources else 0
-
+    recall = found / len(expected_sources)
+    score = round(recall * 5) if recall > 0 else 1
     return {
-        "score": round(recall * 5),  # Convert to 1-5 scale
+        "score": max(1, score),
         "recall": recall,
-        "found": found,
-        "missing": missing,
-        "notes": f"Retrieved: {found}/{len(expected_sources)} expected sources" +
-                 (f". Missing: {missing}" if missing else ""),
+        "notes": f"Found {found}/{len(expected_sources)} expected sources.",
     }
 
 
@@ -198,15 +219,21 @@ def score_completeness(
          Rate completeness 1-5. Are all key points covered?
          Output: {'score': int, 'missing_points': [str]}"
     """
-    return {
-        "score": None,
-        "notes": "TODO: Implement score_completeness (so sánh với expected_answer)",
-    }
+    expected_set = set(expected_answer.lower().replace(".", "").split())
+    answer_set = set(answer.lower().replace(".", "").split())
+
+    # Calculate Jaccard similarity for content coverage
+    intersection = expected_set.intersection(answer_set)
+    coverage = len(intersection) / len(expected_set) if expected_set else 1
+
+    score = 5 if coverage > 0.5 else (3 if coverage > 0.2 else 1)
+    return {"score": score, "notes": f"Content coverage: {coverage:.2%}"}
 
 
 # =============================================================================
 # SCORECARD RUNNER
 # =============================================================================
+
 
 def run_scorecard(
     config: Dict[str, Any],
@@ -240,10 +267,10 @@ def run_scorecard(
     results = []
     label = config.get("label", "unnamed")
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"Chạy scorecard: {label}")
     print(f"Config: {config}")
-    print('='*70)
+    print("=" * 70)
 
     for q in test_questions:
         question_id = q["id"]
@@ -301,14 +328,20 @@ def run_scorecard(
 
         if verbose:
             print(f"  Answer: {answer[:100]}...")
-            print(f"  Faithful: {faith['score']} | Relevant: {relevance['score']} | "
-                  f"Recall: {recall['score']} | Complete: {complete['score']}")
+            print(
+                f"  Faithful: {faith['score']} | Relevant: {relevance['score']} | "
+                f"Recall: {recall['score']} | Complete: {complete['score']}"
+            )
 
     # Tính averages (bỏ qua None)
     for metric in ["faithfulness", "relevance", "context_recall", "completeness"]:
         scores = [r[metric] for r in results if r[metric] is not None]
         avg = sum(scores) / len(scores) if scores else None
-        print(f"\nAverage {metric}: {avg:.2f}" if avg else f"\nAverage {metric}: N/A (chưa chấm)")
+        print(
+            f"\nAverage {metric}: {avg:.2f}"
+            if avg
+            else f"\nAverage {metric}: N/A (chưa chấm)"
+        )
 
     return results
 
@@ -316,6 +349,7 @@ def run_scorecard(
 # =============================================================================
 # A/B COMPARISON
 # =============================================================================
+
 
 def compare_ab(
     baseline_results: List[Dict],
@@ -342,9 +376,9 @@ def compare_ab(
     """
     metrics = ["faithfulness", "relevance", "context_recall", "completeness"]
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("A/B Comparison: Baseline vs Variant")
-    print('='*70)
+    print("=" * 70)
     print(f"{'Metric':<20} {'Baseline':>10} {'Variant':>10} {'Delta':>8}")
     print("-" * 55)
 
@@ -363,7 +397,9 @@ def compare_ab(
         print(f"{metric:<20} {b_str:>10} {v_str:>10} {d_str:>8}")
 
     # Per-question comparison
-    print(f"\n{'Câu':<6} {'Baseline F/R/Rc/C':<22} {'Variant F/R/Rc/C':<22} {'Better?':<10}")
+    print(
+        f"\n{'Câu':<6} {'Baseline F/R/Rc/C':<22} {'Variant F/R/Rc/C':<22} {'Better?':<10}"
+    )
     print("-" * 65)
 
     b_by_id = {r["id"]: r for r in baseline_results}
@@ -371,17 +407,17 @@ def compare_ab(
         qid = v_row["id"]
         b_row = b_by_id.get(qid, {})
 
-        b_scores_str = "/".join([
-            str(b_row.get(m, "?")) for m in metrics
-        ])
-        v_scores_str = "/".join([
-            str(v_row.get(m, "?")) for m in metrics
-        ])
+        b_scores_str = "/".join([str(b_row.get(m, "?")) for m in metrics])
+        v_scores_str = "/".join([str(v_row.get(m, "?")) for m in metrics])
 
         # So sánh đơn giản
         b_total = sum(b_row.get(m, 0) or 0 for m in metrics)
         v_total = sum(v_row.get(m, 0) or 0 for m in metrics)
-        better = "Variant" if v_total > b_total else ("Baseline" if b_total > v_total else "Tie")
+        better = (
+            "Variant"
+            if v_total > b_total
+            else ("Baseline" if b_total > v_total else "Tie")
+        )
 
         print(f"{qid:<6} {b_scores_str:<22} {v_scores_str:<22} {better:<10}")
 
@@ -401,6 +437,7 @@ def compare_ab(
 # =============================================================================
 # REPORT GENERATOR
 # =============================================================================
+
 
 def generate_scorecard_summary(results: List[Dict], label: str) -> str:
     """
@@ -433,9 +470,11 @@ Generated: {timestamp}
     md += "|----|----------|----------|----------|--------|----------|-------|\n"
 
     for r in results:
-        md += (f"| {r['id']} | {r['category']} | {r.get('faithfulness', 'N/A')} | "
-               f"{r.get('relevance', 'N/A')} | {r.get('context_recall', 'N/A')} | "
-               f"{r.get('completeness', 'N/A')} | {r.get('faithfulness_notes', '')[:50]} |\n")
+        md += (
+            f"| {r['id']} | {r['category']} | {r.get('faithfulness', 'N/A')} | "
+            f"{r.get('relevance', 'N/A')} | {r.get('context_recall', 'N/A')} | "
+            f"{r.get('completeness', 'N/A')} | {r.get('faithfulness_notes', '')[:50]} |\n"
+        )
 
     return md
 
@@ -488,23 +527,19 @@ if __name__ == "__main__":
 
     # --- Chạy Variant (sau khi Sprint 3 hoàn thành) ---
     # TODO Sprint 4: Uncomment sau khi implement variant trong rag_answer.py
-    # print("\n--- Chạy Variant ---")
-    # variant_results = run_scorecard(
-    #     config=VARIANT_CONFIG,
-    #     test_questions=test_questions,
-    #     verbose=True,
-    # )
-    # variant_md = generate_scorecard_summary(variant_results, VARIANT_CONFIG["label"])
-    # (RESULTS_DIR / "scorecard_variant.md").write_text(variant_md, encoding="utf-8")
+    print("\n--- Chạy Variant ---")
+    variant_results = run_scorecard(
+        config=VARIANT_CONFIG,
+        test_questions=test_questions,
+        verbose=True,
+    )
+    variant_md = generate_scorecard_summary(variant_results, VARIANT_CONFIG["label"])
+    (RESULTS_DIR / "scorecard_variant.md").write_text(variant_md, encoding="utf-8")
 
     # --- A/B Comparison ---
     # TODO Sprint 4: Uncomment sau khi có cả baseline và variant
-    # if baseline_results and variant_results:
-    #     compare_ab(
-    #         baseline_results,
-    #         variant_results,
-    #         output_csv="ab_comparison.csv"
-    #     )
+    if baseline_results and variant_results:
+        compare_ab(baseline_results, variant_results, output_csv="ab_comparison.csv")
 
     print("\n\nViệc cần làm Sprint 4:")
     print("  1. Hoàn thành Sprint 2 + 3 trước")

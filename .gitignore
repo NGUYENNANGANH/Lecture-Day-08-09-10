@@ -8,3 +8,6 @@ day08/lab/data/grading_questions.json
 .env
 
 .direnv/
+.direnvear
+.env
+Lab8.egg-*
