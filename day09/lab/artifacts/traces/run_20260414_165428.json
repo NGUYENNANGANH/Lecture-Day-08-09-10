@@ -19,8 +19,8 @@
       "source": "sla_p1_2026.txt",
       "score": 0.5903,
       "metadata": {
-        "section": "Phần 2: SLA theo mức độ ưu tiên",
-        "source": "sla_p1_2026.txt"
+        "source": "sla_p1_2026.txt",
+        "section": "Phần 2: SLA theo mức độ ưu tiên"
       }
     },
     {
@@ -31,43 +31,64 @@
         "source": "sla_p1_2026.txt",
         "section": "Phần 2: SLA theo mức độ ưu tiên"
       }
+    },
+    {
+      "text": "Section 5: Email và lịch\nQ: Hộp thư đến đầy, phải làm gì?\nA: Xóa email cũ hoặc yêu cầu tăng dung lượng qua ticket IT-ACCESS. Dung lượng tiêu chuẩn là 50GB.\n\nQ: Tôi không nhận được email từ bên ngoài?\nA: Kiểm tra thư mục Spam trước. Nếu vẫn không có, tạo ticket P2 kèm địa chỉ email gửi và thời gian gửi.",
+      "source": "it_helpdesk_faq.txt",
+      "score": 0.5287,
+      "metadata": {
+        "section": "Section 5: Email và lịch",
+        "source": "it_helpdesk_faq.txt"
+      }
+    },
+    {
+      "text": "Section 4: Thiết bị và phần cứng\nQ: Laptop mới được cấp sau bao lâu khi vào công ty?\nA: Laptop được cấp trong ngày onboarding đầu tiên. Nếu có vấn đề, liên hệ HR hoặc IT Admin.\n\nQ: Laptop bị hỏng phải báo cáo như thế nào?\nA: Tạo ticket P2 hoặc P3 tùy mức độ nghiêm trọng. Mang thiết bị đến IT Room (tầng 3) để kiểm tra.",
+      "source": "it_helpdesk_faq.txt",
+      "score": 0.5185,
+      "metadata": {
+        "source": "it_helpdesk_faq.txt",
+        "section": "Section 4: Thiết bị và phần cứng"
+      }
     }
   ],
   "retrieved_sources": [
-    "sla_p1_2026.txt"
+    "sla_p1_2026.txt",
+    "it_helpdesk_faq.txt"
   ],
   "policy_result": {},
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- SLA TICKET - QUY ĐỊNH XỬ LÝ SỰ CỐ\n- Source: support/sla-p1-2026.pdf\n- Effective Date: 2026-01-15\n- Phần 2: SLA theo mức độ ưu tiên\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n\n[Nguon: sla_p1_2026.txt]",
+  "final_answer": "SLA xử lý ticket P1 như sau:\n\n1. **Phản hồi ban đầu**: 15 phút kể từ khi ticket được tạo.\n2. **Xử lý và khắc phục**: 4 giờ.\n3. **Escalation**: Tự động escalate lên Senior Engineer nếu không có phản hồi trong 10 phút.\n4. **Thông báo stakeholder**: Ngay khi nhận ticket, update mỗi 30 phút cho đến khi resolve. [3]",
   "sources": [
-    "sla_p1_2026.txt"
+    "sla_p1_2026.txt",
+    "it_helpdesk_faq.txt"
   ],
-  "confidence": 0.6,
+  "confidence": 0.57,
   "history": [
     "[supervisor] received task: SLA xử lý ticket P1 là bao lâu?",
     "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-    "[retrieval_worker] retrieved 3 chunks from ['sla_p1_2026.txt']",
-    "[synthesis_worker] answer generated, confidence=0.6, sources=['sla_p1_2026.txt']",
-    "[graph] completed in 16217ms"
+    "[retrieval_worker] retrieved 5 chunks from ['sla_p1_2026.txt', 'it_helpdesk_faq.txt']",
+    "[synthesis_worker] answer generated, confidence=0.57, sources=['sla_p1_2026.txt', 'it_helpdesk_faq.txt']",
+    "[graph] completed in 19129ms"
   ],
   "workers_called": [
     "retrieval_worker",
     "synthesis_worker"
   ],
   "supervisor_route": "retrieval_worker",
-  "latency_ms": 16217,
-  "run_id": "run_20260414_161355",
+  "latency_ms": 19129,
+  "run_id": "run_20260414_165428",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "SLA xử lý ticket P1 là bao lâu?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
-          "sla_p1_2026.txt"
+          "sla_p1_2026.txt",
+          "it_helpdesk_faq.txt"
         ]
       },
       "error": null
@@ -76,15 +97,16 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "SLA xử lý ticket P1 là bao lâu?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": false
       },
       "output": {
-        "answer_length": 264,
+        "answer_length": 312,
         "sources": [
-          "sla_p1_2026.txt"
+          "sla_p1_2026.txt",
+          "it_helpdesk_faq.txt"
         ],
-        "confidence": 0.6
+        "confidence": 0.57
       },
       "error": null
     }

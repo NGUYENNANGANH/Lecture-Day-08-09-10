@@ -28,49 +28,70 @@
       "source": "it_helpdesk_faq.txt",
       "score": 0.6797,
       "metadata": {
-        "source": "it_helpdesk_faq.txt",
-        "section": "Section 5: Email và lịch"
+        "section": "Section 5: Email và lịch",
+        "source": "it_helpdesk_faq.txt"
+      }
+    },
+    {
+      "text": "Điều 3: Điều kiện áp dụng và ngoại lệ\nHoàn tiền — Điều kiện áp dụng:\nYêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\nNgoại lệ không được hoàn tiền:\n- Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.6509,
+      "metadata": {
+        "source": "policy_refund_v4.txt",
+        "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+      }
+    },
+    {
+      "text": "Phần 1: Định nghĩa mức độ ưu tiên\nP1 — CRITICAL (Khẩn cấp):\nĐịnh nghĩa: Sự cố ảnh hưởng toàn bộ hệ thống production, không có workaround.\nVí dụ: Database sập, API gateway down, toàn bộ người dùng không thể đăng nhập.\n\nP2 — HIGH (Nghiêm trọng):\nĐịnh nghĩa: Sự cố ảnh hưởng một phần hệ thống, có workaround tạm thời.\nVí dụ: Một số tính năng không hoạt động, ảnh hưởng một nhóm người dùng.\n\nP3 — MEDIUM (Trung bình):\nĐịnh nghĩa: Lỗi ảnh hưởng không đáng kể, người dùng vẫn làm việc được.",
+      "source": "sla_p1_2026.txt",
+      "score": 0.635,
+      "metadata": {
+        "source": "sla_p1_2026.txt",
+        "section": "Phần 1: Định nghĩa mức độ ưu tiên"
       }
     }
   ],
   "retrieved_sources": [
-    "it_helpdesk_faq.txt",
-    "sla_p1_2026.txt"
+    "sla_p1_2026.txt",
+    "policy_refund_v4.txt",
+    "it_helpdesk_faq.txt"
   ],
   "policy_result": {},
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Phần 2: SLA theo mức độ ưu tiên\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n- - Phản hồi ban đầu: 3 ngày làm việc.\n- - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).\n- Phần 2: SLA theo mức độ ưu tiên\n\n[Nguon: it_helpdesk_faq.txt, sla_p1_2026.txt]",
+  "final_answer": "Hệ thống sẽ tự động escalate ticket P1 lên Senior Engineer nếu không có phản hồi trong 10 phút. Điều này được quy định trong SLA cho ticket P1. [2]",
   "sources": [
-    "it_helpdesk_faq.txt",
-    "sla_p1_2026.txt"
+    "sla_p1_2026.txt",
+    "policy_refund_v4.txt",
+    "it_helpdesk_faq.txt"
   ],
-  "confidence": 0.72,
+  "confidence": 0.69,
   "history": [
     "[supervisor] received task: Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?",
     "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-    "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
-    "[synthesis_worker] answer generated, confidence=0.72, sources=['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
-    "[graph] completed in 7442ms"
+    "[retrieval_worker] retrieved 5 chunks from ['sla_p1_2026.txt', 'policy_refund_v4.txt', 'it_helpdesk_faq.txt']",
+    "[synthesis_worker] answer generated, confidence=0.69, sources=['sla_p1_2026.txt', 'policy_refund_v4.txt', 'it_helpdesk_faq.txt']",
+    "[graph] completed in 8201ms"
   ],
   "workers_called": [
     "retrieval_worker",
     "synthesis_worker"
   ],
   "supervisor_route": "retrieval_worker",
-  "latency_ms": 7442,
-  "run_id": "run_20260414_161101",
+  "latency_ms": 8201,
+  "run_id": "run_20260414_165532",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
-          "it_helpdesk_faq.txt",
-          "sla_p1_2026.txt"
+          "sla_p1_2026.txt",
+          "policy_refund_v4.txt",
+          "it_helpdesk_faq.txt"
         ]
       },
       "error": null
@@ -79,16 +100,17 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": false
       },
       "output": {
-        "answer_length": 326,
+        "answer_length": 147,
         "sources": [
-          "it_helpdesk_faq.txt",
-          "sla_p1_2026.txt"
+          "sla_p1_2026.txt",
+          "policy_refund_v4.txt",
+          "it_helpdesk_faq.txt"
         ],
-        "confidence": 0.72
+        "confidence": 0.69
       },
       "error": null
     }

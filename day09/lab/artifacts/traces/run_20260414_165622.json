@@ -28,8 +28,26 @@
       "source": "policy_refund_v4.txt",
       "score": 0.7518,
       "metadata": {
+        "section": "Điều 1: Phạm vi áp dụng",
+        "source": "policy_refund_v4.txt"
+      }
+    },
+    {
+      "text": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền\nBước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category \"Refund Request\".\nBước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.\nBước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\nBước 4: Finance Team xử lý trong 3-5 ngày làm việc và thông báo kết quả cho khách hàng.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.7029,
+      "metadata": {
         "source": "policy_refund_v4.txt",
-        "section": "Điều 1: Phạm vi áp dụng"
+        "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền"
+      }
+    },
+    {
+      "text": "Điều 5: Hình thức hoàn tiền\n- Hoàn tiền qua phương thức thanh toán gốc: áp dụng trong 100% trường hợp đủ điều kiện.\n- Hoàn tiền qua credit nội bộ (store credit): khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.6991,
+      "metadata": {
+        "section": "Điều 5: Hình thức hoàn tiền",
+        "source": "policy_refund_v4.txt"
       }
     }
   ],
@@ -76,18 +94,18 @@
     "access_control_info": null
   },
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n\n[Nguon: policy_refund_v4.txt]",
+  "final_answer": "Khách hàng có thể được hoàn tiền trong trường hợp này. Dưới đây là phân tích:\n\n1. **Thời gian yêu cầu hoàn tiền**: Khách hàng yêu cầu hoàn tiền vào ngày 07/02/2026, trong vòng 7 ngày kể từ ngày đặt hàng (31/01/2026). Điều này đáp ứng điều kiện yêu cầu hoàn tiền [2].\n\n2. **Tình trạng sản phẩm**: Sản phẩm bị lỗi do nhà sản xuất, chưa kích hoạt và không thuộc danh mục hàng kỹ thuật số. Điều này cũng đáp ứng điều kiện hoàn tiền [2].\n\nDo đó, khách hàng đủ điều kiện để được hoàn tiền. \n\nNguồn: [1], [2].",
   "sources": [
     "policy_refund_v4.txt"
   ],
-  "confidence": 0.61,
+  "confidence": 0.59,
   "history": [
     "[supervisor] received task: Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩ",
     "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-    "[retrieval_worker] retrieved 3 chunks from ['policy_refund_v4.txt']",
+    "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt']",
     "[policy_tool_worker] policy_applies=False, policy=refund_policy_v4, exceptions=3, mcp_calls=0",
-    "[synthesis_worker] answer generated, confidence=0.61, sources=['policy_refund_v4.txt']",
-    "[graph] completed in 6928ms"
+    "[synthesis_worker] answer generated, confidence=0.59, sources=['policy_refund_v4.txt']",
+    "[graph] completed in 10032ms"
   ],
   "workers_called": [
     "retrieval_worker",
@@ -95,17 +113,17 @@
     "synthesis_worker"
   ],
   "supervisor_route": "policy_tool_worker",
-  "latency_ms": 6928,
-  "run_id": "run_20260414_161520",
+  "latency_ms": 10032,
+  "run_id": "run_20260414_165622",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
           "policy_refund_v4.txt"
         ]
@@ -116,7 +134,7 @@
       "worker": "policy_tool_worker",
       "input": {
         "task": "Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "needs_tool": true
       },
       "output": {
@@ -133,15 +151,15 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": true
       },
       "output": {
-        "answer_length": 449,
+        "answer_length": 502,
         "sources": [
           "policy_refund_v4.txt"
         ],
-        "confidence": 0.61
+        "confidence": 0.59
       },
       "error": null
     }

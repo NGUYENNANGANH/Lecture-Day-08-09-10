@@ -10,8 +10,8 @@
       "source": "policy_refund_v4.txt",
       "score": 0.7325,
       "metadata": {
-        "source": "policy_refund_v4.txt",
-        "section": "Điều 5: Hình thức hoàn tiền"
+        "section": "Điều 5: Hình thức hoàn tiền",
+        "source": "policy_refund_v4.txt"
       }
     },
     {
@@ -19,8 +19,8 @@
       "source": "policy_refund_v4.txt",
       "score": 0.591,
       "metadata": {
-        "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
-        "source": "policy_refund_v4.txt"
+        "source": "policy_refund_v4.txt",
+        "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
       }
     },
     {
@@ -28,13 +28,32 @@
       "source": "policy_refund_v4.txt",
       "score": 0.5519,
       "metadata": {
-        "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền",
+        "source": "policy_refund_v4.txt",
+        "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền"
+      }
+    },
+    {
+      "text": "Điều 2: Điều kiện được hoàn tiền\nKhách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n- Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.\n- Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.\n- Đơn hàng chưa được sử dụng hoặc chưa bị mở seal.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.5375,
+      "metadata": {
+        "section": "Điều 2: Điều kiện được hoàn tiền",
         "source": "policy_refund_v4.txt"
+      }
+    },
+    {
+      "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+      "source": "access_control_sop.txt",
+      "score": 0.5285,
+      "metadata": {
+        "source": "access_control_sop.txt",
+        "section": "Section 1: Phạm vi và mục đích"
       }
     }
   ],
   "retrieved_sources": [
-    "policy_refund_v4.txt"
+    "policy_refund_v4.txt",
+    "access_control_sop.txt"
   ],
   "policy_result": {
     "policy_applies": false,
@@ -60,34 +79,35 @@
       }
     ],
     "source": [
-      "policy_refund_v4.txt"
+      "policy_refund_v4.txt",
+      "access_control_sop.txt"
     ],
     "policy_version_note": "",
     "explanation": "Phát hiện 3 ngoại lệ: flash_sale_exception, digital_product_exception, activated_product_exception",
     "refund_eligibility": {
       "conditions_met": [
+        "Sản phẩm bị lỗi do nhà sản xuất",
         "Yêu cầu trong thời hạn 7 ngày làm việc"
       ],
-      "conditions_missing": [
-        "Chưa xác nhận sản phẩm bị lỗi do nhà sản xuất"
-      ],
-      "all_met": false
+      "conditions_missing": [],
+      "all_met": true
     },
     "access_control_info": null
   },
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Điều 5: Hình thức hoàn tiền\n- - Hoàn tiền qua phương thức thanh toán gốc: áp dụng trong 100% trường hợp đủ điều kiện.\n- - Hoàn tiền qua credit nội bộ (store credit): khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn.\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\n[Nguon: policy_refund_v4.txt]",
+  "final_answer": "Store credit khi hoàn tiền có giá trị 110% so với số tiền gốc. Khách hàng có thể chọn nhận store credit thay thế trong trường hợp đủ điều kiện hoàn tiền [1].",
   "sources": [
-    "policy_refund_v4.txt"
+    "policy_refund_v4.txt",
+    "access_control_sop.txt"
   ],
-  "confidence": 0.48,
+  "confidence": 0.44,
   "history": [
     "[supervisor] received task: Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
     "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-    "[retrieval_worker] retrieved 3 chunks from ['policy_refund_v4.txt']",
+    "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'access_control_sop.txt']",
     "[policy_tool_worker] policy_applies=False, policy=refund_policy_v4, exceptions=3, mcp_calls=0",
-    "[synthesis_worker] answer generated, confidence=0.48, sources=['policy_refund_v4.txt']",
-    "[graph] completed in 6266ms"
+    "[synthesis_worker] answer generated, confidence=0.44, sources=['policy_refund_v4.txt', 'access_control_sop.txt']",
+    "[graph] completed in 8796ms"
   ],
   "workers_called": [
     "retrieval_worker",
@@ -95,19 +115,20 @@
     "synthesis_worker"
   ],
   "supervisor_route": "policy_tool_worker",
-  "latency_ms": 6266,
-  "run_id": "run_20260414_161507",
+  "latency_ms": 8796,
+  "run_id": "run_20260414_165605",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
-          "policy_refund_v4.txt"
+          "policy_refund_v4.txt",
+          "access_control_sop.txt"
         ]
       },
       "error": null
@@ -116,7 +137,7 @@
       "worker": "policy_tool_worker",
       "input": {
         "task": "Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "needs_tool": true
       },
       "output": {
@@ -133,15 +154,16 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": true
       },
       "output": {
-        "answer_length": 457,
+        "answer_length": 157,
         "sources": [
-          "policy_refund_v4.txt"
+          "policy_refund_v4.txt",
+          "access_control_sop.txt"
         ],
-        "confidence": 0.48
+        "confidence": 0.44
       },
       "error": null
     }

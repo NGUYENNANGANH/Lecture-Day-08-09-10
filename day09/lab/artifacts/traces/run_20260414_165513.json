@@ -19,8 +19,8 @@
       "source": "it_helpdesk_faq.txt",
       "score": 0.6647,
       "metadata": {
-        "source": "it_helpdesk_faq.txt",
-        "section": "Section 1: Tài khoản và mật khẩu"
+        "section": "Section 1: Tài khoản và mật khẩu",
+        "source": "it_helpdesk_faq.txt"
       }
     },
     {
@@ -31,46 +31,64 @@
         "source": "policy_refund_v4.txt",
         "section": "Điều 2: Điều kiện được hoàn tiền"
       }
+    },
+    {
+      "text": "Section 4: Thiết bị và phần cứng\nQ: Laptop mới được cấp sau bao lâu khi vào công ty?\nA: Laptop được cấp trong ngày onboarding đầu tiên. Nếu có vấn đề, liên hệ HR hoặc IT Admin.\n\nQ: Laptop bị hỏng phải báo cáo như thế nào?\nA: Tạo ticket P2 hoặc P3 tùy mức độ nghiêm trọng. Mang thiết bị đến IT Room (tầng 3) để kiểm tra.",
+      "source": "it_helpdesk_faq.txt",
+      "score": 0.6265,
+      "metadata": {
+        "section": "Section 4: Thiết bị và phần cứng",
+        "source": "it_helpdesk_faq.txt"
+      }
+    },
+    {
+      "text": "Điều 1: Phạm vi áp dụng\nChính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\nCác đơn hàng đặt trước ngày có hiệu lực sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.6107,
+      "metadata": {
+        "section": "Điều 1: Phạm vi áp dụng",
+        "source": "policy_refund_v4.txt"
+      }
     }
   ],
   "retrieved_sources": [
-    "it_helpdesk_faq.txt",
-    "policy_refund_v4.txt"
+    "policy_refund_v4.txt",
+    "it_helpdesk_faq.txt"
   ],
   "policy_result": {},
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n\n[Nguon: it_helpdesk_faq.txt, policy_refund_v4.txt]",
+  "final_answer": "Tài khoản bị khóa sau 5 lần đăng nhập sai liên tiếp. Để mở khóa, bạn có thể liên hệ IT Helpdesk hoặc tự reset qua portal SSO [2].",
   "sources": [
-    "it_helpdesk_faq.txt",
-    "policy_refund_v4.txt"
+    "policy_refund_v4.txt",
+    "it_helpdesk_faq.txt"
   ],
-  "confidence": 0.66,
+  "confidence": 0.64,
   "history": [
     "[supervisor] received task: Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
     "[supervisor] route=retrieval_worker reason=default fallback route -> retrieval_worker.",
-    "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'policy_refund_v4.txt']",
-    "[synthesis_worker] answer generated, confidence=0.66, sources=['it_helpdesk_faq.txt', 'policy_refund_v4.txt']",
-    "[graph] completed in 6081ms"
+    "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'it_helpdesk_faq.txt']",
+    "[synthesis_worker] answer generated, confidence=0.64, sources=['policy_refund_v4.txt', 'it_helpdesk_faq.txt']",
+    "[graph] completed in 8708ms"
   ],
   "workers_called": [
     "retrieval_worker",
     "synthesis_worker"
   ],
   "supervisor_route": "retrieval_worker",
-  "latency_ms": 6081,
-  "run_id": "run_20260414_161429",
+  "latency_ms": 8708,
+  "run_id": "run_20260414_165513",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
-          "it_helpdesk_faq.txt",
-          "policy_refund_v4.txt"
+          "policy_refund_v4.txt",
+          "it_helpdesk_faq.txt"
         ]
       },
       "error": null
@@ -79,16 +97,16 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": false
       },
       "output": {
-        "answer_length": 470,
+        "answer_length": 129,
         "sources": [
-          "it_helpdesk_faq.txt",
-          "policy_refund_v4.txt"
+          "policy_refund_v4.txt",
+          "it_helpdesk_faq.txt"
         ],
-        "confidence": 0.66
+        "confidence": 0.64
       },
       "error": null
     }
