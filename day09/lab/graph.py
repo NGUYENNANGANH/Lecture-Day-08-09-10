@@ -13,14 +13,15 @@ import json
 import os
 import time
 from datetime import datetime
+
 from dotenv import load_dotenv
 
 load_dotenv()  # Load .env file (OPENAI_API_KEY, etc.)
 from typing import Literal, Optional, TypedDict
-from mcp_server import clear_call_log, get_call_log
 
 # LangGraph library
 from langgraph.graph import END, StateGraph
+from mcp_server import clear_call_log, get_call_log
 
 # ─────────────────────────────────────────────
 # 1. Shared State
@@ -107,6 +108,14 @@ def supervisor_node(state: AgentState) -> AgentState:
         risk_high = True
 
     # Logic định tuyến
+    # Multi-signal detection cho SLA + notification detail
+    notification_keywords = ["thông báo", "notification", "kênh", "notify", "channel"]
+    sla_detail_keywords = ["p1", "sla", "ticket"]
+
+    needs_ticket_detail = any(kw in task for kw in sla_detail_keywords) and any(
+        kw in task for kw in notification_keywords
+    )
+
     if any(kw in task for kw in policy_keywords):
         route = "policy_tool_worker"
         needs_tool = True
@@ -114,6 +123,10 @@ def supervisor_node(state: AgentState) -> AgentState:
             f"Task contains policy/access keywords -> policy_tool_worker "
             f"[MCP: will use dispatch_tool(search_kb + check_access_permission)]"
         )
+    elif needs_ticket_detail:
+        route = "policy_tool_worker"
+        route_reason = "Task needs SLA notification detail -> policy_tool_worker (MCP: get_ticket_info)"
+        needs_tool = True
     elif any(kw in task for kw in retrieval_keywords):
         route = "retrieval_worker"
         route_reason = (
@@ -245,7 +258,7 @@ _graph = build_graph()
 
 
 def run_graph(task: str) -> AgentState:
-    clear_call_log()           # reset trước mỗi run
+    clear_call_log()  # reset trước mỗi run
     state = make_initial_state(task)
     start_time = time.time()
 
