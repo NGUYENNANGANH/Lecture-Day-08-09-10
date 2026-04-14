@@ -102,18 +102,26 @@ def supervisor_node(state: AgentState) -> AgentState:
     # Logic định tuyến
     if any(kw in task for kw in policy_keywords):
         route = "policy_tool_worker"
-        route_reason = f"Task contains policy/access keywords -> policy_tool_worker."
         needs_tool = True
+        route_reason = (
+            f"Task contains policy/access keywords -> policy_tool_worker "
+            f"[MCP: will use dispatch_tool(search_kb + check_access_permission)]"
+        )
     elif any(kw in task for kw in retrieval_keywords):
         route = "retrieval_worker"
         route_reason = (
-            f"Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker."
+            f"Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker "
+            f"[MCP: not needed, direct ChromaDB retrieval]"
         )
 
     # Override: Mã lỗi không rõ + risk_high -> HITL
     if "err-" in task and risk_high:
         route = "human_review"
-        route_reason = "Unknown error code detected + high risk -> human_review."
+        needs_tool = False
+        route_reason = (
+            "Unknown error code detected + high risk -> human_review "
+            "[MCP: suspended, awaiting human approval]"
+        )
 
     # Cập nhật trạng thái
     state["supervisor_route"] = route
