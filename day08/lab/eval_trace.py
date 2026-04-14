@@ -1,32 +1,39 @@
 """
-eval_trace.py — Quality & Trace Analyst Module (M5)
-=====================================================
-Hệ thống tracing & evaluation cho RAG pipeline.
+eval_trace.py — Sprint 2: Production-Level Eval & Trace System (M5)
+=====================================================================
+Hệ thống tracing & evaluation nâng cấp cho RAG pipeline.
 
-Mục tiêu:
-  - Log chi tiết mỗi bước: retrieve → generate → evaluate
-  - Ghi lại: input query, retrieved chunks, scores, answer, latency
-  - Hỗ trợ debug: trace failure mode, so sánh A/B
-  - Output: structured JSON traces + markdown summary
+Sprint 2 Upgrades vs Sprint 1:
+  ✓ Full chunk text logging (not just preview)
+  ✓ Full prompt sent to LLM
+  ✓ Per-step latency (embed → retrieve → generate → score)
+  ✓ Precision@K metric
+  ✓ Enhanced failure mode with root-cause layer
+  ✓ Ground truth comparison
+  ✓ CSV export for spreadsheet analysis
+  ✓ Edge case handling (empty query, pipeline errors)
 
 Cách chạy:
-  python eval_trace.py                          # Chạy batch test 10 câu (dense)
-  python eval_trace.py --mode hybrid            # Chạy batch test (hybrid)
+  python eval_trace.py                          # Batch test 10 câu (dense)
+  python eval_trace.py --mode hybrid            # Batch test (hybrid)
   python eval_trace.py --query "SLA P1?"        # Chạy 1 câu
-  python eval_trace.py --ab                     # A/B comparison traces
+  python eval_trace.py --ab                     # A/B comparison
   python eval_trace.py --grading                # Trace grading questions
+  python eval_trace.py --extended               # Chạy extended test set (20 câu)
 
-Author: Quality & Trace Analyst (M5)
+Author: Quality & Trace Analyst (M5) — Sprint 2
 """
 
+import csv
 import json
 import os
-import sys
+import re
 import time
 import argparse
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
     from dotenv import load_dotenv
@@ -42,46 +49,91 @@ if load_dotenv is not None:
 
 LAB_DIR = Path(__file__).parent
 TEST_QUESTIONS_PATH = LAB_DIR / "data" / "test_questions.json"
+EXTENDED_QUESTIONS_PATH = LAB_DIR / "data" / "extended_test_questions.json"
 GRADING_QUESTIONS_PATH = LAB_DIR / "data" / "grading.json"
 TRACES_DIR = LAB_DIR / "logs" / "traces"
+RESULTS_DIR = LAB_DIR / "results"
 
-# Giới hạn preview text để trace không quá lớn
-TEXT_PREVIEW_MAX = 200
-PROMPT_PREVIEW_MAX = 500
+# Sprint 2: Không giới hạn text — log full nội dung chunk + prompt
+CHUNK_TEXT_FULL = True  # True = log full text, False = preview 200 chars
 
 
 # =============================================================================
-# TRACE DATA STRUCTURES
+# HELPERS
 # =============================================================================
 
 
 def _now_iso() -> str:
-    """Timestamp ISO format."""
     return datetime.now().isoformat()
 
 
 def _generate_trace_id(query_id: str, mode: str) -> str:
-    """Tạo trace ID unique."""
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     return f"trace_{query_id}_{mode}_{ts}"
 
 
-def _truncate(text: str, max_len: int) -> str:
-    """Cắt text dài cho log gọn."""
+def _truncate(text: str, max_len: int = 200) -> str:
     if not text:
         return ""
-    if len(text) <= max_len:
-        return text
-    return text[:max_len] + "..."
+    return text if len(text) <= max_len else text[:max_len] + "..."
 
 
 def _estimate_tokens(text: str) -> int:
-    """Ước lượng số tokens (1 token ~ 4 ký tự)."""
     return len(text) // 4 if text else 0
 
 
+def _safe_get_score(eval_dict: Any, metric: str) -> Any:
+    """Safely extract score from nested evaluation dict."""
+    if not isinstance(eval_dict, dict):
+        return None
+    m = eval_dict.get(metric)
+    if isinstance(m, dict):
+        return m.get("score")
+    return None
+
+
 # =============================================================================
-# CORE TRACE FUNCTION
+# PRECISION@K — Sprint 2 new metric
+# =============================================================================
+
+
+def compute_precision_at_k(
+    chunks_used: List[Dict[str, Any]],
+    expected_sources: List[str],
+    k: int = 3,
+) -> Dict[str, Any]:
+    """
+    Precision@K: Trong top-K chunks đã chọn, bao nhiêu chunk là relevant?
+
+    Relevant = chunk có source khớp với expected_sources.
+
+    Precision@3 = relevant_chunks_in_top3 / 3
+    """
+    if not expected_sources:
+        return {"precision": None, "relevant_count": 0, "k": k, "notes": "No expected sources"}
+
+    expected_clean = set()
+    for s in expected_sources:
+        expected_clean.add(s.split("/")[-1].split(".")[0].lower())
+
+    top_k = chunks_used[:k]
+    relevant = 0
+    for chunk in top_k:
+        src = chunk.get("metadata", {}).get("source", "").lower()
+        if any(e in src for e in expected_clean):
+            relevant += 1
+
+    precision = relevant / k if k > 0 else 0
+    return {
+        "precision": round(precision, 4),
+        "relevant_count": relevant,
+        "k": k,
+        "notes": f"{relevant}/{k} chunks relevant in top-{k}",
+    }
+
+
+# =============================================================================
+# CORE TRACE FUNCTION — Sprint 2 Enhanced
 # =============================================================================
 
 
@@ -101,21 +153,38 @@ def trace_single_query(
     """
     Chạy 1 query qua RAG pipeline và ghi trace chi tiết.
 
-    Returns:
-        Dict trace hoàn chỉnh với tất cả thông tin debug.
+    Sprint 2 enhancements:
+      - Full chunk text (not truncated)
+      - Full prompt sent to LLM
+      - Separate timing: retrieval_ms, generation_ms, scoring_ms
+      - Precision@K metric
+      - Root-cause failure layer identification
+      - Ground truth vs actual comparison
     """
-    from rag_answer import rag_answer, build_context_block, build_grounded_prompt
+    # Lazy imports — chỉ import khi cần để tránh lỗi circular
+    from rag_answer import (
+        rag_answer,
+        build_context_block,
+        build_grounded_prompt,
+        retrieve_dense,
+        retrieve_hybrid,
+        retrieve_sparse,
+    )
 
     if expected_sources is None:
         expected_sources = []
 
+    # ─── Initialize trace structure ───
     trace = {
         "trace_id": _generate_trace_id(query_id, retrieval_mode),
         "timestamp": _now_iso(),
+        "sprint": 2,
+        # --- Input ---
         "input": {
             "query": query,
             "query_id": query_id,
         },
+        # --- Config snapshot ---
         "config": {
             "retrieval_mode": retrieval_mode,
             "top_k_search": top_k_search,
@@ -124,79 +193,96 @@ def trace_single_query(
             "llm_model": os.getenv("LLM_MODEL", "gpt-4o-mini"),
             "embedding_model": "text-embedding-3-small",
             "temperature": 0,
+            "max_tokens": 512,
         },
+        # --- Retrieval trace ---
         "retrieval": {
-            "candidates_count": 0,
+            "all_candidates_count": 0,
             "selected_count": 0,
-            "chunks": [],
+            "all_candidates": [],   # Sprint 2: top-K candidates BEFORE select
+            "selected_chunks": [],  # Sprint 2: final chunks sent to LLM
         },
+        # --- Generation trace ---
         "generation": {
-            "prompt_preview": "",
+            "full_prompt": "",      # Sprint 2: FULL prompt (not truncated)
             "prompt_tokens_est": 0,
+            "context_block": "",    # Sprint 2: raw context block
             "answer": "",
             "sources_cited": [],
         },
+        # --- Evaluation ---
         "evaluation": {
             "faithfulness": None,
             "relevance": None,
             "context_recall": None,
             "completeness": None,
+            "precision_at_k": None,  # Sprint 2: new metric
+            "overall_score": None,
             "overall_pass": None,
             "failure_mode": None,
+            "failure_layer": None,   # Sprint 2: index/retrieval/generation
         },
+        # --- Latency breakdown ---
         "latency": {
             "retrieval_ms": 0,
             "generation_ms": 0,
             "scoring_ms": 0,
             "total_ms": 0,
         },
+        # --- Ground truth ---
         "expected": {
             "answer": expected_answer,
             "sources": expected_sources,
             "difficulty": difficulty,
             "category": category,
         },
+        # --- Comparison ---
+        "comparison": {
+            "answer_matches_expected": None,
+            "sources_match": None,
+            "key_facts_found": [],
+            "key_facts_missing": [],
+        },
     }
 
     total_start = time.time()
 
-    # ─── STEP 1: RETRIEVAL ───
     if verbose:
-        print(f"\n{'─'*60}")
+        print(f"\n{'─'*70}")
         print(f"🔍 [{query_id}] {query}")
-        print(f"   Config: mode={retrieval_mode}, top_k={top_k_search}→{top_k_select}")
+        print(f"   ⚙️  mode={retrieval_mode} | search_k={top_k_search} | select_k={top_k_select}")
 
+    # ===================== STEP 1: RETRIEVAL =====================
     retrieval_start = time.time()
 
     try:
-        # Gọi pipeline
-        result = rag_answer(
-            query=query,
-            retrieval_mode=retrieval_mode,
-            top_k_search=top_k_search,
-            top_k_select=top_k_select,
-            use_rerank=use_rerank,
-            verbose=False,
-        )
+        # --- 1a: Get ALL candidates (before select/rerank) ---
+        if retrieval_mode == "dense":
+            all_candidates = retrieve_dense(query, top_k=top_k_search)
+        elif retrieval_mode == "sparse":
+            all_candidates = retrieve_sparse(query, top_k=top_k_search)
+        elif retrieval_mode == "hybrid":
+            all_candidates = retrieve_hybrid(query, top_k=top_k_search)
+        else:
+            raise ValueError(f"Invalid retrieval_mode: {retrieval_mode}")
 
-        retrieval_end = time.time()
-        retrieval_ms = (retrieval_end - retrieval_start) * 1000
+        retrieval_ms = (time.time() - retrieval_start) * 1000
 
-        answer = result["answer"]
-        chunks_used = result["chunks_used"]
-        sources = result["sources"]
+        # --- 1b: Select top-k ---
+        selected_chunks = all_candidates[:top_k_select]
 
-        # ─── TRACE: Retrieval Details ───
-        trace["retrieval"]["candidates_count"] = top_k_search
-        trace["retrieval"]["selected_count"] = len(chunks_used)
+        # --- Trace ALL candidates (Sprint 2: full ranking visibility) ---
+        trace["retrieval"]["all_candidates_count"] = len(all_candidates)
+        trace["retrieval"]["selected_count"] = len(selected_chunks)
 
-        for rank, chunk in enumerate(chunks_used, 1):
+        for rank, chunk in enumerate(all_candidates, 1):
             meta = chunk.get("metadata", {})
-            chunk_trace = {
+            candidate_trace = {
                 "rank": rank,
-                "score": round(chunk.get("score", 0), 4),
-                "text_preview": _truncate(chunk.get("text", ""), TEXT_PREVIEW_MAX),
-                "text_length": len(chunk.get("text", "")),
+                "selected": rank <= top_k_select,
+                "score": round(chunk.get("score", 0), 6),
+                "text": chunk.get("text", "") if CHUNK_TEXT_FULL else _truncate(chunk.get("text", "")),
+                "text_length_chars": len(chunk.get("text", "")),
                 "metadata": {
                     "source": meta.get("source", "unknown"),
                     "section": meta.get("section", ""),
@@ -205,51 +291,73 @@ def trace_single_query(
                     "access": meta.get("access", "internal"),
                 },
             }
-            trace["retrieval"]["chunks"].append(chunk_trace)
+            trace["retrieval"]["all_candidates"].append(candidate_trace)
 
-        # ─── TRACE: Generation Details ───
-        # Rebuild prompt để trace (vì rag_answer() không return prompt)
-        context_block = build_context_block(chunks_used)
-        prompt = build_grounded_prompt(query, context_block)
-
-        generation_start = time.time()
-        # Generation đã xảy ra trong rag_answer(), ước tính thời gian
-        generation_ms = retrieval_ms * 0.2  # rough estimate
-        actual_gen_ms = (time.time() - retrieval_start) * 1000 - retrieval_ms
-
-        trace["generation"]["prompt_preview"] = _truncate(prompt, PROMPT_PREVIEW_MAX)
-        trace["generation"]["prompt_tokens_est"] = _estimate_tokens(prompt)
-        trace["generation"]["answer"] = answer
-        trace["generation"]["sources_cited"] = sources
-
-        trace["latency"]["retrieval_ms"] = round(retrieval_ms, 1)
-        trace["latency"]["generation_ms"] = round(
-            max(actual_gen_ms, retrieval_ms), 1
-        )
+        # Selected chunks separately for quick access
+        for rank, chunk in enumerate(selected_chunks, 1):
+            meta = chunk.get("metadata", {})
+            trace["retrieval"]["selected_chunks"].append({
+                "rank": rank,
+                "score": round(chunk.get("score", 0), 6),
+                "source": meta.get("source", "unknown"),
+                "section": meta.get("section", ""),
+                "text_preview": _truncate(chunk.get("text", ""), 150),
+            })
 
         if verbose:
-            print(f"   📄 Retrieved: {len(chunks_used)} chunks")
-            for i, c in enumerate(chunks_used):
+            print(f"   📄 Retrieved {len(all_candidates)} candidates → selected {len(selected_chunks)}")
+            for i, c in enumerate(selected_chunks):
                 src = c.get("metadata", {}).get("source", "?")
                 sec = c.get("metadata", {}).get("section", "?")
                 score = c.get("score", 0)
                 print(f"      [{i+1}] score={score:.4f} | {src} | {sec}")
-            print(f"   💬 Answer: {_truncate(answer, 120)}")
 
-    except Exception as e:
-        retrieval_ms = (time.time() - retrieval_start) * 1000
-        trace["generation"]["answer"] = f"PIPELINE_ERROR: {str(e)}"
-        trace["evaluation"]["failure_mode"] = "pipeline_error"
+        # ===================== STEP 2: GENERATION =====================
+        generation_start = time.time()
+
+        # Build context and prompt
+        context_block = build_context_block(selected_chunks)
+        full_prompt = build_grounded_prompt(query, context_block)
+
+        # Call LLM
+        from rag_answer import call_llm
+        answer = call_llm(full_prompt)
+
+        generation_ms = (time.time() - generation_start) * 1000
+
+        # Extract cited sources
+        sources = list({c["metadata"].get("source", "unknown") for c in selected_chunks})
+
+        # --- Trace generation ---
+        trace["generation"]["full_prompt"] = full_prompt
+        trace["generation"]["prompt_tokens_est"] = _estimate_tokens(full_prompt)
+        trace["generation"]["context_block"] = context_block
+        trace["generation"]["answer"] = answer
+        trace["generation"]["sources_cited"] = sources
+
         trace["latency"]["retrieval_ms"] = round(retrieval_ms, 1)
+        trace["latency"]["generation_ms"] = round(generation_ms, 1)
 
         if verbose:
-            print(f"   ❌ Error: {e}")
+            print(f"   💬 Answer: {_truncate(answer, 120)}")
+            print(f"   📎 Sources: {sources}")
+
+    except Exception as e:
+        elapsed = (time.time() - retrieval_start) * 1000
+        trace["generation"]["answer"] = f"PIPELINE_ERROR: {str(e)}"
+        trace["evaluation"]["failure_mode"] = "pipeline_error"
+        trace["evaluation"]["failure_layer"] = "system"
+        trace["latency"]["retrieval_ms"] = round(elapsed, 1)
+
+        if verbose:
+            print(f"   ❌ Pipeline Error: {e}")
 
         answer = ""
-        chunks_used = []
+        selected_chunks = []
+        all_candidates = []
         sources = []
 
-    # ─── STEP 2: SCORING ───
+    # ===================== STEP 3: SCORING =====================
     scoring_start = time.time()
 
     try:
@@ -261,40 +369,55 @@ def trace_single_query(
         )
 
         if answer and "PIPELINE_ERROR" not in answer:
-            faith = score_faithfulness(answer, chunks_used)
+            faith = score_faithfulness(answer, selected_chunks)
             relev = score_answer_relevance(query, answer)
-            recall = score_context_recall(chunks_used, expected_sources)
+            recall = score_context_recall(selected_chunks, expected_sources)
             compl = score_completeness(query, answer, expected_answer)
+            prec = compute_precision_at_k(selected_chunks, expected_sources, k=top_k_select)
 
             trace["evaluation"]["faithfulness"] = faith
             trace["evaluation"]["relevance"] = relev
             trace["evaluation"]["context_recall"] = recall
             trace["evaluation"]["completeness"] = compl
+            trace["evaluation"]["precision_at_k"] = prec
 
-            # Determine overall pass/fail
-            scores = [
-                faith.get("score"),
-                relev.get("score"),
-                recall.get("score"),
-                compl.get("score"),
+            # Overall score
+            valid_scores = [
+                s for s in [
+                    faith.get("score"),
+                    relev.get("score"),
+                    recall.get("score"),
+                    compl.get("score"),
+                ] if s is not None
             ]
-            valid_scores = [s for s in scores if s is not None]
-            avg_score = sum(valid_scores) / len(valid_scores) if valid_scores else 0
-            trace["evaluation"]["overall_pass"] = avg_score >= 3.5
+            avg = sum(valid_scores) / len(valid_scores) if valid_scores else 0
+            trace["evaluation"]["overall_score"] = round(avg, 2)
+            trace["evaluation"]["overall_pass"] = avg >= 3.5
 
-            # Classify failure mode
-            trace["evaluation"]["failure_mode"] = _classify_failure_mode(
-                answer, chunks_used, faith, relev, recall, compl, expected_answer
+            # Failure classification
+            fm, fl = _classify_failure_v2(
+                answer, selected_chunks, all_candidates,
+                faith, relev, recall, compl, expected_answer, expected_sources
+            )
+            trace["evaluation"]["failure_mode"] = fm
+            trace["evaluation"]["failure_layer"] = fl
+
+            # Ground truth comparison
+            trace["comparison"] = _compare_with_ground_truth(
+                answer, expected_answer, sources, expected_sources
             )
 
             if verbose:
-                print(
-                    f"   📊 F={faith.get('score','?')} | R={relev.get('score','?')} "
-                    f"| Rc={recall.get('score','?')} | C={compl.get('score','?')}"
-                )
-                fm = trace["evaluation"]["failure_mode"]
+                f_s = faith.get("score", "?")
+                r_s = relev.get("score", "?")
+                rc_s = recall.get("score", "?")
+                c_s = compl.get("score", "?")
+                p_s = prec.get("precision", "?")
+                print(f"   📊 Scores: F={f_s} R={r_s} Rc={rc_s} C={c_s} P@K={p_s}")
                 if fm:
-                    print(f"   ⚠️  Failure mode: {fm}")
+                    print(f"   ⚠️  Failure: {fm} (layer: {fl})")
+                status = "✅ PASS" if avg >= 3.5 else "❌ FAIL"
+                print(f"   {status} (avg={avg:.2f})")
 
     except Exception as e:
         if verbose:
@@ -307,64 +430,132 @@ def trace_single_query(
     trace["latency"]["total_ms"] = round(total_ms, 1)
 
     if verbose:
-        print(f"   ⏱️  Latency: {total_ms:.0f}ms total")
+        r_ms = trace["latency"]["retrieval_ms"]
+        g_ms = trace["latency"]["generation_ms"]
+        s_ms = trace["latency"]["scoring_ms"]
+        print(f"   ⏱️  Latency: retrieve={r_ms:.0f}ms | generate={g_ms:.0f}ms | score={s_ms:.0f}ms | total={total_ms:.0f}ms")
 
     return trace
 
 
 # =============================================================================
-# FAILURE MODE CLASSIFICATION
+# FAILURE MODE CLASSIFICATION v2 — Sprint 2
 # =============================================================================
 
 
-def _classify_failure_mode(
+def _classify_failure_v2(
     answer: str,
-    chunks_used: List[Dict],
+    selected_chunks: List[Dict],
+    all_candidates: List[Dict],
     faith: Dict,
     relev: Dict,
     recall: Dict,
     compl: Dict,
     expected_answer: str,
-) -> Optional[str]:
+    expected_sources: List[str],
+) -> Tuple[Optional[str], Optional[str]]:
     """
-    Phân loại failure mode dựa trên scores.
+    Enhanced failure classification with root-cause layer.
 
-    Failure modes:
-      - "false_abstain": Model abstain khi không nên
-      - "hallucination": Model bịa thông tin
-      - "incomplete": Thiếu thông tin quan trọng
-      - "irrelevant": Trả lời lạc đề
-      - "retrieval_miss": Không retrieve đúng source
-      - None: Không có lỗi đáng kể
+    Returns:
+        (failure_mode, failure_layer)
+        failure_layer: "index" | "retrieval" | "generation" | None
     """
     is_abstain = "không đủ dữ liệu" in answer.lower() if answer else False
-    faith_score = faith.get("score") if faith else None
-    recall_score = recall.get("score") if recall else None
-    compl_score = compl.get("score") if compl else None
-    relev_score = relev.get("score") if relev else None
+    f_score = faith.get("score") if faith else None
+    rc_score = recall.get("score") if recall else None
+    c_score = compl.get("score") if compl else None
+    r_score = relev.get("score") if relev else None
 
-    # Case 1: False abstain — abstain nhưng context recall cao
-    if is_abstain and recall_score and recall_score >= 4:
+    # 1. False abstain — context recall OK nhưng model abstain sai
+    if is_abstain and rc_score and rc_score >= 4:
         if expected_answer and "không" not in expected_answer.lower()[:30]:
-            return "false_abstain"
+            return "false_abstain", "generation"
 
-    # Case 2: Retrieval miss — expected source không được retrieve
-    if recall_score is not None and recall_score <= 2:
-        return "retrieval_miss"
+    # 2. Retrieval miss — expected source không trong candidates
+    if rc_score is not None and rc_score <= 2:
+        # Check nếu source nằm trong ALL candidates (index OK nhưng ranking miss)
+        all_sources = set()
+        for c in all_candidates:
+            all_sources.add(c.get("metadata", {}).get("source", "").lower())
 
-    # Case 3: Hallucination — faithfulness thấp
-    if faith_score and faith_score <= 2 and not is_abstain:
-        return "hallucination"
+        expected_clean = set()
+        for s in expected_sources:
+            expected_clean.add(s.split("/")[-1].split(".")[0].lower())
 
-    # Case 4: Irrelevant — relevance thấp
-    if relev_score and relev_score <= 2:
-        return "irrelevant"
+        in_candidates = any(
+            any(ec in src for ec in expected_clean)
+            for src in all_sources
+        )
 
-    # Case 5: Incomplete — completeness thấp
-    if compl_score and compl_score <= 2:
-        return "incomplete"
+        if in_candidates:
+            return "ranking_miss", "retrieval"  # Index OK, ranking bad
+        else:
+            return "retrieval_miss", "index"  # Not even in candidates → index issue
 
-    return None
+    # 3. Hallucination
+    if f_score and f_score <= 2 and not is_abstain:
+        return "hallucination", "generation"
+
+    # 4. Irrelevant answer
+    if r_score and r_score <= 2:
+        return "irrelevant", "generation"
+
+    # 5. Incomplete answer
+    if c_score and c_score <= 2:
+        return "incomplete", "generation"
+
+    return None, None
+
+
+# =============================================================================
+# GROUND TRUTH COMPARISON — Sprint 2
+# =============================================================================
+
+
+def _compare_with_ground_truth(
+    answer: str,
+    expected_answer: str,
+    actual_sources: List[str],
+    expected_sources: List[str],
+) -> Dict[str, Any]:
+    """
+    So sánh answer thực tế với ground truth.
+    Trích xuất key facts từ expected answer và kiểm tra.
+    """
+    if not expected_answer:
+        return {
+            "answer_matches_expected": None,
+            "sources_match": None,
+            "key_facts_found": [],
+            "key_facts_missing": [],
+        }
+
+    answer_lower = answer.lower() if answer else ""
+    expected_lower = expected_answer.lower()
+
+    # Extract key facts: numbers, proper nouns, technical terms
+    # Numbers (e.g., "15 phút", "4 giờ", "7 ngày", "5 lần")
+    number_patterns = re.findall(r'\d+\s*(?:phút|giờ|ngày|lần|%|tháng|tuần)', expected_lower)
+    # Key phrases (3+ word sequences excluding stopwords)
+    key_phrases = re.findall(r'[A-Za-zÀ-ỹ]{3,}(?:\s+[A-Za-zÀ-ỹ]{3,}){1,3}', expected_lower)
+
+    key_facts = list(set(number_patterns + key_phrases[:5]))  # max 5 phrases
+
+    found = [f for f in key_facts if f in answer_lower]
+    missing = [f for f in key_facts if f not in answer_lower]
+
+    # Source match
+    expected_clean = {s.split("/")[-1].split(".")[0].lower() for s in expected_sources}
+    actual_clean = {s.split("/")[-1].split(".")[0].lower() for s in actual_sources if s}
+    sources_match = expected_clean.issubset(actual_clean) if expected_clean else None
+
+    return {
+        "answer_matches_expected": len(found) / len(key_facts) if key_facts else None,
+        "sources_match": sources_match,
+        "key_facts_found": found,
+        "key_facts_missing": missing,
+    }
 
 
 # =============================================================================
@@ -377,22 +568,16 @@ def run_batch_trace(
     test_questions_path: Optional[Path] = None,
     verbose: bool = True,
 ) -> List[Dict[str, Any]]:
-    """
-    Chạy batch test và tạo traces cho tất cả câu hỏi.
-
-    Returns:
-        List of trace dicts
-    """
+    """Chạy batch test và tạo traces cho tất cả câu hỏi."""
     if test_questions_path is None:
         test_questions_path = TEST_QUESTIONS_PATH
 
     with open(test_questions_path, "r", encoding="utf-8") as f:
         questions = json.load(f)
 
-    print(f"\n{'='*60}")
-    print(f"📋 BATCH TRACE: {len(questions)} questions")
-    print(f"⚙️  Mode: {retrieval_mode}")
-    print(f"{'='*60}")
+    print(f"\n{'='*70}")
+    print(f"📋 BATCH TRACE: {len(questions)} questions | mode={retrieval_mode}")
+    print(f"{'='*70}")
 
     traces = []
     for q in questions:
@@ -408,300 +593,443 @@ def run_batch_trace(
         )
         traces.append(trace)
 
-    # Save traces
-    _save_traces(traces, f"batch_{retrieval_mode}")
+    # Save
+    json_path = _save_traces_json(traces, f"batch_{retrieval_mode}")
+    csv_path = _save_traces_csv(traces, f"batch_{retrieval_mode}")
+    md_path = _save_summary_md(traces, f"batch_{retrieval_mode}")
 
     # Print summary
-    _print_batch_summary(traces, retrieval_mode)
+    _print_results_table(traces, retrieval_mode)
 
     return traces
 
 
 def run_ab_trace(verbose: bool = True) -> Dict[str, List[Dict]]:
-    """
-    Chạy A/B comparison traces: baseline (dense) vs variant (hybrid).
+    """A/B comparison traces: baseline (dense) vs variant (hybrid)."""
+    print(f"\n{'='*70}")
+    print("🔬 A/B TRACE COMPARISON")
+    print(f"{'='*70}")
 
-    Returns:
-        Dict với keys "baseline" và "variant", mỗi key là list traces.
-    """
-    print(f"\n{'='*60}")
-    print("🔬 A/B TRACE COMPARISON: dense vs hybrid")
-    print(f"{'='*60}")
+    baseline = run_batch_trace("dense", verbose=verbose)
+    variant = run_batch_trace("hybrid", verbose=verbose)
 
-    baseline_traces = run_batch_trace("dense", verbose=verbose)
-    variant_traces = run_batch_trace("hybrid", verbose=verbose)
+    _print_ab_comparison(baseline, variant)
 
-    # Print A/B comparison
-    _print_ab_comparison(baseline_traces, variant_traces)
-
-    return {"baseline": baseline_traces, "variant": variant_traces}
+    return {"baseline": baseline, "variant": variant}
 
 
 def run_grading_trace(verbose: bool = True) -> List[Dict[str, Any]]:
-    """
-    Chạy trace cho grading questions.
-    """
+    """Trace cho grading questions."""
     if not GRADING_QUESTIONS_PATH.exists():
-        print(f"❌ Chưa có file: {GRADING_QUESTIONS_PATH}")
-        print("   File grading_questions sẽ được cung cấp riêng.")
+        print(f"❌ File not found: {GRADING_QUESTIONS_PATH}")
         return []
-
     return run_batch_trace(
-        retrieval_mode="hybrid",  # Dùng config tốt nhất
+        retrieval_mode="hybrid",
         test_questions_path=GRADING_QUESTIONS_PATH,
         verbose=verbose,
     )
 
 
+def run_extended_trace(mode: str = "dense", verbose: bool = True) -> List[Dict[str, Any]]:
+    """Chạy extended test set (20 câu bao gồm edge cases)."""
+    if not EXTENDED_QUESTIONS_PATH.exists():
+        print(f"❌ File not found: {EXTENDED_QUESTIONS_PATH}")
+        print("   Generating extended test set...")
+        _generate_extended_test_set()
+
+    return run_batch_trace(
+        retrieval_mode=mode,
+        test_questions_path=EXTENDED_QUESTIONS_PATH,
+        verbose=verbose,
+    )
+
+
 # =============================================================================
-# OUTPUT: SAVE & REPORT
+# OUTPUT: JSON / CSV / MARKDOWN
 # =============================================================================
 
 
-def _save_traces(traces: List[Dict], label: str) -> Path:
-    """Lưu traces ra JSON file."""
+def _save_traces_json(traces: List[Dict], label: str) -> Path:
+    """Lưu full traces ra JSON."""
     TRACES_DIR.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"traces_{label}_{ts}.json"
-    filepath = TRACES_DIR / filename
+    filepath = TRACES_DIR / f"traces_{label}_{ts}.json"
 
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(traces, f, ensure_ascii=False, indent=2)
 
-    print(f"\n💾 Traces saved to: {filepath}")
+    print(f"\n💾 JSON traces → {filepath}")
     return filepath
 
 
-def _print_batch_summary(traces: List[Dict], label: str) -> None:
-    """In bảng summary cho batch traces."""
-    print(f"\n{'='*70}")
-    print(f"📊 SUMMARY: {label} ({len(traces)} queries)")
-    print(f"{'='*70}")
+def _save_traces_csv(traces: List[Dict], label: str) -> Path:
+    """Sprint 2: Export traces ra CSV cho phân tích bằng spreadsheet."""
+    TRACES_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filepath = TRACES_DIR / f"traces_{label}_{ts}.csv"
 
-    # Header
-    print(
-        f"{'ID':<6} {'Category':<18} {'F':>3} {'R':>3} {'Rc':>3} {'C':>3} "
-        f"{'Pass':>5} {'Failure Mode':<18} {'ms':>6}"
-    )
-    print("─" * 70)
+    headers = [
+        "query_id", "category", "difficulty", "query",
+        "answer", "expected_answer",
+        "retrieval_mode", "candidates_count", "selected_count",
+        "top1_source", "top1_score", "top1_section",
+        "faithfulness", "relevance", "context_recall", "completeness",
+        "precision_at_k", "overall_score", "pass",
+        "failure_mode", "failure_layer",
+        "sources_match", "key_facts_found", "key_facts_missing",
+        "retrieval_ms", "generation_ms", "total_ms",
+    ]
 
-    # Per-question rows
-    total_pass = 0
-    metric_sums = {"f": 0, "r": 0, "rc": 0, "c": 0}
-    metric_counts = {"f": 0, "r": 0, "rc": 0, "c": 0}
-
+    rows = []
     for t in traces:
-        qid = t["input"]["query_id"]
-        cat = t["expected"].get("category", "?")[:16]
-        ev = t["evaluation"]
+        ev = t.get("evaluation", {})
+        comp = t.get("comparison", {})
+        lat = t.get("latency", {})
+        sel = t["retrieval"].get("selected_chunks", [])
 
-        f_score = ev.get("faithfulness", {}).get("score", "?") if ev.get("faithfulness") else "?"
-        r_score = ev.get("relevance", {}).get("score", "?") if ev.get("relevance") else "?"
-        rc_score = ev.get("context_recall", {}).get("score", "?") if ev.get("context_recall") else "?"
-        c_score = ev.get("completeness", {}).get("score", "?") if ev.get("completeness") else "?"
+        row = {
+            "query_id": t["input"]["query_id"],
+            "category": t["expected"].get("category", ""),
+            "difficulty": t["expected"].get("difficulty", ""),
+            "query": t["input"]["query"],
+            "answer": t["generation"].get("answer", "")[:300],
+            "expected_answer": t["expected"].get("answer", "")[:300],
+            "retrieval_mode": t["config"]["retrieval_mode"],
+            "candidates_count": t["retrieval"].get("all_candidates_count", 0),
+            "selected_count": t["retrieval"].get("selected_count", 0),
+            "top1_source": sel[0]["source"] if sel else "",
+            "top1_score": sel[0]["score"] if sel else "",
+            "top1_section": sel[0].get("section", "") if sel else "",
+            "faithfulness": _safe_get_score(ev, "faithfulness"),
+            "relevance": _safe_get_score(ev, "relevance"),
+            "context_recall": _safe_get_score(ev, "context_recall"),
+            "completeness": _safe_get_score(ev, "completeness"),
+            "precision_at_k": ev.get("precision_at_k", {}).get("precision") if isinstance(ev.get("precision_at_k"), dict) else None,
+            "overall_score": ev.get("overall_score"),
+            "pass": ev.get("overall_pass"),
+            "failure_mode": ev.get("failure_mode", ""),
+            "failure_layer": ev.get("failure_layer", ""),
+            "sources_match": comp.get("sources_match"),
+            "key_facts_found": len(comp.get("key_facts_found", [])),
+            "key_facts_missing": len(comp.get("key_facts_missing", [])),
+            "retrieval_ms": lat.get("retrieval_ms", 0),
+            "generation_ms": lat.get("generation_ms", 0),
+            "total_ms": lat.get("total_ms", 0),
+        }
+        rows.append(row)
 
-        passed = "✅" if ev.get("overall_pass") else "❌"
-        if ev.get("overall_pass"):
-            total_pass += 1
+    with open(filepath, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+        writer.writerows(rows)
 
-        fm = ev.get("failure_mode", "") or ""
-        latency = t["latency"].get("total_ms", 0)
-
-        print(
-            f"{qid:<6} {cat:<18} {str(f_score):>3} {str(r_score):>3} "
-            f"{str(rc_score):>3} {str(c_score):>3} {passed:>5} "
-            f"{fm:<18} {latency:>5.0f}ms"
-        )
-
-        # Accumulate for averages
-        for key, val in [("f", f_score), ("r", r_score), ("rc", rc_score), ("c", c_score)]:
-            if isinstance(val, (int, float)):
-                metric_sums[key] += val
-                metric_counts[key] += 1
-
-    # Averages
-    print("─" * 70)
-    f_avg = metric_sums["f"] / metric_counts["f"] if metric_counts["f"] else 0
-    r_avg = metric_sums["r"] / metric_counts["r"] if metric_counts["r"] else 0
-    rc_avg = metric_sums["rc"] / metric_counts["rc"] if metric_counts["rc"] else 0
-    c_avg = metric_sums["c"] / metric_counts["c"] if metric_counts["c"] else 0
-
-    print(
-        f"{'AVG':<6} {'':18} {f_avg:>3.1f} {r_avg:>3.1f} "
-        f"{rc_avg:>3.1f} {c_avg:>3.1f} "
-        f"{total_pass}/{len(traces)}"
-    )
-
-    # Failure mode distribution
-    failure_modes = [t["evaluation"].get("failure_mode") for t in traces]
-    failure_modes = [fm for fm in failure_modes if fm]
-    if failure_modes:
-        print(f"\n⚠️  Failure modes detected:")
-        from collections import Counter
-        for fm, count in Counter(failure_modes).most_common():
-            print(f"   • {fm}: {count} queries")
-
-    # Latency stats
-    latencies = [t["latency"].get("total_ms", 0) for t in traces]
-    if latencies:
-        print(f"\n⏱️  Latency: avg={sum(latencies)/len(latencies):.0f}ms, "
-              f"min={min(latencies):.0f}ms, max={max(latencies):.0f}ms")
-
-    # Generate markdown summary
-    _save_markdown_summary(traces, label)
+    print(f"📊 CSV export → {filepath}")
+    return filepath
 
 
-def _print_ab_comparison(
-    baseline_traces: List[Dict], variant_traces: List[Dict]
-) -> None:
-    """In A/B comparison table."""
-    print(f"\n{'='*70}")
-    print("🔬 A/B COMPARISON: Baseline (dense) vs Variant (hybrid)")
-    print(f"{'='*70}")
-
-    metrics = ["faithfulness", "relevance", "context_recall", "completeness"]
-
-    def _avg_metric(traces, metric):
-        scores = []
-        for t in traces:
-            ev = t.get("evaluation", {})
-            m = ev.get(metric, {})
-            if isinstance(m, dict) and m.get("score") is not None:
-                scores.append(m["score"])
-        return sum(scores) / len(scores) if scores else None
-
-    print(f"{'Metric':<20} {'Baseline':>10} {'Variant':>10} {'Delta':>8}")
-    print("─" * 55)
-
-    for metric in metrics:
-        b_avg = _avg_metric(baseline_traces, metric)
-        v_avg = _avg_metric(variant_traces, metric)
-        delta = (v_avg - b_avg) if (b_avg is not None and v_avg is not None) else None
-
-        b_str = f"{b_avg:.2f}" if b_avg is not None else "N/A"
-        v_str = f"{v_avg:.2f}" if v_avg is not None else "N/A"
-        d_str = f"{delta:+.2f}" if delta is not None else "N/A"
-        indicator = " 🔻" if (delta and delta < 0) else (" 🔺" if (delta and delta > 0) else "")
-
-        print(f"{metric:<20} {b_str:>10} {v_str:>10} {d_str:>8}{indicator}")
-
-    # Per-question comparison
-    print(f"\n{'ID':<6} {'Baseline F/R/Rc/C':<22} {'Variant F/R/Rc/C':<22} {'Winner':<10}")
-    print("─" * 65)
-
-    b_by_id = {t["input"]["query_id"]: t for t in baseline_traces}
-
-    for vt in variant_traces:
-        qid = vt["input"]["query_id"]
-        bt = b_by_id.get(qid)
-        if not bt:
-            continue
-
-        def _scores_str(t):
-            ev = t.get("evaluation", {})
-            parts = []
-            for m in metrics:
-                s = ev.get(m, {}).get("score", "?") if isinstance(ev.get(m), dict) else "?"
-                parts.append(str(s))
-            return "/".join(parts)
-
-        def _total(t):
-            ev = t.get("evaluation", {})
-            total = 0
-            for m in metrics:
-                s = ev.get(m, {}).get("score", 0) if isinstance(ev.get(m), dict) else 0
-                total += (s or 0)
-            return total
-
-        b_str = _scores_str(bt)
-        v_str = _scores_str(vt)
-        b_total = _total(bt)
-        v_total = _total(vt)
-        winner = "Variant" if v_total > b_total else ("Baseline" if b_total > v_total else "Tie")
-
-        print(f"{qid:<6} {b_str:<22} {v_str:<22} {winner:<10}")
-
-
-def _save_markdown_summary(traces: List[Dict], label: str) -> None:
-    """Tạo markdown summary report."""
+def _save_summary_md(traces: List[Dict], label: str) -> Path:
+    """Markdown summary report."""
     TRACES_DIR.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     filepath = TRACES_DIR / f"summary_{label}_{ts}.md"
 
     metrics = ["faithfulness", "relevance", "context_recall", "completeness"]
 
-    md = f"# Trace Summary: {label}\n"
-    md += f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
+    md = f"# Eval Trace Summary: {label}\n"
+    md += f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}  \n"
+    md += f"**Sprint:** 2  \n"
+    md += f"**Queries:** {len(traces)}  \n\n"
 
-    # Averages table
+    # Averages
     md += "## Average Scores\n\n"
-    md += "| Metric | Average |\n|--------|--------|\n"
+    md += "| Metric | Score | Notes |\n|--------|-------|-------|\n"
     for metric in metrics:
-        scores = []
-        for t in traces:
-            ev = t.get("evaluation", {})
-            m = ev.get(metric, {})
-            if isinstance(m, dict) and m.get("score") is not None:
-                scores.append(m["score"])
+        scores = [_safe_get_score(t["evaluation"], metric) for t in traces]
+        scores = [s for s in scores if s is not None]
         avg = sum(scores) / len(scores) if scores else None
-        avg_str = f"{avg:.2f}/5" if avg else "N/A"
-        md += f"| {metric.replace('_', ' ').title()} | {avg_str} |\n"
+        status = "✅" if (avg and avg >= 4) else ("⚠️" if (avg and avg >= 3) else "❌") if avg else "—"
+        md += f"| {metric.replace('_',' ').title()} | {f'{avg:.2f}/5' if avg else 'N/A'} | {status} |\n"
 
-    # Per-question table
+    # Per-question detail
     md += "\n## Per-Question Results\n\n"
-    md += "| ID | Category | F | R | Rc | C | Failure Mode | Latency |\n"
-    md += "|----|----------|---|---|----|----|-------------|--------|\n"
+    md += "| ID | Diff. | F | R | Rc | C | P@K | Pass | Failure | Layer | Latency |\n"
+    md += "|----|-------|---|---|----|----|-----|------|---------|-------|--------|\n"
 
     for t in traces:
-        qid = t["input"]["query_id"]
-        cat = t["expected"].get("category", "?")
         ev = t["evaluation"]
-
-        f_s = ev.get("faithfulness", {}).get("score", "?") if isinstance(ev.get("faithfulness"), dict) else "?"
-        r_s = ev.get("relevance", {}).get("score", "?") if isinstance(ev.get("relevance"), dict) else "?"
-        rc_s = ev.get("context_recall", {}).get("score", "?") if isinstance(ev.get("context_recall"), dict) else "?"
-        c_s = ev.get("completeness", {}).get("score", "?") if isinstance(ev.get("completeness"), dict) else "?"
-        fm = ev.get("failure_mode", "") or ""
+        qid = t["input"]["query_id"]
+        diff = t["expected"].get("difficulty", "?")[:4]
+        f_s = _safe_get_score(ev, "faithfulness") or "?"
+        r_s = _safe_get_score(ev, "relevance") or "?"
+        rc_s = _safe_get_score(ev, "context_recall") or "?"
+        c_s = _safe_get_score(ev, "completeness") or "?"
+        p_s = ev.get("precision_at_k", {}).get("precision", "?") if isinstance(ev.get("precision_at_k"), dict) else "?"
+        passed = "✅" if ev.get("overall_pass") else "❌"
+        fm = ev.get("failure_mode", "") or "—"
+        fl = ev.get("failure_layer", "") or "—"
         lat = t["latency"].get("total_ms", 0)
 
-        md += f"| {qid} | {cat} | {f_s} | {r_s} | {rc_s} | {c_s} | {fm} | {lat:.0f}ms |\n"
+        md += f"| {qid} | {diff} | {f_s} | {r_s} | {rc_s} | {c_s} | {p_s} | {passed} | {fm} | {fl} | {lat:.0f}ms |\n"
 
     # Failure analysis
-    failure_modes = [t["evaluation"].get("failure_mode") for t in traces if t["evaluation"].get("failure_mode")]
-    if failure_modes:
+    failures = [(t["evaluation"].get("failure_mode"), t["evaluation"].get("failure_layer"))
+                for t in traces if t["evaluation"].get("failure_mode")]
+    if failures:
         md += "\n## Failure Analysis\n\n"
-        from collections import Counter
-        for fm, count in Counter(failure_modes).most_common():
-            md += f"- **{fm}**: {count} query(s)\n"
+        layers = Counter(fl for _, fl in failures)
+        md += "### By Layer\n"
+        for layer, cnt in layers.most_common():
+            md += f"- **{layer}**: {cnt} failures\n"
+
+        modes = Counter(fm for fm, _ in failures)
+        md += "\n### By Mode\n"
+        for mode, cnt in modes.most_common():
+            md += f"- **{mode}**: {cnt} occurrences\n"
             for t in traces:
-                if t["evaluation"].get("failure_mode") == fm:
-                    md += f"  - `{t['input']['query_id']}`: {t['input']['query'][:60]}...\n"
+                if t["evaluation"].get("failure_mode") == mode:
+                    md += f"  - `{t['input']['query_id']}`: {_truncate(t['input']['query'], 50)}\n"
 
     filepath.write_text(md, encoding="utf-8")
-    print(f"📝 Summary saved to: {filepath}")
+    print(f"📝 Summary → {filepath}")
+    return filepath
 
 
 # =============================================================================
-# CONVENIENCE: Quick single query trace (for debugging)
+# CONSOLE OUTPUT
+# =============================================================================
+
+
+def _print_results_table(traces: List[Dict], label: str) -> None:
+    """Rich console table output."""
+    print(f"\n{'='*80}")
+    print(f"📊 RESULTS TABLE: {label} ({len(traces)} queries)")
+    print(f"{'='*80}")
+
+    header = (
+        f"{'ID':<6} {'Cat':<14} {'Diff':<6} "
+        f"{'F':>2} {'R':>2} {'Rc':>2} {'C':>2} {'P@K':>4} "
+        f"{'Avg':>4} {'Pass':>4} {'Failure':<16} {'Layer':<10} {'ms':>5}"
+    )
+    print(header)
+    print("─" * 80)
+
+    total_pass = 0
+    sums = {"f": 0, "r": 0, "rc": 0, "c": 0, "p": 0}
+    counts = {"f": 0, "r": 0, "rc": 0, "c": 0, "p": 0}
+
+    for t in traces:
+        ev = t["evaluation"]
+        qid = t["input"]["query_id"]
+        cat = t["expected"].get("category", "?")[:12]
+        diff = t["expected"].get("difficulty", "?")[:4]
+
+        f_s = _safe_get_score(ev, "faithfulness")
+        r_s = _safe_get_score(ev, "relevance")
+        rc_s = _safe_get_score(ev, "context_recall")
+        c_s = _safe_get_score(ev, "completeness")
+        p_s = ev.get("precision_at_k", {}).get("precision") if isinstance(ev.get("precision_at_k"), dict) else None
+        avg = ev.get("overall_score", 0) or 0
+        passed = "✅" if ev.get("overall_pass") else "❌"
+        fm = (ev.get("failure_mode") or "—")[:14]
+        fl = (ev.get("failure_layer") or "—")[:8]
+        lat = t["latency"].get("total_ms", 0)
+
+        if ev.get("overall_pass"):
+            total_pass += 1
+
+        for key, val in [("f", f_s), ("r", r_s), ("rc", rc_s), ("c", c_s), ("p", p_s)]:
+            if val is not None:
+                sums[key] += val
+                counts[key] += 1
+
+        print(
+            f"{qid:<6} {cat:<14} {diff:<6} "
+            f"{str(f_s or '?'):>2} {str(r_s or '?'):>2} {str(rc_s or '?'):>2} {str(c_s or '?'):>2} "
+            f"{f'{p_s:.1f}' if p_s is not None else '?':>4} "
+            f"{avg:>4.1f} {passed:>4} {fm:<16} {fl:<10} {lat:>4.0f}ms"
+        )
+
+    # Averages
+    print("─" * 80)
+    f_a = sums["f"]/counts["f"] if counts["f"] else 0
+    r_a = sums["r"]/counts["r"] if counts["r"] else 0
+    rc_a = sums["rc"]/counts["rc"] if counts["rc"] else 0
+    c_a = sums["c"]/counts["c"] if counts["c"] else 0
+    p_a = sums["p"]/counts["p"] if counts["p"] else 0
+
+    print(
+        f"{'AVG':<6} {'':14} {'':6} "
+        f"{f_a:>2.0f} {r_a:>2.0f} {rc_a:>2.0f} {c_a:>2.0f} {p_a:>4.1f} "
+        f"{'':>4} {total_pass}/{len(traces)}"
+    )
+
+    # Failure summary
+    failures = [t["evaluation"].get("failure_mode") for t in traces if t["evaluation"].get("failure_mode")]
+    if failures:
+        print(f"\n⚠️  Failures: {Counter(failures).most_common()}")
+
+    latencies = [t["latency"].get("total_ms", 0) for t in traces]
+    print(f"⏱️  Latency: avg={sum(latencies)/len(latencies):.0f}ms | "
+          f"min={min(latencies):.0f}ms | max={max(latencies):.0f}ms")
+
+
+def _print_ab_comparison(baseline: List[Dict], variant: List[Dict]) -> None:
+    """A/B comparison output."""
+    print(f"\n{'='*70}")
+    print("🔬 A/B COMPARISON: Baseline (dense) vs Variant (hybrid)")
+    print(f"{'='*70}")
+
+    metrics = ["faithfulness", "relevance", "context_recall", "completeness"]
+
+    def _avg(traces, metric):
+        scores = [_safe_get_score(t["evaluation"], metric) for t in traces]
+        scores = [s for s in scores if s is not None]
+        return sum(scores)/len(scores) if scores else None
+
+    print(f"{'Metric':<20} {'Baseline':>10} {'Variant':>10} {'Delta':>8} {'Winner':>8}")
+    print("─" * 60)
+
+    for m in metrics:
+        b = _avg(baseline, m)
+        v = _avg(variant, m)
+        d = (v - b) if (b is not None and v is not None) else None
+        w = ("Variant" if d and d > 0.1 else ("Baseline" if d and d < -0.1 else "Tie")) if d is not None else "N/A"
+        print(f"{m:<20} {f'{b:.2f}' if b else 'N/A':>10} {f'{v:.2f}' if v else 'N/A':>10} "
+              f"{f'{d:+.2f}' if d is not None else 'N/A':>8} {w:>8}")
+
+    # Pass rate
+    b_pass = sum(1 for t in baseline if t["evaluation"].get("overall_pass"))
+    v_pass = sum(1 for t in variant if t["evaluation"].get("overall_pass"))
+    print(f"\n{'Pass Rate':<20} {f'{b_pass}/{len(baseline)}':>10} {f'{v_pass}/{len(variant)}':>10}")
+
+
+# =============================================================================
+# EXTENDED TEST SET GENERATOR — Sprint 2
+# =============================================================================
+
+
+def _generate_extended_test_set() -> None:
+    """Tạo bộ extended test set gồm 20 câu (gốc 10 + 10 mới)."""
+
+    # Load câu gốc
+    with open(TEST_QUESTIONS_PATH, "r", encoding="utf-8") as f:
+        original = json.load(f)
+
+    # 5 câu multi-hop / suy luận
+    multi_hop = [
+        {
+            "id": "mh01",
+            "question": "So sánh quy trình phê duyệt cấp quyền Level 2 và Level 3 — khác nhau ở điểm nào?",
+            "expected_answer": "Level 2 cần Line Manager + IT Admin phê duyệt. Level 3 cần thêm IT Security. Sự khác biệt chính là Level 3 yêu cầu thêm lớp phê duyệt bảo mật.",
+            "expected_sources": ["it/access-control-sop.md"],
+            "difficulty": "hard",
+            "category": "Multi-hop",
+            "note": "So sánh 2 sections trong cùng 1 doc"
+        },
+        {
+            "id": "mh02",
+            "question": "Nếu xảy ra sự cố P1 lúc nửa đêm và cần cấp quyền khẩn cấp, ai phê duyệt và quyền tồn tại bao lâu?",
+            "expected_answer": "Tech Lead phê duyệt bằng lời, On-call IT Admin cấp quyền tạm thời max 24 giờ. Sau 24 giờ phải có ticket chính thức.",
+            "expected_sources": ["it/access-control-sop.md", "support/sla-p1-2026.pdf"],
+            "difficulty": "hard",
+            "category": "Cross-doc",
+            "note": "Cần kết hợp SLA doc + Access Control SOP"
+        },
+        {
+            "id": "mh03",
+            "question": "Nhân viên mới (chưa qua probation) muốn làm remote và cần cấp quyền VPN — quy trình đầy đủ là gì?",
+            "expected_answer": "Nhân viên chưa qua probation không được làm remote. VPN access cần request qua IT Helpdesk.",
+            "expected_sources": ["hr/leave-policy-2026.pdf", "support/helpdesk-faq.md"],
+            "difficulty": "hard",
+            "category": "Cross-doc",
+            "note": "Kết hợp HR policy + IT FAQ"
+        },
+        {
+            "id": "mh04",
+            "question": "Liệt kê tất cả các trường hợp KHÔNG được hoàn tiền theo chính sách hiện hành.",
+            "expected_answer": "Ngoại lệ không hoàn tiền: (1) Sản phẩm kỹ thuật số (license key, subscription), (2) Sản phẩm đã kích hoạt/sử dụng, (3) Đơn hàng quá 7 ngày làm việc.",
+            "expected_sources": ["policy/refund-v4.pdf"],
+            "difficulty": "hard",
+            "category": "Multi-section",
+            "note": "Cần tổng hợp từ nhiều section trong cùng 1 doc"
+        },
+        {
+            "id": "mh05",
+            "question": "SLA P1 hiện tại khác gì so với phiên bản trước? Liệt kê cụ thể các thay đổi.",
+            "expected_answer": "Resolution time giảm từ 6 giờ xuống 4 giờ. First response vẫn 15 phút.",
+            "expected_sources": ["support/sla-p1-2026.pdf"],
+            "difficulty": "hard",
+            "category": "Version comparison",
+            "note": "Cần tìm section lịch sử phiên bản"
+        },
+    ]
+
+    # 5 câu edge case
+    edge_cases = [
+        {
+            "id": "ec01",
+            "question": "ERR-500-TIMEOUT xảy ra khi nào và cách khắc phục?",
+            "expected_answer": "Không có thông tin về ERR-500-TIMEOUT trong tài liệu hiện có.",
+            "expected_sources": [],
+            "difficulty": "hard",
+            "category": "Abstain",
+            "note": "Mã lỗi không tồn tại — must abstain"
+        },
+        {
+            "id": "ec02",
+            "question": "Chính sách hoàn tiền có áp dụng cho đối tác (partner) không?",
+            "expected_answer": "Tài liệu chính sách hoàn tiền không đề cập đến đối tác. Chính sách hiện tại chỉ áp dụng cho khách hàng.",
+            "expected_sources": ["policy/refund-v4.pdf"],
+            "difficulty": "hard",
+            "category": "Ambiguous",
+            "note": "Query về đối tượng không có trong docs — partial context"
+        },
+        {
+            "id": "ec03",
+            "question": "What is the SLA for P1 tickets?",
+            "expected_answer": "P1 ticket SLA: first response within 15 minutes, resolution within 4 hours.",
+            "expected_sources": ["support/sla-p1-2026.pdf"],
+            "difficulty": "medium",
+            "category": "Bilingual",
+            "note": "English query on Vietnamese docs"
+        },
+        {
+            "id": "ec04",
+            "question": "Tại sao công ty lại chọn chính sách hoàn tiền 7 ngày?",
+            "expected_answer": "Tài liệu không giải thích lý do chọn 7 ngày. Chỉ nêu quy định là 7 ngày làm việc.",
+            "expected_sources": ["policy/refund-v4.pdf"],
+            "difficulty": "hard",
+            "category": "Why-question",
+            "note": "Hỏi 'tại sao' — docs chỉ có 'cái gì'"
+        },
+        {
+            "id": "ec05",
+            "question": "Mật khẩu cần đổi mấy ngày một lần, và nếu quên mật khẩu thì phải làm gì?",
+            "expected_answer": "Mật khẩu phải đổi mỗi 90 ngày, hệ thống nhắc 7 ngày trước. Quên mật khẩu: tự reset qua SSO portal hoặc liên hệ IT Helpdesk.",
+            "expected_sources": ["support/helpdesk-faq.md"],
+            "difficulty": "medium",
+            "category": "Multi-part",
+            "note": "2 câu hỏi trong 1 — cần trả lời cả 2 phần"
+        },
+    ]
+
+    extended = original + multi_hop + edge_cases
+
+    LAB_DIR.joinpath("data").mkdir(parents=True, exist_ok=True)
+    with open(EXTENDED_QUESTIONS_PATH, "w", encoding="utf-8") as f:
+        json.dump(extended, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Extended test set created: {EXTENDED_QUESTIONS_PATH} ({len(extended)} questions)")
+
+
+# =============================================================================
+# CONVENIENCE
 # =============================================================================
 
 
 def quick_trace(query: str, mode: str = "dense") -> Dict:
-    """
-    Quick trace cho 1 query — dùng khi debug nhanh.
-
-    Usage:
-        from eval_trace import quick_trace
-        t = quick_trace("SLA P1 là bao lâu?")
-        print(t["generation"]["answer"])
-        print(t["retrieval"]["chunks"])
-    """
-    return trace_single_query(
-        query=query,
-        query_id="debug",
-        retrieval_mode=mode,
-        verbose=True,
-    )
+    """Quick trace cho 1 query — dùng khi debug nhanh."""
+    return trace_single_query(query=query, query_id="debug", retrieval_mode=mode, verbose=True)
 
 
 # =============================================================================
@@ -710,76 +1038,48 @@ def quick_trace(query: str, mode: str = "dense") -> Dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="RAG Pipeline — Eval Trace (M5)",
+        description="RAG Pipeline — Eval Trace v2 (M5 Sprint 2)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python eval_trace.py                          # Batch test (dense)
+  python eval_trace.py                          # Batch test 10 câu (dense)
   python eval_trace.py --mode hybrid            # Batch test (hybrid)
-  python eval_trace.py --query "SLA P1?"        # Single query
+  python eval_trace.py --query "SLA P1?"        # Single query trace
   python eval_trace.py --ab                     # A/B comparison
   python eval_trace.py --grading                # Grading questions
+  python eval_trace.py --extended               # Extended 20-question test
+  python eval_trace.py --extended --mode hybrid # Extended + hybrid mode
         """,
     )
 
-    parser.add_argument(
-        "--query", type=str, help="Chạy trace cho 1 query cụ thể"
-    )
-    parser.add_argument(
-        "--mode",
-        type=str,
-        default="dense",
-        choices=["dense", "sparse", "hybrid"],
-        help="Retrieval mode (default: dense)",
-    )
-    parser.add_argument(
-        "--batch",
-        action="store_true",
-        default=True,
-        help="Chạy batch test với test_questions.json (default)",
-    )
-    parser.add_argument(
-        "--ab", action="store_true", help="Chạy A/B comparison (dense vs hybrid)"
-    )
-    parser.add_argument(
-        "--grading",
-        action="store_true",
-        help="Chạy trace cho grading questions",
-    )
-    parser.add_argument(
-        "--quiet", action="store_true", help="Không in chi tiết từng query"
-    )
+    parser.add_argument("--query", type=str, help="Trace 1 query cụ thể")
+    parser.add_argument("--mode", type=str, default="dense",
+                        choices=["dense", "sparse", "hybrid"])
+    parser.add_argument("--ab", action="store_true", help="A/B comparison")
+    parser.add_argument("--grading", action="store_true", help="Grading questions")
+    parser.add_argument("--extended", action="store_true", help="Extended 20-question test")
+    parser.add_argument("--quiet", action="store_true", help="Suppress per-query output")
 
     args = parser.parse_args()
     verbose = not args.quiet
 
-    print("=" * 60)
-    print("🔬 RAG Pipeline — Eval Trace System (M5)")
-    print("=" * 60)
+    print("=" * 70)
+    print("🔬 RAG Pipeline — Eval Trace v2 (M5 Sprint 2)")
+    print("=" * 70)
 
     if args.query:
-        # Single query mode
-        trace = trace_single_query(
-            query=args.query,
-            retrieval_mode=args.mode,
-            verbose=verbose,
-        )
-        # Save single trace
-        _save_traces([trace], f"single_{args.mode}")
-
+        trace = trace_single_query(query=args.query, retrieval_mode=args.mode, verbose=verbose)
+        _save_traces_json([trace], f"single_{args.mode}")
     elif args.ab:
-        # A/B comparison
         run_ab_trace(verbose=verbose)
-
     elif args.grading:
-        # Grading questions
         run_grading_trace(verbose=verbose)
-
+    elif args.extended:
+        run_extended_trace(mode=args.mode, verbose=verbose)
     else:
-        # Default: batch test
         run_batch_trace(retrieval_mode=args.mode, verbose=verbose)
 
-    print(f"\n{'='*60}")
-    print("✅ Eval trace complete!")
-    print(f"📁 Traces stored in: {TRACES_DIR}")
-    print(f"{'='*60}")
+    print(f"\n{'='*70}")
+    print("✅ Eval trace v2 complete!")
+    print(f"📁 Traces: {TRACES_DIR}")
+    print(f"{'='*70}")
