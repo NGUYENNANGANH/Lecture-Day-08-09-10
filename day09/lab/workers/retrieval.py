@@ -20,12 +20,12 @@ import sys
 
 # ─────────────────────────────────────────────
 # Worker Contract (xem contracts/worker_contracts.yaml)
-# Input:  {"task": str, "top_k": int = 3}
+# Input:  {"task": str, "top_k": int = 5}
 # Output: {"retrieved_chunks": list, "retrieved_sources": list, "error": dict | None}
 # ─────────────────────────────────────────────
 
 WORKER_NAME = "retrieval_worker"
-DEFAULT_TOP_K = 3
+DEFAULT_TOP_K = 5
 
 
 def _get_embedding_fn():

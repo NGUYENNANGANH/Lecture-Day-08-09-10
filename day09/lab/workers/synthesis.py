@@ -117,8 +117,24 @@ def _template_fallback(messages: list) -> str:
     if not context_lines:
         return "Khong du thong tin trong tai lieu noi bo de tra loi cau hoi nay."
 
+    # Trích xuất keywords từ câu hỏi để matching thông minh hơn
+    stop_words = {
+        "là", "gì", "bao", "lâu", "nào", "có", "không", "được", "của",
+        "cho", "và", "hay", "hoặc", "thì", "mà", "khi", "nếu", "với",
+        "trong", "từ", "đến", "theo", "về", "như", "bị", "đã", "sẽ",
+        "đang", "cần", "phải", "để", "ai", "bao nhiêu", "thế nào",
+        "nhưng", "vì", "do", "tại", "ra", "lên", "xuống", "vào",
+    }
+    keywords = []
+    if question:
+        for word in question.lower().split():
+            # Bỏ dấu câu
+            clean_word = word.strip("?!.,;:()\"'")
+            if clean_word and clean_word not in stop_words and len(clean_word) > 1:
+                keywords.append(clean_word)
+
     # Xây dựng answer từ context trực tiếp
-    # Lấy phần evidence quan trọng nhất
+    # Lấy phần evidence quan trọng nhất — ưu tiên dòng chứa keyword
     evidence_parts = []
     sources = set()
     for line in context_lines:
@@ -132,12 +148,16 @@ def _template_fallback(messages: list) -> str:
                 sources.add(src)
         elif line.startswith("-") or line.startswith("*"):
             evidence_parts.append(line)
-        elif len(line) > 20:
+        elif keywords and any(kw in line.lower() for kw in keywords):
+            # Chỉ lấy dòng context chứa ít nhất 1 keyword từ câu hỏi
+            evidence_parts.append(line)
+        elif not keywords and len(line) > 20:
+            # Fallback: nếu không extract được keyword nào, giữ logic cũ
             evidence_parts.append(line)
 
     # Ghép answer
-    answer_parts = [f"Dua tren tai lieu noi bo:"]
-    # Lấy tối đa 5 dòng evidence quan trọng nhất
+    answer_parts = ["Dua tren tai lieu noi bo:"]
+    # Lấy tối đa 8 dòng evidence quan trọng nhất
     for part in evidence_parts[:8]:
         # Bỏ prefix [1] Nguồn:
         clean = part
