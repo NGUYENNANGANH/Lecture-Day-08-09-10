@@ -12,7 +12,7 @@ Chạy thử:
 import json
 import os
 from datetime import datetime
-from typing import TypedDict, Literal, Optional
+from typing import Literal, Optional, TypedDict
 
 # LangGraph — đã bật để dùng StateGraph
 from langgraph.graph import StateGraph, END
@@ -21,33 +21,35 @@ from langgraph.graph import StateGraph, END
 # 1. Shared State — dữ liệu đi xuyên toàn graph
 # ─────────────────────────────────────────────
 
+
 class AgentState(TypedDict):
     # Input
-    task: str                           # Câu hỏi đầu vào từ user
+    task: str  # Câu hỏi đầu vào từ user
 
     # Supervisor decisions
-    route_reason: str                   # Lý do route sang worker nào
-    risk_high: bool                     # True → cần HITL hoặc human_review
-    needs_tool: bool                    # True → cần gọi external tool qua MCP
-    hitl_triggered: bool                # True → đã pause cho human review
+    route_reason: str  # Lý do route sang worker nào
+    risk_high: bool  # True → cần HITL hoặc human_review
+    needs_tool: bool  # True → cần gọi external tool qua MCP
+    hitl_triggered: bool  # True → đã pause cho human review
 
     # Worker outputs
-    retrieved_chunks: list              # Output từ retrieval_worker
-    retrieved_sources: list             # Danh sách nguồn tài liệu
-    policy_result: dict                 # Output từ policy_tool_worker
-    mcp_tools_used: list                # Danh sách MCP tools đã gọi
+    retrieved_chunks: list  # Output từ retrieval_worker
+    retrieved_sources: list  # Danh sách nguồn tài liệu
+    policy_result: dict  # Output từ policy_tool_worker
+    mcp_tools_used: list  # Danh sách MCP tools đã gọi
 
     # Final output
-    final_answer: str                   # Câu trả lời tổng hợp
-    sources: list                       # Sources được cite
-    confidence: float                   # Mức độ tin cậy (0.0 - 1.0)
+    final_answer: str  # Câu trả lời tổng hợp
+    sources: list  # Sources được cite
+    confidence: float  # Mức độ tin cậy (0.0 - 1.0)
 
     # Trace & history
-    history: list                       # Lịch sử các bước đã qua
-    workers_called: list                # Danh sách workers đã được gọi
-    supervisor_route: str               # Worker được chọn bởi supervisor
-    latency_ms: Optional[int]           # Thời gian xử lý (ms)
-    run_id: str                         # ID của run này
+    history: list  # Lịch sử các bước đã qua
+    workers_called: list  # Danh sách workers đã được gọi
+    supervisor_route: str  # Worker được chọn bởi supervisor
+    latency_ms: Optional[int]  # Thời gian xử lý (ms)
+    run_id: str  # ID của run này
+    worker_io_logs: list
 
 
 def make_initial_state(task: str) -> AgentState:
@@ -70,12 +72,14 @@ def make_initial_state(task: str) -> AgentState:
         "supervisor_route": "",
         "latency_ms": None,
         "run_id": f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        "worker_io_logs": [],
     }
 
 
 # ─────────────────────────────────────────────
 # 2. Supervisor Node — quyết định route
 # ─────────────────────────────────────────────
+
 
 def supervisor_node(state: AgentState) -> AgentState:
     """
@@ -89,6 +93,16 @@ def supervisor_node(state: AgentState) -> AgentState:
     task = state["task"].lower()
     state["history"].append(f"[supervisor] received task: {state['task'][:80]}")
 
+    policy_keywords = [
+        "hoàn tiền",
+        "refund",
+        "flash sale",
+        "license",
+        "cấp quyền",
+        "access level",
+    ]
+    retrieval_keywords = ["p1", "sla", "ticket", "escalation", "sự cố"]
+
     # --- TODO: Implement routing logic ---
     # Gợi ý:
     # - "hoàn tiền", "refund", "flash sale", "license" → policy_tool_worker
@@ -97,28 +111,31 @@ def supervisor_node(state: AgentState) -> AgentState:
     # - mã lỗi không rõ (ERR-XXX), không đủ context → human_review
     # - còn lại → retrieval_worker
 
-    route = "retrieval_worker"         # TODO: thay bằng logic thực
-    route_reason = "default route"    # TODO: thay bằng lý do thực
+    route = "retrieval_worker"  # TODO: thay bằng logic thực
+    route_reason = "default route"  # TODO: thay bằng lý do thực
     needs_tool = False
     risk_high = False
 
-    # Ví dụ routing cơ bản — nhóm phát triển thêm:
-    policy_keywords = ["hoàn tiền", "refund", "flash sale", "license", "cấp quyền", "access", "level 3"]
-    risk_keywords = ["emergency", "khẩn cấp", "2am", "không rõ", "err-"]
-
     if any(kw in task for kw in policy_keywords):
         route = "policy_tool_worker"
-        route_reason = f"task contains policy/access keyword"
+        route_reason = "Task matches policy/access keywords -> policy_tool_worker."
         needs_tool = True
+    elif any(kw in task for kw in retrieval_keywords):
+        route = "retrieval_worker"
+        route_reason = "Task matches P1/SLA/Ticket keywords -> retrieval_worker."
 
+    # Kiểm tra rủi ro (Emergency hoặc Error code)
+    risk_keywords = ["emergency", "khẩn cấp", "2am", "err-"]
     if any(kw in task for kw in risk_keywords):
         risk_high = True
-        route_reason += " | risk_high flagged"
+        route_reason += " | High risk detected (emergency/error)."
 
-    # Human review override
-    if risk_high and "err-" in task:
+    # Override cho Human Review nếu gặp mã lỗi không rõ mà không có context
+    if "err-" in task and risk_high:
         route = "human_review"
-        route_reason = "unknown error code + risk_high → human review"
+        route_reason = (
+            "Unknown error code detected + high risk -> human_review required."
+        )
 
     state["supervisor_route"] = route
     state["route_reason"] = route_reason
@@ -133,7 +150,10 @@ def supervisor_node(state: AgentState) -> AgentState:
 # 3. Route Decision — conditional edge
 # ─────────────────────────────────────────────
 
-def route_decision(state: AgentState) -> Literal["retrieval_worker", "policy_tool_worker", "human_review"]:
+
+def route_decision(
+    state: AgentState,
+) -> Literal["retrieval_worker", "policy_tool_worker", "human_review"]:
     """
     Trả về tên worker tiếp theo dựa vào supervisor_route trong state.
     Đây là conditional edge của graph.
@@ -145,6 +165,7 @@ def route_decision(state: AgentState) -> Literal["retrieval_worker", "policy_too
 # ─────────────────────────────────────────────
 # 4. Human Review Node — HITL placeholder
 # ─────────────────────────────────────────────
+
 
 def human_review_node(state: AgentState) -> AgentState:
     """
@@ -189,10 +210,16 @@ def retrieval_worker_node(state: AgentState) -> AgentState:
 
     # Placeholder output để test graph chạy được
     state["retrieved_chunks"] = [
-        {"text": "SLA P1: phản hồi 15 phút, xử lý 4 giờ.", "source": "sla_p1_2026.txt", "score": 0.92}
+        {
+            "text": "SLA P1: phản hồi 15 phút, xử lý 4 giờ.",
+            "source": "sla_p1_2026.txt",
+            "score": 0.92,
+        }
     ]
     state["retrieved_sources"] = ["sla_p1_2026.txt"]
-    state["history"].append(f"[retrieval_worker] retrieved {len(state['retrieved_chunks'])} chunks")
+    state["history"].append(
+        f"[retrieval_worker] retrieved {len(state['retrieved_chunks'])} chunks"
+    )
     return state
 
 
@@ -222,10 +249,14 @@ def synthesis_worker_node(state: AgentState) -> AgentState:
     # Placeholder output
     chunks = state.get("retrieved_chunks", [])
     sources = state.get("retrieved_sources", [])
-    state["final_answer"] = f"[PLACEHOLDER] Câu trả lời được tổng hợp từ {len(chunks)} chunks."
+    state["final_answer"] = (
+        f"[PLACEHOLDER] Câu trả lời được tổng hợp từ {len(chunks)} chunks."
+    )
     state["sources"] = sources
     state["confidence"] = 0.75
-    state["history"].append(f"[synthesis_worker] answer generated, confidence={state['confidence']}")
+    state["history"].append(
+        f"[synthesis_worker] answer generated, confidence={state['confidence']}"
+    )
     return state
 
 
@@ -233,104 +264,34 @@ def synthesis_worker_node(state: AgentState) -> AgentState:
 # 6. Build Graph
 # ─────────────────────────────────────────────
 
-# ─────────────────────────────────────────────
-# Option A (CŨ) — Python thuần, dùng if/else
-# Đã comment lại để so sánh với Option B (LangGraph)
-# ─────────────────────────────────────────────
-#
-# def build_graph():
-#     """
-#     Xây dựng graph với supervisor-worker pattern.
-#     Option A (đơn giản — Python thuần): Dùng if/else, không cần LangGraph.
-#     """
-#     def run(state: AgentState) -> AgentState:
-#         import time
-#         start = time.time()
-#
-#         # Step 1: Supervisor decides route
-#         state = supervisor_node(state)
-#
-#         # Step 2: Route to appropriate worker
-#         route = route_decision(state)
-#
-#         if route == "human_review":
-#             state = human_review_node(state)
-#             state = retrieval_worker_node(state)
-#         elif route == "policy_tool_worker":
-#             state = policy_tool_worker_node(state)
-#             if not state["retrieved_chunks"]:
-#                 state = retrieval_worker_node(state)
-#         else:
-#             state = retrieval_worker_node(state)
-#
-#         # Step 3: Always synthesize
-#         state = synthesis_worker_node(state)
-#
-#         state["latency_ms"] = int((time.time() - start) * 1000)
-#         state["history"].append(f"[graph] completed in {state['latency_ms']}ms")
-#         return state
-#
-#     return run
-
-
-# ─────────────────────────────────────────────
-# Option B (MỚI) — LangGraph StateGraph
-# Dùng conditional_edges để route thay vì if/else
-# ─────────────────────────────────────────────
-
-def _add_latency(state: AgentState) -> AgentState:
-    """Node cuối cùng: tính latency cho toàn bộ run."""
-    import time
-    # latency được tính ở run_graph(), node này chỉ ghi log
-    state["history"].append("[graph] completed")
-    return state
-
 
 def build_graph():
-    """
-    Xây dựng LangGraph StateGraph với supervisor-worker pattern.
+    def run(state: AgentState) -> AgentState:
+        import time
 
-    Flow:
-        supervisor → (conditional edge) → retrieval_worker
-                                        → policy_tool_worker
-                                        → human_review → retrieval_worker
-                   → synthesis → END
+        start = time.time()
 
-    Sử dụng:
-        - StateGraph(AgentState): khai báo graph với shared state
-        - add_node(): đăng ký từng node (function)
-        - add_conditional_edges(): routing dựa vào route_decision()
-        - add_edge(): kết nối cố định giữa 2 nodes
-        - compile(): biên dịch graph thành runnable
-    """
+        # Bước 1: Supervisor quyết định route
+        state = supervisor_node(state)
+        route = state["supervisor_route"]
 
-    # 1) Khởi tạo graph với AgentState làm schema
-    #    Mỗi node sẽ nhận và trả về AgentState
-    graph = StateGraph(AgentState)
+        # Bước 2: Xử lý Human Review (HITL) nếu Supervisor yêu cầu
+        if route == "human_review":
+            state = human_review_node(state)
+            # Sau khi human approve, mặc định quay lại retrieval
+            route = "retrieval_worker"
 
-    # 2) Đăng ký tất cả nodes
-    #    Mỗi node là một function: (AgentState) -> AgentState
-    graph.add_node("supervisor", supervisor_node)
-    graph.add_node("retrieval_worker", retrieval_worker_node)
-    graph.add_node("policy_tool_worker", policy_tool_worker_node)
-    graph.add_node("human_review", human_review_node)
-    graph.add_node("synthesis", synthesis_worker_node)
+        # Bước 3: Điều phối tới Worker mục tiêu
+        if route == "policy_tool_worker":
+            # Policy worker thường cần context trước để phân tích
+            state = retrieval_worker_node(state)
+            state = policy_tool_worker_node(state)
+        else:
+            # Mặc định gọi Retrieval Worker
+            state = retrieval_worker_node(state)
 
-    # 3) Đặt entry point — node chạy đầu tiên
-    graph.set_entry_point("supervisor")
-
-    # 4) Conditional edge: sau supervisor, dựa vào route_decision()
-    #    để quyết định đi sang node nào.
-    #    Thay thế hoàn toàn khối if/elif/else trong Option A.
-    graph.add_conditional_edges(
-        "supervisor",                    # source node
-        route_decision,                  # function trả về tên node tiếp theo
-        {                                # mapping: return value → node name
-            "retrieval_worker": "retrieval_worker",
-            "policy_tool_worker": "policy_tool_worker",
-            "human_review": "human_review",
-        }
-    )
+        # Bước 4: Luôn kết thúc bằng Synthesis Worker để tổng hợp câu trả lời
+        state = synthesis_worker_node(state)
 
     # 5) Fixed edges: sau mỗi worker → synthesis
     #    Trong Option A, đây là dòng "Step 3: Always synthesize"
