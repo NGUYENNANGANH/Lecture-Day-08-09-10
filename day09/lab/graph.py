@@ -14,6 +14,7 @@ import os
 import time
 from datetime import datetime
 from typing import Literal, Optional, TypedDict
+from mcp_server import clear_call_log, get_call_log
 
 # LangGraph library
 from langgraph.graph import END, StateGraph
@@ -229,11 +230,13 @@ _graph = build_graph()
 
 
 def run_graph(task: str) -> AgentState:
+    clear_call_log()           # reset trước mỗi run
     state = make_initial_state(task)
     start_time = time.time()
 
     # Chạy LangGraph
     result = _graph.invoke(state)
+    result["mcp_tools_used"] = get_call_log()  # inject vào trace
 
     result["latency_ms"] = int((time.time() - start_time) * 1000)
     result["history"].append(f"[graph] completed in {result['latency_ms']}ms")
