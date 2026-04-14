@@ -507,6 +507,48 @@ def dispatch_tool(tool_name: str, tool_input: dict) -> dict:
     return result
 
 
+def dispatch_tool_http(
+    tool_name: str,
+    tool_input: dict,
+    base_url: str = "http://localhost:8765",
+) -> dict:
+    """
+    HTTP client variant của dispatch_tool().
+    Gọi MCP HTTP Server (mcp_http.py) thay vì in-process.
+
+    Dùng khi server đang chạy:
+        uvicorn mcp_http:app --port 8765
+
+    Auto-fallback về in-process nếu server không chạy —
+    đảm bảo pipeline không bao giờ crash vì lý do MCP server.
+
+    Args:
+        tool_name: tên tool
+        tool_input: input dict
+        base_url:   địa chỉ MCP HTTP server (default: localhost:8765)
+
+    Returns:
+        Tool output dict (giống dispatch_tool)
+    """
+    try:
+        import httpx
+        response = httpx.post(
+            f"{base_url}/tools/call",
+            json={"tool_name": tool_name, "tool_input": tool_input},
+            timeout=5.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        # HTTP response có thêm wrapper {tool_name, result, success, timestamp}
+        # Trả về chỉ "result" để interface giống dispatch_tool()
+        return data.get("result", data)
+
+    except Exception:
+        # Server chưa start hoặc timeout → fallback in-process
+        # Không raise exception — pipeline vẫn chạy bình thường
+        return dispatch_tool(tool_name, tool_input)
+
+
 # ─────────────────────────────────────────────
 # Test & Demo
 # ─────────────────────────────────────────────
