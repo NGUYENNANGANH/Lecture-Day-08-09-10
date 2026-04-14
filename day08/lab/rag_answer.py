@@ -22,12 +22,20 @@ Definition of Done Sprint 3:
 """
 
 import os
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from dotenv import load_dotenv
-from index import DOCS_DIR
+try:
+    from dotenv import load_dotenv  # type: ignore
+except Exception:  # pragma: no cover
+    load_dotenv = None
+try:
+    from .index import DOCS_DIR  # type: ignore
+except Exception:  # pragma: no cover
+    from index import DOCS_DIR  # type: ignore
 
-load_dotenv()
+if load_dotenv is not None:
+    load_dotenv()
 
 # =============================================================================
 # CẤU HÌNH
@@ -37,6 +45,21 @@ TOP_K_SEARCH = 10  # Số chunk lấy từ vector store trước rerank (search 
 TOP_K_SELECT = 3  # Số chunk gửi vào prompt sau rerank/select (top-3 sweet spot)
 
 LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
+
+# =============================================================================
+# TOKENIZATION (cho BM25 tiếng Việt + mã lỗi)
+# =============================================================================
+
+
+_TOKEN_RE = re.compile(r"[0-9A-Za-zÀ-ỹ]+(?:[-_/][0-9A-Za-zÀ-ỹ]+)*", re.UNICODE)
+
+
+def _tokenize(text: str) -> List[str]:
+    # Giữ được: từ tiếng Việt có dấu, mã lỗi dạng ERR-403-AUTH, P1, Level-3, v.v.
+    return [t.lower() for t in _TOKEN_RE.findall(text)]
+
+
+_BM25_CACHE: Dict[str, Any] = {"bm25": None, "documents": None, "metadatas": None}
 
 
 # =============================================================================
@@ -80,7 +103,10 @@ def retrieve_dense(query: str, top_k: int = TOP_K_SEARCH) -> List[Dict[str, Any]
         # Score = 1 - distance
     """
     import chromadb
-    from index import get_embedding, CHROMA_DB_DIR
+    try:
+        from .index import get_embedding, CHROMA_DB_DIR  # type: ignore
+    except Exception:  # pragma: no cover
+        from index import get_embedding, CHROMA_DB_DIR  # type: ignore
 
     client = chromadb.PersistentClient(path=str(CHROMA_DB_DIR))
     collection = client.get_collection("rag_lab")
@@ -140,20 +166,34 @@ def retrieve_sparse(query: str, top_k: int = TOP_K_SEARCH) -> List[Dict[str, Any
     """Sparse retrieval: tìm kiếm theo keyword (BM25)."""
     import chromadb
     from rank_bm25 import BM25Okapi
-    from index import CHROMA_DB_DIR
-    # Bước 1: Load toàn bộ chunks từ ChromaDB
-    client = chromadb.PersistentClient(path=str(CHROMA_DB_DIR))
-    collection = client.get_collection("rag_lab")
-    all_data = collection.get(include=["documents", "metadatas"])
-    documents = all_data["documents"]
-    metadatas = all_data["metadatas"]
-    if not documents:
+    try:
+        from .index import CHROMA_DB_DIR  # type: ignore
+    except Exception:  # pragma: no cover
+        from index import CHROMA_DB_DIR  # type: ignore
+
+    # Cache BM25 để tránh rebuild mỗi query (vừa chậm vừa khó ổn định khi đánh giá).
+    if _BM25_CACHE["bm25"] is None:
+        client = chromadb.PersistentClient(path=str(CHROMA_DB_DIR))
+        collection = client.get_collection("rag_lab")
+        all_data = collection.get(include=["documents", "metadatas"])
+        documents = all_data["documents"]
+        metadatas = all_data["metadatas"]
+        if not documents:
+            return []
+
+        tokenized_corpus = [_tokenize(doc) for doc in documents]
+        _BM25_CACHE["bm25"] = BM25Okapi(tokenized_corpus)
+        _BM25_CACHE["documents"] = documents
+        _BM25_CACHE["metadatas"] = metadatas
+
+    documents = _BM25_CACHE["documents"]
+    metadatas = _BM25_CACHE["metadatas"]
+    bm25 = _BM25_CACHE["bm25"]
+
+    tokenized_query = _tokenize(query)
+    if not tokenized_query:
         return []
-    # Bước 2: Tokenize corpus và build BM25 index
-    tokenized_corpus = [doc.lower().split() for doc in documents]
-    bm25 = BM25Okapi(tokenized_corpus)
-    # Bước 3: Tính score cho query
-    tokenized_query = query.lower().split()
+
     scores = bm25.get_scores(tokenized_query)
     # Bước 4: Lấy top_k theo score giảm dần
     top_indices = sorted(
@@ -191,8 +231,9 @@ def retrieve_hybrid(
     dense_results = retrieve_dense(query, top_k=top_k)
     sparse_results = retrieve_sparse(query, top_k=top_k)
 
-    # 2. Tạo Dictionary để lưu trữ và tính điểm RRF cho từng chunk
-    # Key là chunk text (hoặc id), Value là Dict chứa metadata và rrf_score
+    # 2. Tạo Dictionary để lưu trữ và tính điểm RRF cho từng chunk.
+    # Dùng (source, section, text_prefix) làm key thay vì full text để giảm collision.
+    # Lý tưởng nhất là dùng "id" từ Chroma, nhưng retrieve_dense hiện chưa return id.
     rrf_scores: Dict[str, Dict[str, Any]] = {}
     
     # Hằng số tiêu chuẩn cho RRF
@@ -200,22 +241,34 @@ def retrieve_hybrid(
 
     # 3. Tính điểm RRF cho Dense Results
     # Lưu ý: enumerate bắt đầu từ 1 vì rank cao nhất là 1
+    def _key(d: Dict[str, Any]) -> str:
+        meta = d.get("metadata", {}) or {}
+        src = meta.get("source", "unknown")
+        sec = meta.get("section", "")
+        txt = d.get("text", "")
+        return f"{src}||{sec}||{txt[:120]}"
+
     for rank, doc in enumerate(dense_results, 1):
-        doc_text = doc["text"]
-        if doc_text not in rrf_scores:
-            rrf_scores[doc_text] = {"text": doc_text, "metadata": doc["metadata"], "rrf_score": 0}
+        k = _key(doc)
+        if k not in rrf_scores:
+            rrf_scores[k] = {"text": doc["text"], "metadata": doc["metadata"], "rrf_score": 0}
         
         # Công thức RRF cho dense
-        rrf_scores[doc_text]["rrf_score"] += dense_weight * (1.0 / (K + rank))
+        rrf_scores[k]["rrf_score"] += dense_weight * (1.0 / (K + rank))
 
     # 4. Tính điểm RRF cho Sparse Results
+    # Safety gate: Nếu query tiếng Việt dài/khó, BM25 dễ trả về noise.
+    # Với hybrid, chỉ trộn sparse nếu score của top-1 đủ "có nghĩa".
+    if sparse_results and sparse_results[0].get("score", 0) <= 0:
+        sparse_results = []
+
     for rank, doc in enumerate(sparse_results, 1):
-        doc_text = doc["text"]
-        if doc_text not in rrf_scores:
-            rrf_scores[doc_text] = {"text": doc_text, "metadata": doc["metadata"], "rrf_score": 0}
+        k = _key(doc)
+        if k not in rrf_scores:
+            rrf_scores[k] = {"text": doc["text"], "metadata": doc["metadata"], "rrf_score": 0}
             
         # Công thức RRF cộng dồn cho sparse
-        rrf_scores[doc_text]["rrf_score"] += sparse_weight * (1.0 / (K + rank))
+        rrf_scores[k]["rrf_score"] += sparse_weight * (1.0 / (K + rank))
 
     # 5. Chuyển dict thành list, đổi tên rrf_score thành score để tương thích với các hàm khác
     merged_results = []

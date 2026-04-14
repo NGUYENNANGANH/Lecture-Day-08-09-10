@@ -6,12 +6,12 @@
 # Grading questions — không public trước 17:00
 day08/lab/data/grading_questions.json
 
-<<<<<<< HEAD
-
-# Bỏ qua file chứa API Key
-.env
-
 # Bỏ qua thư mục chứa Vector Database
 chroma_db/
-=======
->>>>>>> 0658abe95a6f1fc8e93e5d2af500c77196b915a4
+
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
