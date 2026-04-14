@@ -15,7 +15,7 @@ Cùng bài toán **trợ lý nội bộ CS + IT Helpdesk** từ Day 08, nhưng R
 - Khi pipeline trả lời sai, không rõ lỗi nằm ở retrieval, policy check, hay generation
 - Không thể thay thế từng phần mà không ảnh hưởng toàn hệ
 
-**Nhiệm vụ hôm nay:** Refactor RAG pipeline (Day 08) thành hệ **Supervisor + Workers** rõ vai, dễ trace, dễ mở rộng.
+**Nhiệm vụ hôm nay:** Refactor RAG pipeline (Day 09) thành hệ **Supervisor + Workers** rõ vai, dễ trace, dễ mở rộng.
 
 **Câu hỏi hệ thống mới phải xử lý được:**
 - "Ticket P1 lúc 2am — escalation xảy ra thế nào và ai nhận thông báo?"

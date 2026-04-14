@@ -77,7 +77,7 @@ retrieval_worker:
       items:
         text: string
         source: string
-        score: float  # 0.0 - 1.0 (cosine similarity)
+        score: float # 0.0 - 1.0 (cosine similarity)
         metadata: object
     retrieved_sources:
       type: array
@@ -96,7 +96,7 @@ retrieval_worker:
     - "Score phải là float trong khoảng [0, 1]"
     - "Stateless: không đọc hoặc ghi state ngoài những gì được khai báo ở trên"
   actual_implementation:
-    status: "TODO Sprint 2"  # Update to "done" khi xong
+    status: "TODO Sprint 2" # Update to "done" khi xong
     notes: ""
 
 # ─────────────────────────────────────────────
@@ -137,8 +137,8 @@ policy_tool_worker:
           items:
             type: object
             properties:
-              type: string  # e.g., "flash_sale_exception"
-              rule: string  # Câu policy rule cụ thể
+              type: string # e.g., "flash_sale_exception"
+              rule: string # Câu policy rule cụ thể
               source: string
         source:
           type: array
@@ -228,15 +228,15 @@ mcp_server:
   tools:
     search_kb:
       input:
-        query: string  # required
-        top_k: integer  # default: 3
+        query: string # required
+        top_k: integer # default: 3
       output:
         chunks: array
         sources: array
         total_found: integer
     get_ticket_info:
       input:
-        ticket_id: string  # required (e.g., "P1-LATEST", "IT-1234")
+        ticket_id: string # required (e.g., "P1-LATEST", "IT-1234")
       output:
         ticket_id: string
         priority: string
@@ -247,9 +247,9 @@ mcp_server:
         notifications_sent: array
     check_access_permission:
       input:
-        access_level: integer  # 1, 2, hoặc 3
+        access_level: integer # 1, 2, hoặc 3
         requester_role: string
-        is_emergency: boolean  # default: false
+        is_emergency: boolean # default: false
       output:
         can_grant: boolean
         required_approvers: array
@@ -258,7 +258,7 @@ mcp_server:
         source: string
     create_ticket:
       input:
-        priority: string  # P1, P2, P3, P4
+        priority: string # P1, P2, P3, P4
         title: string
         description: string
       output:
