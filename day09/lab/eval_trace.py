@@ -37,6 +37,10 @@ import re
 import sys
 import time
 import argparse
+from dotenv import load_dotenv
+
+load_dotenv()  # Load .env file (OPENAI_API_KEY, etc.)
+
 from collections import Counter
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple

@@ -13,6 +13,9 @@ import json
 import os
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()  # Load .env file (OPENAI_API_KEY, etc.)
 from typing import Literal, Optional, TypedDict
 from mcp_server import clear_call_log, get_call_log
 
@@ -85,6 +88,10 @@ def supervisor_node(state: AgentState) -> AgentState:
         "license",
         "cấp quyền",
         "access level",
+        "access",
+        "cấp level",
+        "contractor",
+        "quyền truy cập",
     ]
     retrieval_keywords = ["p1", "sla", "ticket", "escalation", "sự cố"]
     risk_keywords = ["emergency", "khẩn cấp", "2am", "err-"]

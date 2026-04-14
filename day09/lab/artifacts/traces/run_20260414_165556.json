@@ -10,8 +10,8 @@
       "source": "hr_leave_policy.txt",
       "score": 0.4097,
       "metadata": {
-        "section": "Phần 1: Các loại nghỉ phép",
-        "source": "hr_leave_policy.txt"
+        "source": "hr_leave_policy.txt",
+        "section": "Phần 1: Các loại nghỉ phép"
       }
     },
     {
@@ -19,8 +19,8 @@
       "source": "policy_refund_v4.txt",
       "score": 0.4027,
       "metadata": {
-        "source": "policy_refund_v4.txt",
-        "section": "Điều 1: Phạm vi áp dụng"
+        "section": "Điều 1: Phạm vi áp dụng",
+        "source": "policy_refund_v4.txt"
       }
     },
     {
@@ -28,32 +28,52 @@
       "source": "sla_p1_2026.txt",
       "score": 0.3959,
       "metadata": {
-        "section": "Phần 5: Lịch sử phiên bản",
-        "source": "sla_p1_2026.txt"
+        "source": "sla_p1_2026.txt",
+        "section": "Phần 5: Lịch sử phiên bản"
+      }
+    },
+    {
+      "text": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền\nBước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category \"Refund Request\".\nBước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.\nBước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\nBước 4: Finance Team xử lý trong 3-5 ngày làm việc và thông báo kết quả cho khách hàng.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.3922,
+      "metadata": {
+        "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền",
+        "source": "policy_refund_v4.txt"
+      }
+    },
+    {
+      "text": "Section 5: Email và lịch\nQ: Hộp thư đến đầy, phải làm gì?\nA: Xóa email cũ hoặc yêu cầu tăng dung lượng qua ticket IT-ACCESS. Dung lượng tiêu chuẩn là 50GB.\n\nQ: Tôi không nhận được email từ bên ngoài?\nA: Kiểm tra thư mục Spam trước. Nếu vẫn không có, tạo ticket P2 kèm địa chỉ email gửi và thời gian gửi.",
+      "source": "it_helpdesk_faq.txt",
+      "score": 0.3871,
+      "metadata": {
+        "source": "it_helpdesk_faq.txt",
+        "section": "Section 5: Email và lịch"
       }
     }
   ],
   "retrieved_sources": [
-    "hr_leave_policy.txt",
     "sla_p1_2026.txt",
-    "policy_refund_v4.txt"
+    "policy_refund_v4.txt",
+    "hr_leave_policy.txt",
+    "it_helpdesk_faq.txt"
   ],
   "policy_result": {},
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Phần 1: Các loại nghỉ phép\n- - Nghỉ sinh con: 6 tháng theo quy định Luật Lao động.\n- - Nghỉ nuôi con nhỏ: 1 tiếng/ngày trong 12 tháng đầu sau sinh.\n- Theo lịch nghỉ lễ quốc gia do HR công bố hàng năm vào tháng 12.\n- Điều 1: Phạm vi áp dụng\n- Chính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\n\n[Nguon: hr_leave_policy.txt, sla_p1_2026.txt, policy_refund_v4.txt]",
+  "final_answer": "Không đủ thông tin trong tài liệu nội bộ.",
   "sources": [
-    "hr_leave_policy.txt",
     "sla_p1_2026.txt",
-    "policy_refund_v4.txt"
+    "policy_refund_v4.txt",
+    "hr_leave_policy.txt",
+    "it_helpdesk_faq.txt"
   ],
-  "confidence": 0.4,
+  "confidence": 0.3,
   "history": [
     "[supervisor] received task: ERR-403-AUTH là lỗi gì và cách xử lý?",
     "[supervisor] route=human_review reason=Unknown error code detected + high risk -> human_review [MCP: suspended, awaiting human approval]",
     "[human_review] HITL triggered — awaiting human input",
-    "[retrieval_worker] retrieved 3 chunks from ['hr_leave_policy.txt', 'sla_p1_2026.txt', 'policy_refund_v4.txt']",
-    "[synthesis_worker] answer generated, confidence=0.4, sources=['hr_leave_policy.txt', 'sla_p1_2026.txt', 'policy_refund_v4.txt']",
-    "[graph] completed in 6583ms"
+    "[retrieval_worker] retrieved 5 chunks from ['sla_p1_2026.txt', 'policy_refund_v4.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt']",
+    "[synthesis_worker] answer generated, confidence=0.3, sources=['sla_p1_2026.txt', 'policy_refund_v4.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt']",
+    "[graph] completed in 8299ms"
   ],
   "workers_called": [
     "human_review",
@@ -61,21 +81,22 @@
     "synthesis_worker"
   ],
   "supervisor_route": "retrieval_worker",
-  "latency_ms": 6583,
-  "run_id": "run_20260414_161501",
+  "latency_ms": 8299,
+  "run_id": "run_20260414_165556",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "ERR-403-AUTH là lỗi gì và cách xử lý?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
-          "hr_leave_policy.txt",
           "sla_p1_2026.txt",
-          "policy_refund_v4.txt"
+          "policy_refund_v4.txt",
+          "hr_leave_policy.txt",
+          "it_helpdesk_faq.txt"
         ]
       },
       "error": null
@@ -84,17 +105,18 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "ERR-403-AUTH là lỗi gì và cách xử lý?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": false
       },
       "output": {
-        "answer_length": 438,
+        "answer_length": 41,
         "sources": [
-          "hr_leave_policy.txt",
           "sla_p1_2026.txt",
-          "policy_refund_v4.txt"
+          "policy_refund_v4.txt",
+          "hr_leave_policy.txt",
+          "it_helpdesk_faq.txt"
         ],
-        "confidence": 0.4
+        "confidence": 0.3
       },
       "error": null
     }

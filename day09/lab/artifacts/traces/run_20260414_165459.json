@@ -28,7 +28,25 @@
       "source": "access_control_sop.txt",
       "score": 0.6107,
       "metadata": {
-        "section": "Section 1: Phạm vi và mục đích",
+        "source": "access_control_sop.txt",
+        "section": "Section 1: Phạm vi và mục đích"
+      }
+    },
+    {
+      "text": "Section 4: Escalation khi cần thay đổi quyền hệ thống\nEscalation chỉ áp dụng khi cần thay đổi quyền hệ thống ngoài quy trình thông thường.\nVí dụ: Khẩn cấp trong sự cố P1, cần cấp quyền tạm thời để fix incident.\n\nQuy trình escalation khẩn cấp:\n1. On-call IT Admin có thể cấp quyền tạm thời (max 24 giờ) sau khi được Tech Lead phê duyệt bằng lời.\n2. Sau 24 giờ, phải có ticket chính thức hoặc quyền bị thu hồi tự động.\n3. Mọi quyền tạm thời phải được ghi log vào hệ thống Security Audit.",
+      "source": "access_control_sop.txt",
+      "score": 0.6042,
+      "metadata": {
+        "source": "access_control_sop.txt",
+        "section": "Section 4: Escalation khi cần thay đổi quyền hệ thống"
+      }
+    },
+    {
+      "text": "Section 3: Quy trình yêu cầu cấp quyền\nBước 1: Nhân viên tạo Access Request ticket trên Jira (project IT-ACCESS).\nBước 2: Line Manager phê duyệt yêu cầu trong 1 ngày làm việc.\nBước 3: IT Admin kiểm tra compliance và cấp quyền.\nBước 4: IT Security review với Level 3 và Level 4.\nBước 5: Nhân viên nhận thông báo qua email khi quyền được cấp.",
+      "source": "access_control_sop.txt",
+      "score": 0.6007,
+      "metadata": {
+        "section": "Section 3: Quy trình yêu cầu cấp quyền",
         "source": "access_control_sop.txt"
       }
     }
@@ -95,22 +113,22 @@
         "notes": [],
         "source": "access_control_sop.txt"
       },
-      "timestamp": "2026-04-14T16:14:29.288138"
+      "timestamp": "2026-04-14T16:55:10.938769"
     }
   ],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Section 2: Phân cấp quyền truy cập\n- Áp dụng cho: Tất cả nhân viên mới trong 30 ngày đầu.\n- Phê duyệt: Line Manager.\n- Thời gian xử lý: 1 ngày làm việc.\n- Level 2 — Standard Access:\n- Áp dụng cho: Nhân viên chính thức đã qua thử việc.\n- Phê duyệt: Line Manager + IT Admin.\n\n[Nguon: access_control_sop.txt]",
+  "final_answer": "Để cấp quyền Level 3, cần có sự phê duyệt từ ba bên:\n\n1. Line Manager\n2. IT Admin\n3. IT Security\n\nThời gian xử lý cho quy trình này là 3 ngày làm việc [1].",
   "sources": [
     "access_control_sop.txt"
   ],
-  "confidence": 0.62,
+  "confidence": 0.61,
   "history": [
     "[supervisor] received task: Ai phải phê duyệt để cấp quyền Level 3?",
     "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-    "[retrieval_worker] retrieved 3 chunks from ['access_control_sop.txt']",
+    "[retrieval_worker] retrieved 5 chunks from ['access_control_sop.txt']",
     "[policy_tool_worker] called MCP check_access_permission (level=3)",
     "[policy_tool_worker] policy_applies=True, policy=access_control_sop, exceptions=0, mcp_calls=1",
-    "[synthesis_worker] answer generated, confidence=0.62, sources=['access_control_sop.txt']",
-    "[graph] completed in 10586ms"
+    "[synthesis_worker] answer generated, confidence=0.61, sources=['access_control_sop.txt']",
+    "[graph] completed in 13817ms"
   ],
   "workers_called": [
     "retrieval_worker",
@@ -118,17 +136,17 @@
     "synthesis_worker"
   ],
   "supervisor_route": "policy_tool_worker",
-  "latency_ms": 10586,
-  "run_id": "run_20260414_161418",
+  "latency_ms": 13817,
+  "run_id": "run_20260414_165459",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "Ai phải phê duyệt để cấp quyền Level 3?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
           "access_control_sop.txt"
         ]
@@ -139,7 +157,7 @@
       "worker": "policy_tool_worker",
       "input": {
         "task": "Ai phải phê duyệt để cấp quyền Level 3?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "needs_tool": true
       },
       "output": {
@@ -156,15 +174,15 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "Ai phải phê duyệt để cấp quyền Level 3?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": true
       },
       "output": {
-        "answer_length": 333,
+        "answer_length": 155,
         "sources": [
           "access_control_sop.txt"
         ],
-        "confidence": 0.62
+        "confidence": 0.61
       },
       "error": null
     }

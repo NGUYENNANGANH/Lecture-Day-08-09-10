@@ -28,6 +28,8 @@ Quy tắc nghiêm ngặt:
 3. Trích dẫn nguồn cuối mỗi câu quan trọng: [tên_file].
 4. Trả lời súc tích, có cấu trúc. Không dài dòng.
 5. Nếu có exceptions/ngoại lệ → nêu rõ ràng trước khi kết luận.
+6. Nếu câu hỏi yêu cầu NHIỀU quy trình hoặc nhiều phần → trả lời TỪNG phần riêng biệt, đánh số rõ ràng.
+7. Với câu hỏi về thời gian cụ thể (VD: ticket lúc 22:47) → tính toán thời gian chính xác dựa trên SLA.
 """
 
 

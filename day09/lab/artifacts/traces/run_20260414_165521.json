@@ -19,8 +19,8 @@
       "source": "it_helpdesk_faq.txt",
       "score": 0.5839,
       "metadata": {
-        "section": "Section 2: VPN và kết nối từ xa",
-        "source": "it_helpdesk_faq.txt"
+        "source": "it_helpdesk_faq.txt",
+        "section": "Section 2: VPN và kết nối từ xa"
       }
     },
     {
@@ -31,49 +31,70 @@
         "source": "policy_refund_v4.txt",
         "section": "Điều 6: Liên hệ và hỗ trợ"
       }
+    },
+    {
+      "text": "Điều 3: Điều kiện áp dụng và ngoại lệ\nHoàn tiền — Điều kiện áp dụng:\nYêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\nNgoại lệ không được hoàn tiền:\n- Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.5715,
+      "metadata": {
+        "source": "policy_refund_v4.txt",
+        "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+      }
+    },
+    {
+      "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+      "source": "access_control_sop.txt",
+      "score": 0.5638,
+      "metadata": {
+        "section": "Section 1: Phạm vi và mục đích",
+        "source": "access_control_sop.txt"
+      }
     }
   ],
   "retrieved_sources": [
-    "it_helpdesk_faq.txt",
+    "policy_refund_v4.txt",
+    "access_control_sop.txt",
     "hr_leave_policy.txt",
-    "policy_refund_v4.txt"
+    "it_helpdesk_faq.txt"
   ],
   "policy_result": {},
   "mcp_tools_used": [],
-  "final_answer": "Dua tren tai lieu noi bo:\n- Phần 4: Remote work policy\n- 4.1 Điều kiện remote:\n- - Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- - Team Lead phải phê duyệt lịch remote qua HR Portal.\n- - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n- 4.2 Yêu cầu kỹ thuật khi remote:\n- - Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n\n[Nguon: it_helpdesk_faq.txt, hr_leave_policy.txt, policy_refund_v4.txt]",
+  "final_answer": "Nhân viên được làm remote tối đa 2 ngày mỗi tuần sau khi hoàn thành probation period. Lịch remote cần được Team Lead phê duyệt qua HR Portal. Ngày onsite bắt buộc là Thứ 3 và Thứ 5 theo lịch team [1].",
   "sources": [
-    "it_helpdesk_faq.txt",
+    "policy_refund_v4.txt",
+    "access_control_sop.txt",
     "hr_leave_policy.txt",
-    "policy_refund_v4.txt"
+    "it_helpdesk_faq.txt"
   ],
-  "confidence": 0.59,
+  "confidence": 0.58,
   "history": [
     "[supervisor] received task: Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
     "[supervisor] route=retrieval_worker reason=default fallback route -> retrieval_worker.",
-    "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'hr_leave_policy.txt', 'policy_refund_v4.txt']",
-    "[synthesis_worker] answer generated, confidence=0.59, sources=['it_helpdesk_faq.txt', 'hr_leave_policy.txt', 'policy_refund_v4.txt']",
-    "[graph] completed in 6747ms"
+    "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'access_control_sop.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt']",
+    "[synthesis_worker] answer generated, confidence=0.58, sources=['policy_refund_v4.txt', 'access_control_sop.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt']",
+    "[graph] completed in 10634ms"
   ],
   "workers_called": [
     "retrieval_worker",
     "synthesis_worker"
   ],
   "supervisor_route": "retrieval_worker",
-  "latency_ms": 6747,
-  "run_id": "run_20260414_161435",
+  "latency_ms": 10634,
+  "run_id": "run_20260414_165521",
   "worker_io_logs": [
     {
       "worker": "retrieval_worker",
       "input": {
         "task": "Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
-        "top_k": 3
+        "top_k": 5
       },
       "output": {
-        "chunks_count": 3,
+        "chunks_count": 5,
         "sources": [
-          "it_helpdesk_faq.txt",
+          "policy_refund_v4.txt",
+          "access_control_sop.txt",
           "hr_leave_policy.txt",
-          "policy_refund_v4.txt"
+          "it_helpdesk_faq.txt"
         ]
       },
       "error": null
@@ -82,17 +103,18 @@
       "worker": "synthesis_worker",
       "input": {
         "task": "Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
-        "chunks_count": 3,
+        "chunks_count": 5,
         "has_policy": false
       },
       "output": {
-        "answer_length": 431,
+        "answer_length": 200,
         "sources": [
-          "it_helpdesk_faq.txt",
+          "policy_refund_v4.txt",
+          "access_control_sop.txt",
           "hr_leave_policy.txt",
-          "policy_refund_v4.txt"
+          "it_helpdesk_faq.txt"
         ],
-        "confidence": 0.59
+        "confidence": 0.58
       },
       "error": null
     }
