@@ -1,0 +1,118 @@
+{
+  "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
+  "route_reason": "default fallback route -> retrieval_worker.",
+  "risk_high": false,
+  "needs_tool": false,
+  "hitl_triggered": false,
+  "retrieved_chunks": [
+    {
+      "text": "Phần 4: Remote work policy\n4.1 Điều kiện remote:\n- Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- Team Lead phải phê duyệt lịch remote qua HR Portal.\n- Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n\n4.2 Yêu cầu kỹ thuật khi remote:\n- Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n- Camera bật trong các cuộc họp team.",
+      "source": "hr_leave_policy.txt",
+      "score": 0.6916,
+      "metadata": {
+        "source": "hr_leave_policy.txt",
+        "section": "Phần 4: Remote work policy"
+      }
+    },
+    {
+      "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+      "source": "access_control_sop.txt",
+      "score": 0.634,
+      "metadata": {
+        "source": "access_control_sop.txt",
+        "section": "Section 1: Phạm vi và mục đích"
+      }
+    },
+    {
+      "text": "Điều 3: Điều kiện áp dụng và ngoại lệ\nHoàn tiền — Điều kiện áp dụng:\nYêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\nNgoại lệ không được hoàn tiền:\n- Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.6161,
+      "metadata": {
+        "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
+        "source": "policy_refund_v4.txt"
+      }
+    },
+    {
+      "text": "Điều 2: Điều kiện được hoàn tiền\nKhách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n- Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.\n- Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.\n- Đơn hàng chưa được sử dụng hoặc chưa bị mở seal.",
+      "source": "policy_refund_v4.txt",
+      "score": 0.6039,
+      "metadata": {
+        "section": "Điều 2: Điều kiện được hoàn tiền",
+        "source": "policy_refund_v4.txt"
+      }
+    },
+    {
+      "text": "Phần 2: Quy trình xin nghỉ phép\nBước 1: Nhân viên gửi yêu cầu nghỉ phép qua hệ thống HR Portal (https://hr.company.internal) ít nhất 3 ngày làm việc trước ngày nghỉ.\nBước 2: Line Manager phê duyệt hoặc từ chối trong vòng 1 ngày làm việc.\nBước 3: Nhân viên nhận thông báo qua email sau khi được phê duyệt.\n\nTrường hợp khẩn cấp: Có thể gửi yêu cầu muộn hơn nhưng phải được Line Manager đồng ý qua tin nhắn trực tiếp.",
+      "source": "hr_leave_policy.txt",
+      "score": 0.6,
+      "metadata": {
+        "section": "Phần 2: Quy trình xin nghỉ phép",
+        "source": "hr_leave_policy.txt"
+      }
+    }
+  ],
+  "retrieved_sources": [
+    "policy_refund_v4.txt",
+    "hr_leave_policy.txt",
+    "access_control_sop.txt"
+  ],
+  "policy_result": {},
+  "mcp_tools_used": [],
+  "final_answer": "Dua tren tai lieu noi bo:\n- Phần 4: Remote work policy\n- 4.1 Điều kiện remote:\n- - Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- - Team Lead phải phê duyệt lịch remote qua HR Portal.\n- - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n- 4.2 Yêu cầu kỹ thuật khi remote:\n- - Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n\n[Nguon: policy_refund_v4.txt, hr_leave_policy.txt, access_control_sop.txt]",
+  "sources": [
+    "policy_refund_v4.txt",
+    "hr_leave_policy.txt",
+    "access_control_sop.txt"
+  ],
+  "confidence": 0.63,
+  "history": [
+    "[supervisor] received task: Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá ",
+    "[supervisor] route=retrieval_worker reason=default fallback route -> retrieval_worker.",
+    "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'hr_leave_policy.txt', 'access_control_sop.txt']",
+    "[synthesis_worker] answer generated, confidence=0.63, sources=['policy_refund_v4.txt', 'hr_leave_policy.txt', 'access_control_sop.txt']",
+    "[graph] completed in 11517ms"
+  ],
+  "workers_called": [
+    "retrieval_worker",
+    "synthesis_worker"
+  ],
+  "supervisor_route": "retrieval_worker",
+  "latency_ms": 11517,
+  "run_id": "run_20260414_165823",
+  "worker_io_logs": [
+    {
+      "worker": "retrieval_worker",
+      "input": {
+        "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
+        "top_k": 5
+      },
+      "output": {
+        "chunks_count": 5,
+        "sources": [
+          "policy_refund_v4.txt",
+          "hr_leave_policy.txt",
+          "access_control_sop.txt"
+        ]
+      },
+      "error": null
+    },
+    {
+      "worker": "synthesis_worker",
+      "input": {
+        "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
+        "chunks_count": 5,
+        "has_policy": false
+      },
+      "output": {
+        "answer_length": 434,
+        "sources": [
+          "policy_refund_v4.txt",
+          "hr_leave_policy.txt",
+          "access_control_sop.txt"
+        ],
+        "confidence": 0.63
+      },
+      "error": null
+    }
+  ]
+}

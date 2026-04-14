@@ -2,33 +2,34 @@ id,category,difficulty,question,answer,expected_answer,route,expected_route,rout
 q01,SLA,easy,SLA xử lý ticket P1 là bao lâu?,"Dua tren tai lieu noi bo:
 - SLA TICKET - QUY ĐỊNH XỬ LÝ SỰ CỐ
 - Source: support/sla-p1-2026.pdf
-- Effective Date: 2026-01-15
 - Phần 2: SLA theo mức độ ưu tiên
+- Ticket P3:
 - - Phản hồi ban đầu: 1 ngày làm việc.
 - - Xử lý và khắc phục: 5 ngày làm việc.
 
-[Nguon: sla_p1_2026.txt]",Ticket P1 có SLA phản hồi ban đầu 15 phút và thời gian xử lý (resolution) là 4 giờ.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,sla_p1_2026.txt,0.6495,5,5,3,4.33,True,,,0.6,False,True,1,4,16217
+[Nguon: it_helpdesk_faq.txt, sla_p1_2026.txt]",Ticket P1 có SLA phản hồi ban đầu 15 phút và thời gian xử lý (resolution) là 4 giờ.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,sla_p1_2026.txt,0.6495,4,5,3,4.0,True,,,0.57,False,True,1,4,16421
 q02,Refund,easy,Khách hàng có thể yêu cầu hoàn tiền trong bao nhiêu ngày?,"Dua tren tai lieu noi bo:
 - Điều 2: Điều kiện được hoàn tiền
 - Khách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:
 - - Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.
 - - Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.
-- - Đơn hàng chưa",Khách hàng có thể yêu cầu hoàn tiền trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.,policy_tool_worker,retrieval_worker,False,"retrieval_worker,policy_tool_worker,synthesis_worker",,3,policy_refund_v4.txt,0.7221,5,5,5,5.0,True,wrong_route,supervisor,0.7,False,True,4,2,6956
+- - Đơn hàng chưa",Khách hàng có thể yêu cầu hoàn tiền trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.,policy_tool_worker,retrieval_worker,False,"retrieval_worker,policy_tool_worker,synthesis_worker",,5,policy_refund_v4.txt,0.7221,5,5,5,5.0,True,wrong_route,supervisor,0.53,False,True,4,2,11172
 q03,Access Control,easy,Ai phải phê duyệt để cấp quyền Level 3?,"Dua tren tai lieu noi bo:
 - Section 2: Phân cấp quyền truy cập
-- Áp dụng cho: Tất cả nhân viên mới trong 30 ngày đầu.
+- Level 1 — Read Only:
 - Phê duyệt: Line Manager.
-- Thời gian xử lý: 1 ngày làm việc.
 - Level 2 — Standard Access:
-- Áp dụng cho: Nhân viên chính thức đã qua thử việc.
-- Phê duyệt: Line Manager + IT Admin.","Level 3 (Elevated Access) cần phê duyệt từ Line Manager, IT Admin, và IT Security — ba người phê duyệt.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker","{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': False}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': [], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:14:29.288138'}",3,access_control_sop.txt,0.6342,5,5,3,4.33,True,,,0.62,False,True,1,3,10586
+- Phê duyệt: Line Manager + IT Admin.
+- Level 3 — Elevated Access:
+- Phê duyệt: Line Manager + IT Admin + IT Security.
+
+[Nguon: access_control_sop.txt]","Level 3 (Elevated Access) cần phê duyệt từ Line Manager, IT Admin, và IT Security — ba người phê duyệt.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker","{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': False}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': [], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:56:31.669856'}",5,access_control_sop.txt,0.6342,5,5,3,4.33,True,,,0.61,False,True,2,2,11086
 q04,IT Helpdesk,easy,Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?,"Dua tren tai lieu noi bo:
-- Điều 3: Điều kiện áp dụng và ngoại lệ
-- Hoàn tiền — Điều kiện áp dụng:
-- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.
-- Ngoại lệ không được hoàn tiền:
 - - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).
-- - Đơn hàng đã áp dụn",Tài khoản bị khóa sau 5 lần đăng nhập sai liên tiếp.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,policy_refund_v4.txt,0.6652,5,3,3,3.67,True,,,0.66,False,True,1,4,6081
+- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.
+- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.
+- Section 1: Tài khoản và mật khẩu
+- Q: Tài khoản bị khóa s",Tài khoản bị khóa sau 5 lần đăng nhập sai liên tiếp.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,policy_refund_v4.txt,0.6652,5,5,5,5.0,True,,,0.64,False,True,5,0,10669
 q05,HR Policy,easy,Nhân viên được làm remote tối đa mấy ngày mỗi tuần?,"Dua tren tai lieu noi bo:
 - Phần 4: Remote work policy
 - 4.1 Điều kiện remote:
@@ -36,62 +37,61 @@ q05,HR Policy,easy,Nhân viên được làm remote tối đa mấy ngày mỗi 
 - - Team Lead phải phê duyệt lịch remote qua HR Portal.
 - - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.
 - 4.2 Yêu cầu kỹ thuật khi remote:
-",Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần với điều kiện được Team Lead phê duyệt.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,hr_leave_policy.txt,0.6016,5,5,5,5.0,True,,,0.59,False,True,4,2,6747
+",Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần với điều kiện được Team Lead phê duyệt.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,hr_leave_policy.txt,0.6016,5,5,5,5.0,True,,,0.58,False,True,4,2,10889
 q06,SLA,medium,Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?,"Dua tren tai lieu noi bo:
-- Phần 2: SLA theo mức độ ưu tiên
+- Ticket P3:
 - - Phản hồi ban đầu: 1 ngày làm việc.
 - - Xử lý và khắc phục: 5 ngày làm việc.
+- Ticket P4:
 - - Phản hồi ban đầu: 3 ngày làm việc.
 - - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).
-- Phần 2: SLA theo mức độ ưu tiên
 
-[Nguon: it_helpdesk",Ticket P1 tự động escalate lên Senior Engineer nếu không có phản hồi trong 10 phút. Đồng thời gửi thông báo tới Slack #incident-p1 và PagerDuty.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,sla_p1_2026.txt,0.7703,5,1,1,2.33,False,incomplete,generation,0.72,False,True,0,6,6244
+[Nguon: policy_refund_v4.txt, it_helpdesk_faq.txt, sla_p1_202",Ticket P1 tự động escalate lên Senior Engineer nếu không có phản hồi trong 10 phút. Đồng thời gửi thông báo tới Slack #incident-p1 và PagerDuty.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,sla_p1_2026.txt,0.7703,5,3,1,3.0,False,incomplete,generation,0.69,False,True,0,6,10664
 q07,Refund,medium,Sản phẩm kỹ thuật số (license key) có được hoàn tiền không?,"Dua tren tai lieu noi bo:
-- Điều 3: Điều kiện áp dụng và ngoại lệ
 - Hoàn tiền — Điều kiện áp dụng:
-- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.
 - Ngoại lệ không được hoàn tiền:
 - - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).
-- - Đơn hàng đã áp dụn","Không. Theo chính sách hoàn tiền v4 (Điều 3), sản phẩm kỹ thuật số (license key, subscription) thuộc danh mục ngoại lệ không được hoàn tiền.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker",,3,policy_refund_v4.txt,0.6337,5,5,5,5.0,True,,,0.47,False,True,4,1,6594
+- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.
+- - Sản phẩm đã được kích hoạt hoặc đăng ký tài ","Không. Theo chính sách hoàn tiền v4 (Điều 3), sản phẩm kỹ thuật số (license key, subscription) thuộc danh mục ngoại lệ không được hoàn tiền.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker",,5,policy_refund_v4.txt,0.6337,5,5,5,5.0,True,,,0.46,False,True,4,1,11500
 q08,SLA,medium,Quy trình xử lý sự cố P1 gồm mấy bước và bước đầu tiên là gì?,"Dua tren tai lieu noi bo:
 - Điều 4: Quy trình xử lý yêu cầu hoàn tiền
 - Bước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category ""Refund Request"".
 - Bước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.
-- Bước 3: Nếu đủ điều kiện, chuyển yêu cầu sang F","Quy trình P1 gồm 5 bước: (1) Tiếp nhận — on-call engineer xác nhận severity trong 5 phút, (2) Thông báo tới Slack và email, (3) Triage và phân công trong 10 phút, (4) Xử lý với update mỗi 30 phút, (5) Resolution và incident report trong 24 giờ.",retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,policy_refund_v4.txt,0.6958,5,5,3,4.33,True,,,0.66,False,False,1,8,6317
+- Bước 3: Nếu đủ điều kiện, chuyển yêu cầu sang F","Quy trình P1 gồm 5 bước: (1) Tiếp nhận — on-call engineer xác nhận severity trong 5 phút, (2) Thông báo tới Slack và email, (3) Triage và phân công trong 10 phút, (4) Xử lý với update mỗi 30 phút, (5) Resolution và incident report trong 24 giờ.",retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,policy_refund_v4.txt,0.6958,5,5,3,4.33,True,,,0.64,False,False,1,8,10843
 q09,Insufficient Context,hard,ERR-403-AUTH là lỗi gì và cách xử lý?,"Dua tren tai lieu noi bo:
-- Phần 1: Các loại nghỉ phép
 - - Nghỉ sinh con: 6 tháng theo quy định Luật Lao động.
 - - Nghỉ nuôi con nhỏ: 1 tiếng/ngày trong 12 tháng đầu sau sinh.
-- Theo lịch nghỉ lễ quốc gia do HR công bố hàng năm vào tháng 12.
-- Điều 1: Phạm vi áp dụng
-- Chính sách này áp dụng cho tất",Không tìm thấy thông tin về mã lỗi ERR-403-AUTH trong tài liệu nội bộ hiện có. Hãy liên hệ IT Helpdesk để được hỗ trợ trực tiếp.,retrieval_worker,retrieval_worker,True,"human_review,retrieval_worker,synthesis_worker",,3,hr_leave_policy.txt,0.4097,5,1,1,2.33,False,incomplete,generation,0.4,True,,0,5,6583
+- Điều 4: Quy trình xử lý yêu cầu hoàn tiền
+- Bước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.
+
+[Nguon: policy_refund_v4.tx",Không tìm thấy thông tin về mã lỗi ERR-403-AUTH trong tài liệu nội bộ hiện có. Hãy liên hệ IT Helpdesk để được hỗ trợ trực tiếp.,retrieval_worker,retrieval_worker,True,"human_review,retrieval_worker,synthesis_worker",,5,hr_leave_policy.txt,0.4097,4,1,1,2.0,False,incomplete,generation,0.4,True,,0,5,10930
 q10,Refund,medium,Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?,"Dua tren tai lieu noi bo:
 - Điều 5: Hình thức hoàn tiền
 - - Hoàn tiền qua phương thức thanh toán gốc: áp dụng trong 100% trường hợp đủ điều kiện.
 - - Hoàn tiền qua credit nội bộ (store credit): khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn.
-- Điều 3: Điều kiệ",Khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn (tức là thêm 10% so với hoàn tiền gốc).,policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker",,3,policy_refund_v4.txt,0.7325,5,5,5,5.0,True,,,0.48,False,True,7,0,6266
+- Hoàn tiền — Điều",Khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn (tức là thêm 10% so với hoàn tiền gốc).,policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker",,5,policy_refund_v4.txt,0.7325,5,5,5,5.0,True,,,0.44,False,True,7,0,10963
 q11,SLA,medium,Ticket P1 được tạo lúc 22:47. Ai sẽ nhận thông báo đầu tiên và qua kênh nào? Escalation xảy ra lúc mấy giờ?,"Dua tren tai lieu noi bo:
 - Phần 2: SLA theo mức độ ưu tiên
+- Ticket P3:
 - - Phản hồi ban đầu: 1 ngày làm việc.
 - - Xử lý và khắc phục: 5 ngày làm việc.
+- Ticket P4:
 - - Phản hồi ban đầu: 3 ngày làm việc.
 - - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).
-- Phần 2: SLA theo mức độ ưu tiên
 
-[Nguon: it_helpdesk","Ngay khi P1 ticket được tạo: (1) Thông báo gửi tới Slack #incident-p1 và email incident@company.internal, (2) PagerDuty tự động nhắn on-call engineer. Nếu không có phản hồi trong 10 phút (tức 22:57), ticket tự động escalate lên Senior Engineer.",retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,sla_p1_2026.txt,0.6578,5,3,1,3.0,False,incomplete,generation,0.65,False,True,0,6,6332
+[Nguon: policy_refund_v4.tx","Ngay khi P1 ticket được tạo: (1) Thông báo gửi tới Slack #incident-p1 và email incident@company.internal, (2) PagerDuty tự động nhắn on-call engineer. Nếu không có phản hồi trong 10 phút (tức 22:57), ticket tự động escalate lên Senior Engineer.",retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,sla_p1_2026.txt,0.6578,5,3,1,3.0,False,incomplete,generation,0.64,False,True,0,6,12235
 q12,Refund,hard,"Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?","Dua tren tai lieu noi bo:
-- Điều 3: Điều kiện áp dụng và ngoại lệ
 - Hoàn tiền — Điều kiện áp dụng:
 - Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.
 - Ngoại lệ không được hoàn tiền:
 - - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).
-- - Đơn hàng đã áp dụn","Đây là trường hợp phức tạp về temporal scoping: Đơn đặt ngày 31/01/2026 (trước ngày 01/02/2026) nên áp dụng chính sách hoàn tiền phiên bản 3, không phải v4. Tài liệu hiện tại chỉ có chính sách v4. Cần xác nhận với CS Team về nội dung chính sách v3.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker",,3,policy_refund_v4.txt,0.7788,5,5,3,4.33,True,,,0.61,False,True,0,5,6928
+- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình","Đây là trường hợp phức tạp về temporal scoping: Đơn đặt ngày 31/01/2026 (trước ngày 01/02/2026) nên áp dụng chính sách hoàn tiền phiên bản 3, không phải v4. Tài liệu hiện tại chỉ có chính sách v4. Cần xác nhận với CS Team về nội dung chính sách v3.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker",,5,policy_refund_v4.txt,0.7788,5,5,3,4.33,True,,,0.59,False,True,0,5,11269
 q13,Access Control,hard,Contractor cần Admin Access (Level 3) để khắc phục sự cố P1 đang active. Quy trình cấp quyền tạm thời như thế nào?,"Dua tren tai lieu noi bo:
 - Section 3: Quy trình yêu cầu cấp quyền
 - Bước 1: Nhân viên tạo Access Request ticket trên Jira (project IT-ACCESS).
-- Bước 2: Line Manager phê duyệt yêu cầu trong 1 ngày làm việc.
 - Bước 3: IT Admin kiểm tra compliance và cấp quyền.
-- Bước 4: IT Security review với Level ","Level 3 (Admin Access) KHÔNG có emergency bypass theo SOP. Dù đang có P1, vẫn phải có approval từ đủ 3 bên: Line Manager, IT Admin, và IT Security. Không thể cấp tạm thời.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker","{'mcp_tool_called': 'get_ticket_info', 'mcp_input': {'ticket_id': 'P1-LATEST'}, 'mcp_result': {'ticket_id': 'IT-9847', 'priority': 'P1', 'title': 'API Gateway down — toàn bộ người dùng không đăng nhập được', 'status': 'in_progress', 'assignee': 'nguyen.van.a@company.internal', 'created_at': '2026-04-13T22:47:00', 'sla_deadline': '2026-04-14T02:47:00', 'response_deadline': '2026-04-13T23:02:00', 'escalated': True, 'escalated_to': 'senior_engineer_team', 'notifications_sent': ['slack:#incident-p1', 'email:incident@company.internal', 'pagerduty:oncall'], 'first_notified': 'slack:#incident-p1', 'auto_escalation_at_minutes': 10, 'auto_escalation_action': 'Tự động escalate lên Senior Engineer Team và gửi lại thông báo.'}, 'timestamp': '2026-04-14T16:15:38.521745'},{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': True}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': ['Level 3 KHÔNG có emergency bypass. Phải follow quy trình chuẩn.'], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:15:42.815837'}",3,access_control_sop.txt,0.6816,5,3,3,3.67,True,,,0.67,False,False,1,4,15427
+- Bước 4: IT Security review với Level 3 và Level 4.
+- Bước 5: Nhân viên nhận thông báo qua email khi q","Level 3 (Admin Access) KHÔNG có emergency bypass theo SOP. Dù đang có P1, vẫn phải có approval từ đủ 3 bên: Line Manager, IT Admin, và IT Security. Không thể cấp tạm thời.",policy_tool_worker,policy_tool_worker,True,"retrieval_worker,policy_tool_worker,synthesis_worker","{'mcp_tool_called': 'get_ticket_info', 'mcp_input': {'ticket_id': 'P1-LATEST'}, 'mcp_result': {'ticket_id': 'IT-9847', 'priority': 'P1', 'title': 'API Gateway down — toàn bộ người dùng không đăng nhập được', 'status': 'in_progress', 'assignee': 'nguyen.van.a@company.internal', 'created_at': '2026-04-13T22:47:00', 'sla_deadline': '2026-04-14T02:47:00', 'response_deadline': '2026-04-13T23:02:00', 'escalated': True, 'escalated_to': 'senior_engineer_team', 'notifications_sent': ['slack:#incident-p1', 'email:incident@company.internal', 'pagerduty:oncall'], 'first_notified': 'slack:#incident-p1', 'auto_escalation_at_minutes': 10, 'auto_escalation_action': 'Tự động escalate lên Senior Engineer Team và gửi lại thông báo.'}, 'timestamp': '2026-04-14T16:58:23.276501'},{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': True}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': ['Level 3 KHÔNG có emergency bypass. Phải follow quy trình chuẩn.'], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:58:23.280365'}",5,access_control_sop.txt,0.6816,5,3,3,3.67,True,,,0.65,False,False,0,5,11640
 q14,HR Policy,medium,Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?,"Dua tren tai lieu noi bo:
 - Phần 4: Remote work policy
 - 4.1 Điều kiện remote:
@@ -99,10 +99,10 @@ q14,HR Policy,medium,Nhân viên vừa vào thử việc (trong probation period
 - - Team Lead phải phê duyệt lịch remote qua HR Portal.
 - - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.
 - 4.2 Yêu cầu kỹ thuật khi remote:
-",Nhân viên trong probation period KHÔNG được phép làm remote. Chỉ nhân viên đã qua probation period mới được phép làm remote tối đa 2 ngày/tuần với điều kiện được Team Lead phê duyệt.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,3,hr_leave_policy.txt,0.6916,5,5,5,5.0,True,,,0.65,False,True,1,5,6622
+",Nhân viên trong probation period KHÔNG được phép làm remote. Chỉ nhân viên đã qua probation period mới được phép làm remote tối đa 2 ngày/tuần với điều kiện được Team Lead phê duyệt.,retrieval_worker,retrieval_worker,True,"retrieval_worker,synthesis_worker",,5,hr_leave_policy.txt,0.6916,5,5,5,5.0,True,,,0.63,False,True,1,5,11517
 q15,Multi-hop,hard,Ticket P1 lúc 2am. Cần cấp Level 2 access tạm thời cho contractor để thực hiện emergency fix. Đồng thời cần notify stakeholders theo SLA. Nêu đủ cả hai quy trình.,"Dua tren tai lieu noi bo:
 - Section 4: Escalation khi cần thay đổi quyền hệ thống
 - Escalation chỉ áp dụng khi cần thay đổi quyền hệ thống ngoài quy trình thông thường.
 - Ví dụ: Khẩn cấp trong sự cố P1, cần cấp quyền tạm thời để fix incident.
 - Quy trình escalation khẩn cấp:
-- 1. On-call IT Admin có","Hai quy trình song song: (1) SLA P1 notifications: Ngay lập tức gửi Slack #incident-p1, email incident@company.internal, PagerDuty on-call. Escalate lên Senior Engineer nếu không phản hồi trong 10 phút. (2) Level 2 access emergency: Level 2 CÓ emergency bypass — có thể cấp với approval đồng thời của",retrieval_worker,policy_tool_worker,False,"retrieval_worker,synthesis_worker",,3,access_control_sop.txt,0.6545,5,3,3,3.67,True,wrong_route,supervisor,0.65,False,True,0,6,6641
+- 1. On-call IT Admin có","Hai quy trình song song: (1) SLA P1 notifications: Ngay lập tức gửi Slack #incident-p1, email incident@company.internal, PagerDuty on-call. Escalate lên Senior Engineer nếu không phản hồi trong 10 phút. (2) Level 2 access emergency: Level 2 CÓ emergency bypass — có thể cấp với approval đồng thời của",retrieval_worker,policy_tool_worker,False,"retrieval_worker,synthesis_worker",,5,access_control_sop.txt,0.6545,5,3,3,3.67,True,wrong_route,supervisor,0.65,False,True,0,6,11483

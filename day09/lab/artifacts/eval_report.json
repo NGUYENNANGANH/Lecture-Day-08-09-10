@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-04-14T16:15:56.104271",
+  "generated_at": "2026-04-14T16:58:46.292130",
   "sprint": 2,
   "total_questions": 15,
   "pass_count": 12,
   "trace_metrics": {
-    "total_traces": 31,
+    "total_traces": 46,
     "routing_distribution": {
-      "policy_tool_worker": "13/31 (41%)",
-      "retrieval_worker": "18/31 (58%)"
+      "retrieval_worker": "27/46 (58%)",
+      "policy_tool_worker": "19/46 (41%)"
     },
-    "avg_confidence": 0.613,
-    "avg_latency_ms": 8252,
+    "avg_confidence": 0.603,
+    "avg_latency_ms": 9352,
     "min_latency_ms": 6081,
     "max_latency_ms": 16841,
-    "mcp_usage_rate": "4/31 (12%)",
-    "hitl_rate": "2/31 (6%)",
+    "mcp_usage_rate": "6/46 (13%)",
+    "hitl_rate": "3/46 (6%)",
     "top_sources": [
       [
         "policy_refund_v4.txt",
-        18
-      ],
-      [
-        "sla_p1_2026.txt",
-        10
+        29
       ],
       [
         "it_helpdesk_faq.txt",
-        10
+        18
       ],
       [
         "access_control_sop.txt",
-        8
+        17
+      ],
+      [
+        "sla_p1_2026.txt",
+        15
       ],
       [
         "hr_leave_policy.txt",
-        6
+        10
       ]
     ]
   },
@@ -53,7 +53,7 @@
         "sla_p1_2026.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- SLA TICKET - QUY ĐỊNH XỬ LÝ SỰ CỐ\n- Source: support/sla-p1-2026.pdf\n- Effective Date: 2026-01-15\n- Phần 2: SLA theo mức độ ưu tiên\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n\n[Nguon: sla_p1_2026.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- SLA TICKET - QUY ĐỊNH XỬ LÝ SỰ CỐ\n- Source: support/sla-p1-2026.pdf\n- Phần 2: SLA theo mức độ ưu tiên\n- Ticket P3:\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n\n[Nguon: it_helpdesk_faq.txt, sla_p1_2026.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
       "workers_called": [
@@ -61,7 +61,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.6,
+      "confidence": 0.57,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -70,8 +70,8 @@
           "source": "sla_p1_2026.txt",
           "score": 0.6495,
           "metadata": {
-            "section": "header",
-            "source": "sla_p1_2026.txt"
+            "source": "sla_p1_2026.txt",
+            "section": "header"
           }
         },
         {
@@ -93,16 +93,37 @@
             "source": "sla_p1_2026.txt",
             "section": "Phần 2: SLA theo mức độ ưu tiên"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Section 5: Email và lịch\nQ: Hộp thư đến đầy, phải làm gì?\nA: Xóa email cũ hoặc yêu cầu tăng dung lượng qua ticket IT-ACCESS. Dung lượng tiêu chuẩn là 50GB.\n\nQ: Tôi không nhận được email từ bên ngoài?\nA: Kiểm tra thư mục Spam trước. Nếu vẫn không có, tạo ticket P2 kèm địa chỉ email gửi và thời gian gửi.",
+          "source": "it_helpdesk_faq.txt",
+          "score": 0.5287,
+          "metadata": {
+            "section": "Section 5: Email và lịch",
+            "source": "it_helpdesk_faq.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 4: Thiết bị và phần cứng\nQ: Laptop mới được cấp sau bao lâu khi vào công ty?\nA: Laptop được cấp trong ngày onboarding đầu tiên. Nếu có vấn đề, liên hệ HR hoặc IT Admin.\n\nQ: Laptop bị hỏng phải báo cáo như thế nào?\nA: Tạo ticket P2 hoặc P3 tùy mức độ nghiêm trọng. Mang thiết bị đến IT Room (tầng 3) để kiểm tra.",
+          "source": "it_helpdesk_faq.txt",
+          "score": 0.5185,
+          "metadata": {
+            "section": "Section 4: Thiết bị và phần cứng",
+            "source": "it_helpdesk_faq.txt"
+          }
         }
       ],
       "retrieved_sources": [
+        "it_helpdesk_faq.txt",
         "sla_p1_2026.txt"
       ],
       "scoring": {
         "faithfulness": {
-          "score": 5,
-          "grounding_ratio": 0.818,
-          "notes": "9/11 words grounded"
+          "score": 4,
+          "grounding_ratio": 0.7,
+          "notes": "7/10 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -119,7 +140,7 @@
           "actual": "retrieval_worker",
           "expected": "retrieval_worker"
         },
-        "avg_score": 4.33,
+        "avg_score": 4.0,
         "pass": true,
         "failure_mode": null,
         "failure_layer": null
@@ -131,30 +152,31 @@
           "ban đầu"
         ],
         "key_facts_missing": [
+          "thời gian",
           "15 phút",
           "sla phản hồi",
-          "thời gian",
           "4 giờ"
         ]
       },
-      "latency_ms": 16217,
+      "latency_ms": 16421,
       "history": [
         "[supervisor] received task: SLA xử lý ticket P1 là bao lâu?",
         "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-        "[retrieval_worker] retrieved 3 chunks from ['sla_p1_2026.txt']",
-        "[synthesis_worker] answer generated, confidence=0.6, sources=['sla_p1_2026.txt']",
-        "[graph] completed in 16217ms"
+        "[retrieval_worker] retrieved 5 chunks from ['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
+        "[synthesis_worker] answer generated, confidence=0.57, sources=['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
+        "[graph] completed in 16421ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "SLA xử lý ticket P1 là bao lâu?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
+              "it_helpdesk_faq.txt",
               "sla_p1_2026.txt"
             ]
           },
@@ -164,21 +186,22 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "SLA xử lý ticket P1 là bao lâu?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 264,
+            "answer_length": 269,
             "sources": [
+              "it_helpdesk_faq.txt",
               "sla_p1_2026.txt"
             ],
-            "confidence": 0.6
+            "confidence": 0.57
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161355.json",
-      "timestamp": "2026-04-14T16:14:11.744217"
+      "trace_file": "artifacts/traces/run_20260414_165552.json",
+      "timestamp": "2026-04-14T16:56:09.410516"
     },
     {
       "id": "q02",
@@ -190,7 +213,7 @@
         "policy_refund_v4.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Điều 2: Điều kiện được hoàn tiền\n- Khách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n- - Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.\n- - Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.\n- - Đơn hàng chưa được sử dụng hoặc chưa bị mở seal.\n- Điều 1: Phạm vi áp dụng\n\n[Nguon: policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Điều 2: Điều kiện được hoàn tiền\n- Khách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n- - Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.\n- - Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.\n- - Đơn hàng chưa được sử dụng hoặc chưa bị mở seal.\n- Chính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\n\n[Nguon: policy_refund_v4.txt, hr_leave_policy.txt]",
       "supervisor_route": "policy_tool_worker",
       "route_reason": "Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
       "workers_called": [
@@ -199,7 +222,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.7,
+      "confidence": 0.53,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -218,8 +241,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6819,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 1: Phạm vi áp dụng"
+            "section": "Điều 1: Phạm vi áp dụng",
+            "source": "policy_refund_v4.txt"
           }
         },
         {
@@ -228,19 +251,40 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6817,
           "metadata": {
-            "section": "Điều 5: Hình thức hoàn tiền",
-            "source": "policy_refund_v4.txt"
+            "source": "policy_refund_v4.txt",
+            "section": "Điều 5: Hình thức hoàn tiền"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 3: Điều kiện áp dụng và ngoại lệ\nHoàn tiền — Điều kiện áp dụng:\nYêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\nNgoại lệ không được hoàn tiền:\n- Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6807,
+          "metadata": {
+            "source": "policy_refund_v4.txt",
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Phần 1: Các loại nghỉ phép\n1.3 Nghỉ thai sản:\n- Nghỉ sinh con: 6 tháng theo quy định Luật Lao động.\n- Nghỉ nuôi con nhỏ: 1 tiếng/ngày trong 12 tháng đầu sau sinh.\n\n1.4 Nghỉ lễ tết:\nTheo lịch nghỉ lễ quốc gia do HR công bố hàng năm vào tháng 12.",
+          "source": "hr_leave_policy.txt",
+          "score": 0.6265,
+          "metadata": {
+            "section": "Phần 1: Các loại nghỉ phép",
+            "source": "hr_leave_policy.txt"
           }
         }
       ],
       "retrieved_sources": [
-        "policy_refund_v4.txt"
+        "policy_refund_v4.txt",
+        "hr_leave_policy.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.818,
-          "notes": "9/11 words grounded"
+          "grounding_ratio": 0.8,
+          "notes": "12/15 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -266,36 +310,37 @@
         "match_ratio": 0.667,
         "sources_match": true,
         "key_facts_found": [
-          "thời điểm xác",
+          "ngày làm việc",
           "7 ngày",
-          "khách hàng",
-          "ngày làm việc"
+          "thời điểm xác",
+          "khách hàng"
         ],
         "key_facts_missing": [
           "thể yêu cầu",
           "hoàn tiền trong"
         ]
       },
-      "latency_ms": 6956,
+      "latency_ms": 11172,
       "history": [
         "[supervisor] received task: Khách hàng có thể yêu cầu hoàn tiền trong bao nhiêu ngày?",
         "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-        "[retrieval_worker] retrieved 3 chunks from ['policy_refund_v4.txt']",
-        "[policy_tool_worker] policy_applies=True, policy=refund_policy_v4, exceptions=0, mcp_calls=0",
-        "[synthesis_worker] answer generated, confidence=0.7, sources=['policy_refund_v4.txt']",
-        "[graph] completed in 6956ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'hr_leave_policy.txt']",
+        "[policy_tool_worker] policy_applies=False, policy=refund_policy_v4, exceptions=3, mcp_calls=0",
+        "[synthesis_worker] answer generated, confidence=0.53, sources=['policy_refund_v4.txt', 'hr_leave_policy.txt']",
+        "[graph] completed in 11172ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Khách hàng có thể yêu cầu hoàn tiền trong bao nhiêu ngày?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "hr_leave_policy.txt"
             ]
           },
           "error": null
@@ -304,16 +349,16 @@
           "worker": "policy_tool_worker",
           "input": {
             "task": "Khách hàng có thể yêu cầu hoàn tiền trong bao nhiêu ngày?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "needs_tool": true
           },
           "output": {
-            "policy_applies": true,
+            "policy_applies": false,
             "policy_name": "refund_policy_v4",
-            "exceptions_count": 0,
+            "exceptions_count": 3,
             "has_access_control": false,
             "mcp_calls": 0,
-            "explanation": "Đủ điều kiện hoàn tiền theo Điều 2 chính sách v4."
+            "explanation": "Phát hiện 3 ngoại lệ: flash_sale_exception, digital_product_exception, activated_product_exception"
           },
           "error": null
         },
@@ -321,21 +366,22 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Khách hàng có thể yêu cầu hoàn tiền trong bao nhiêu ngày?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": true
           },
           "output": {
-            "answer_length": 392,
+            "answer_length": 489,
             "sources": [
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "hr_leave_policy.txt"
             ],
-            "confidence": 0.7
+            "confidence": 0.53
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161411.json",
-      "timestamp": "2026-04-14T16:14:18.702608"
+      "trace_file": "artifacts/traces/run_20260414_165609.json",
+      "timestamp": "2026-04-14T16:56:20.583936"
     },
     {
       "id": "q03",
@@ -347,7 +393,7 @@
         "access_control_sop.txt"
       ],
       "expected_route": "policy_tool_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Section 2: Phân cấp quyền truy cập\n- Áp dụng cho: Tất cả nhân viên mới trong 30 ngày đầu.\n- Phê duyệt: Line Manager.\n- Thời gian xử lý: 1 ngày làm việc.\n- Level 2 — Standard Access:\n- Áp dụng cho: Nhân viên chính thức đã qua thử việc.\n- Phê duyệt: Line Manager + IT Admin.\n\n[Nguon: access_control_sop.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Section 2: Phân cấp quyền truy cập\n- Level 1 — Read Only:\n- Phê duyệt: Line Manager.\n- Level 2 — Standard Access:\n- Phê duyệt: Line Manager + IT Admin.\n- Level 3 — Elevated Access:\n- Phê duyệt: Line Manager + IT Admin + IT Security.\n\n[Nguon: access_control_sop.txt]",
       "supervisor_route": "policy_tool_worker",
       "route_reason": "Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
       "workers_called": [
@@ -356,9 +402,9 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [
-        "{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': False}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': [], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:14:29.288138'}"
+        "{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': False}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': [], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:56:31.669856'}"
       ],
-      "confidence": 0.62,
+      "confidence": 0.61,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -367,8 +413,8 @@
           "source": "access_control_sop.txt",
           "score": 0.6342,
           "metadata": {
-            "source": "access_control_sop.txt",
-            "section": "Section 2: Phân cấp quyền truy cập"
+            "section": "Section 2: Phân cấp quyền truy cập",
+            "source": "access_control_sop.txt"
           }
         },
         {
@@ -377,8 +423,8 @@
           "source": "access_control_sop.txt",
           "score": 0.6211,
           "metadata": {
-            "source": "access_control_sop.txt",
-            "section": "Section 2: Phân cấp quyền truy cập"
+            "section": "Section 2: Phân cấp quyền truy cập",
+            "source": "access_control_sop.txt"
           }
         },
         {
@@ -390,6 +436,26 @@
             "section": "Section 1: Phạm vi và mục đích",
             "source": "access_control_sop.txt"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Section 4: Escalation khi cần thay đổi quyền hệ thống\nEscalation chỉ áp dụng khi cần thay đổi quyền hệ thống ngoài quy trình thông thường.\nVí dụ: Khẩn cấp trong sự cố P1, cần cấp quyền tạm thời để fix incident.\n\nQuy trình escalation khẩn cấp:\n1. On-call IT Admin có thể cấp quyền tạm thời (max 24 giờ) sau khi được Tech Lead phê duyệt bằng lời.\n2. Sau 24 giờ, phải có ticket chính thức hoặc quyền bị thu hồi tự động.\n3. Mọi quyền tạm thời phải được ghi log vào hệ thống Security Audit.",
+          "source": "access_control_sop.txt",
+          "score": 0.6042,
+          "metadata": {
+            "source": "access_control_sop.txt",
+            "section": "Section 4: Escalation khi cần thay đổi quyền hệ thống"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 3: Quy trình yêu cầu cấp quyền\nBước 1: Nhân viên tạo Access Request ticket trên Jira (project IT-ACCESS).\nBước 2: Line Manager phê duyệt yêu cầu trong 1 ngày làm việc.\nBước 3: IT Admin kiểm tra compliance và cấp quyền.\nBước 4: IT Security review với Level 3 và Level 4.\nBước 5: Nhân viên nhận thông báo qua email khi quyền được cấp.",
+          "source": "access_control_sop.txt",
+          "score": 0.6007,
+          "metadata": {
+            "section": "Section 3: Quy trình yêu cầu cấp quyền",
+            "source": "access_control_sop.txt"
+          }
         }
       ],
       "retrieved_sources": [
@@ -398,8 +464,8 @@
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.875,
-          "notes": "14/16 words grounded"
+          "grounding_ratio": 0.905,
+          "notes": "19/21 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -408,8 +474,8 @@
         },
         "completeness": {
           "score": 3,
-          "coverage": 0.294,
-          "notes": "Coverage: 29.4%"
+          "coverage": 0.412,
+          "notes": "Coverage: 41.2%"
         },
         "routing": {
           "correct": true,
@@ -422,36 +488,36 @@
         "failure_layer": null
       },
       "comparison": {
-        "match_ratio": 0.25,
+        "match_ratio": 0.5,
         "sources_match": true,
         "key_facts_found": [
+          "elevated access",
           "line manager"
         ],
         "key_facts_missing": [
-          "người phê duyệt",
           "cần phê duyệt",
-          "elevated access"
+          "người phê duyệt"
         ]
       },
-      "latency_ms": 10586,
+      "latency_ms": 11086,
       "history": [
         "[supervisor] received task: Ai phải phê duyệt để cấp quyền Level 3?",
         "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-        "[retrieval_worker] retrieved 3 chunks from ['access_control_sop.txt']",
+        "[retrieval_worker] retrieved 5 chunks from ['access_control_sop.txt']",
         "[policy_tool_worker] called MCP check_access_permission (level=3)",
         "[policy_tool_worker] policy_applies=True, policy=access_control_sop, exceptions=0, mcp_calls=1",
-        "[synthesis_worker] answer generated, confidence=0.62, sources=['access_control_sop.txt']",
-        "[graph] completed in 10586ms"
+        "[synthesis_worker] answer generated, confidence=0.61, sources=['access_control_sop.txt']",
+        "[graph] completed in 11086ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Ai phải phê duyệt để cấp quyền Level 3?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
               "access_control_sop.txt"
             ]
@@ -462,7 +528,7 @@
           "worker": "policy_tool_worker",
           "input": {
             "task": "Ai phải phê duyệt để cấp quyền Level 3?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "needs_tool": true
           },
           "output": {
@@ -479,21 +545,21 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Ai phải phê duyệt để cấp quyền Level 3?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": true
           },
           "output": {
-            "answer_length": 333,
+            "answer_length": 293,
             "sources": [
               "access_control_sop.txt"
             ],
-            "confidence": 0.62
+            "confidence": 0.61
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161418.json",
-      "timestamp": "2026-04-14T16:14:29.291126"
+      "trace_file": "artifacts/traces/run_20260414_165620.json",
+      "timestamp": "2026-04-14T16:56:31.671052"
     },
     {
       "id": "q04",
@@ -505,7 +571,7 @@
         "it_helpdesk_faq.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n\n[Nguon: it_helpdesk_faq.txt, policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n- Section 1: Tài khoản và mật khẩu\n- Q: Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?\n- A: Tài khoản bị khóa sau 5 lần đăng nhập sai liên tiếp. Để mở khóa, liên hệ IT Helpdesk hoặc tự reset qua portal SSO.\n\n[Nguon: policy_refund_v4.txt, it_helpdesk_faq.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "default fallback route -> retrieval_worker.",
       "workers_called": [
@@ -513,7 +579,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.66,
+      "confidence": 0.64,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -522,8 +588,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6652,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
+            "source": "policy_refund_v4.txt"
           }
         },
         {
@@ -542,74 +608,93 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6353,
           "metadata": {
+            "section": "Điều 2: Điều kiện được hoàn tiền",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Section 4: Thiết bị và phần cứng\nQ: Laptop mới được cấp sau bao lâu khi vào công ty?\nA: Laptop được cấp trong ngày onboarding đầu tiên. Nếu có vấn đề, liên hệ HR hoặc IT Admin.\n\nQ: Laptop bị hỏng phải báo cáo như thế nào?\nA: Tạo ticket P2 hoặc P3 tùy mức độ nghiêm trọng. Mang thiết bị đến IT Room (tầng 3) để kiểm tra.",
+          "source": "it_helpdesk_faq.txt",
+          "score": 0.6265,
+          "metadata": {
+            "source": "it_helpdesk_faq.txt",
+            "section": "Section 4: Thiết bị và phần cứng"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Điều 1: Phạm vi áp dụng\nChính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\nCác đơn hàng đặt trước ngày có hiệu lực sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6107,
+          "metadata": {
             "source": "policy_refund_v4.txt",
-            "section": "Điều 2: Điều kiện được hoàn tiền"
+            "section": "Điều 1: Phạm vi áp dụng"
           }
         }
       ],
       "retrieved_sources": [
-        "it_helpdesk_faq.txt",
-        "policy_refund_v4.txt"
+        "policy_refund_v4.txt",
+        "it_helpdesk_faq.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.85,
-          "notes": "17/20 words grounded"
+          "grounding_ratio": 0.87,
+          "notes": "20/23 words grounded"
         },
         "relevance": {
-          "score": 3,
-          "overlap": 0.4,
-          "notes": "2/5 query keywords in answer"
+          "score": 5,
+          "overlap": 1.0,
+          "notes": "5/5 query keywords in answer"
         },
         "completeness": {
-          "score": 3,
-          "coverage": 0.25,
-          "notes": "Coverage: 25.0%"
+          "score": 5,
+          "coverage": 1.0,
+          "notes": "Coverage: 100.0%"
         },
         "routing": {
           "correct": true,
           "actual": "retrieval_worker",
           "expected": "retrieval_worker"
         },
-        "avg_score": 3.67,
+        "avg_score": 5.0,
         "pass": true,
         "failure_mode": null,
         "failure_layer": null
       },
       "comparison": {
-        "match_ratio": 0.2,
+        "match_ratio": 1.0,
         "sources_match": true,
         "key_facts_found": [
+          "5 lần",
+          "lần đăng nhập",
+          "sai liên tiếp",
+          "khóa sau",
           "tài khoản"
         ],
-        "key_facts_missing": [
-          "5 lần",
-          "sai liên tiếp",
-          "lần đăng nhập",
-          "khóa sau"
-        ]
+        "key_facts_missing": []
       },
-      "latency_ms": 6081,
+      "latency_ms": 10669,
       "history": [
         "[supervisor] received task: Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
         "[supervisor] route=retrieval_worker reason=default fallback route -> retrieval_worker.",
-        "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'policy_refund_v4.txt']",
-        "[synthesis_worker] answer generated, confidence=0.66, sources=['it_helpdesk_faq.txt', 'policy_refund_v4.txt']",
-        "[graph] completed in 6081ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'it_helpdesk_faq.txt']",
+        "[synthesis_worker] answer generated, confidence=0.64, sources=['policy_refund_v4.txt', 'it_helpdesk_faq.txt']",
+        "[graph] completed in 10669ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
-              "it_helpdesk_faq.txt",
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "it_helpdesk_faq.txt"
             ]
           },
           "error": null
@@ -618,22 +703,22 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 470,
+            "answer_length": 503,
             "sources": [
-              "it_helpdesk_faq.txt",
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "it_helpdesk_faq.txt"
             ],
-            "confidence": 0.66
+            "confidence": 0.64
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161429.json",
-      "timestamp": "2026-04-14T16:14:35.373499"
+      "trace_file": "artifacts/traces/run_20260414_165631.json",
+      "timestamp": "2026-04-14T16:56:42.340667"
     },
     {
       "id": "q05",
@@ -645,7 +730,7 @@
         "hr_leave_policy.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Phần 4: Remote work policy\n- 4.1 Điều kiện remote:\n- - Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- - Team Lead phải phê duyệt lịch remote qua HR Portal.\n- - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n- 4.2 Yêu cầu kỹ thuật khi remote:\n- - Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n\n[Nguon: it_helpdesk_faq.txt, hr_leave_policy.txt, policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Phần 4: Remote work policy\n- 4.1 Điều kiện remote:\n- - Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- - Team Lead phải phê duyệt lịch remote qua HR Portal.\n- - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n- 4.2 Yêu cầu kỹ thuật khi remote:\n- - Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n\n[Nguon: policy_refund_v4.txt, hr_leave_policy.txt, it_helpdesk_faq.txt, access_control_sop.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "default fallback route -> retrieval_worker.",
       "workers_called": [
@@ -653,7 +738,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.59,
+      "confidence": 0.58,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -672,8 +757,8 @@
           "source": "it_helpdesk_faq.txt",
           "score": 0.5839,
           "metadata": {
-            "section": "Section 2: VPN và kết nối từ xa",
-            "source": "it_helpdesk_faq.txt"
+            "source": "it_helpdesk_faq.txt",
+            "section": "Section 2: VPN và kết nối từ xa"
           }
         },
         {
@@ -682,21 +767,42 @@
           "source": "policy_refund_v4.txt",
           "score": 0.5825,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 6: Liên hệ và hỗ trợ"
+            "section": "Điều 6: Liên hệ và hỗ trợ",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 3: Điều kiện áp dụng và ngoại lệ\nHoàn tiền — Điều kiện áp dụng:\nYêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\nNgoại lệ không được hoàn tiền:\n- Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.5715,
+          "metadata": {
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+          "source": "access_control_sop.txt",
+          "score": 0.5638,
+          "metadata": {
+            "section": "Section 1: Phạm vi và mục đích",
+            "source": "access_control_sop.txt"
           }
         }
       ],
       "retrieved_sources": [
-        "it_helpdesk_faq.txt",
+        "policy_refund_v4.txt",
         "hr_leave_policy.txt",
-        "policy_refund_v4.txt"
+        "it_helpdesk_faq.txt",
+        "access_control_sop.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.8,
-          "notes": "16/20 words grounded"
+          "grounding_ratio": 0.762,
+          "notes": "16/21 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -722,37 +828,38 @@
         "match_ratio": 0.667,
         "sources_match": true,
         "key_facts_found": [
-          "probation period",
-          "thể làm remote",
+          "nhân viên sau",
           "2 ngày",
-          "nhân viên sau"
+          "thể làm remote",
+          "probation period"
         ],
         "key_facts_missing": [
           "kiện được team",
           "tuần với điều"
         ]
       },
-      "latency_ms": 6747,
+      "latency_ms": 10889,
       "history": [
         "[supervisor] received task: Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
         "[supervisor] route=retrieval_worker reason=default fallback route -> retrieval_worker.",
-        "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'hr_leave_policy.txt', 'policy_refund_v4.txt']",
-        "[synthesis_worker] answer generated, confidence=0.59, sources=['it_helpdesk_faq.txt', 'hr_leave_policy.txt', 'policy_refund_v4.txt']",
-        "[graph] completed in 6747ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt', 'access_control_sop.txt']",
+        "[synthesis_worker] answer generated, confidence=0.58, sources=['policy_refund_v4.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt', 'access_control_sop.txt']",
+        "[graph] completed in 10889ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
-              "it_helpdesk_faq.txt",
+              "policy_refund_v4.txt",
               "hr_leave_policy.txt",
-              "policy_refund_v4.txt"
+              "it_helpdesk_faq.txt",
+              "access_control_sop.txt"
             ]
           },
           "error": null
@@ -761,23 +868,24 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Nhân viên được làm remote tối đa mấy ngày mỗi tuần?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 431,
+            "answer_length": 455,
             "sources": [
-              "it_helpdesk_faq.txt",
+              "policy_refund_v4.txt",
               "hr_leave_policy.txt",
-              "policy_refund_v4.txt"
+              "it_helpdesk_faq.txt",
+              "access_control_sop.txt"
             ],
-            "confidence": 0.59
+            "confidence": 0.58
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161435.json",
-      "timestamp": "2026-04-14T16:14:42.120632"
+      "trace_file": "artifacts/traces/run_20260414_165642.json",
+      "timestamp": "2026-04-14T16:56:53.230702"
     },
     {
       "id": "q06",
@@ -789,7 +897,7 @@
         "sla_p1_2026.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Phần 2: SLA theo mức độ ưu tiên\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n- - Phản hồi ban đầu: 3 ngày làm việc.\n- - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).\n- Phần 2: SLA theo mức độ ưu tiên\n\n[Nguon: it_helpdesk_faq.txt, sla_p1_2026.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Ticket P3:\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n- Ticket P4:\n- - Phản hồi ban đầu: 3 ngày làm việc.\n- - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).\n\n[Nguon: policy_refund_v4.txt, it_helpdesk_faq.txt, sla_p1_2026.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
       "workers_called": [
@@ -797,7 +905,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.72,
+      "confidence": 0.69,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -826,37 +934,58 @@
           "source": "it_helpdesk_faq.txt",
           "score": 0.6797,
           "metadata": {
-            "source": "it_helpdesk_faq.txt",
-            "section": "Section 5: Email và lịch"
+            "section": "Section 5: Email và lịch",
+            "source": "it_helpdesk_faq.txt"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 3: Điều kiện áp dụng và ngoại lệ\nHoàn tiền — Điều kiện áp dụng:\nYêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\nNgoại lệ không được hoàn tiền:\n- Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6509,
+          "metadata": {
+            "source": "policy_refund_v4.txt",
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Phần 1: Định nghĩa mức độ ưu tiên\nP1 — CRITICAL (Khẩn cấp):\nĐịnh nghĩa: Sự cố ảnh hưởng toàn bộ hệ thống production, không có workaround.\nVí dụ: Database sập, API gateway down, toàn bộ người dùng không thể đăng nhập.\n\nP2 — HIGH (Nghiêm trọng):\nĐịnh nghĩa: Sự cố ảnh hưởng một phần hệ thống, có workaround tạm thời.\nVí dụ: Một số tính năng không hoạt động, ảnh hưởng một nhóm người dùng.\n\nP3 — MEDIUM (Trung bình):\nĐịnh nghĩa: Lỗi ảnh hưởng không đáng kể, người dùng vẫn làm việc được.",
+          "source": "sla_p1_2026.txt",
+          "score": 0.635,
+          "metadata": {
+            "source": "sla_p1_2026.txt",
+            "section": "Phần 1: Định nghĩa mức độ ưu tiên"
           }
         }
       ],
       "retrieved_sources": [
+        "policy_refund_v4.txt",
         "it_helpdesk_faq.txt",
         "sla_p1_2026.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.769,
-          "notes": "10/13 words grounded"
+          "grounding_ratio": 0.75,
+          "notes": "12/16 words grounded"
         },
         "relevance": {
-          "score": 1,
-          "overlap": 0.143,
-          "notes": "1/7 query keywords in answer"
+          "score": 3,
+          "overlap": 0.286,
+          "notes": "2/7 query keywords in answer"
         },
         "completeness": {
           "score": 1,
-          "coverage": 0.115,
-          "notes": "Coverage: 11.5%"
+          "coverage": 0.154,
+          "notes": "Coverage: 15.4%"
         },
         "routing": {
           "correct": true,
           "actual": "retrieval_worker",
           "expected": "retrieval_worker"
         },
-        "avg_score": 2.33,
+        "avg_score": 3.0,
         "pass": false,
         "failure_mode": "incomplete",
         "failure_layer": "generation"
@@ -866,32 +995,33 @@
         "sources_match": true,
         "key_facts_found": [],
         "key_facts_missing": [
-          "động escalate lên",
           "10 phút",
-          "đồng thời gửi",
-          "thông báo tới",
           "senior engineer nếu",
+          "đồng thời gửi",
+          "động escalate lên",
+          "thông báo tới",
           "phản hồi trong"
         ]
       },
-      "latency_ms": 6244,
+      "latency_ms": 10664,
       "history": [
         "[supervisor] received task: Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?",
         "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-        "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
-        "[synthesis_worker] answer generated, confidence=0.72, sources=['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
-        "[graph] completed in 6244ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
+        "[synthesis_worker] answer generated, confidence=0.69, sources=['policy_refund_v4.txt', 'it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
+        "[graph] completed in 10664ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
+              "policy_refund_v4.txt",
               "it_helpdesk_faq.txt",
               "sla_p1_2026.txt"
             ]
@@ -902,22 +1032,23 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Ticket P1 không được phản hồi sau 10 phút. Hệ thống tự động làm gì?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 326,
+            "answer_length": 306,
             "sources": [
+              "policy_refund_v4.txt",
               "it_helpdesk_faq.txt",
               "sla_p1_2026.txt"
             ],
-            "confidence": 0.72
+            "confidence": 0.69
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161442.json",
-      "timestamp": "2026-04-14T16:14:48.365153"
+      "trace_file": "artifacts/traces/run_20260414_165653.json",
+      "timestamp": "2026-04-14T16:57:03.895311"
     },
     {
       "id": "q07",
@@ -929,7 +1060,7 @@
         "policy_refund_v4.txt"
       ],
       "expected_route": "policy_tool_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n\n[Nguon: it_helpdesk_faq.txt, policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Hoàn tiền — Điều kiện áp dụng:\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n- Section 3: Phần mềm và license\n\n[Nguon: policy_refund_v4.txt, it_helpdesk_faq.txt, access_control_sop.txt]",
       "supervisor_route": "policy_tool_worker",
       "route_reason": "Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
       "workers_called": [
@@ -938,7 +1069,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.47,
+      "confidence": 0.46,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -947,8 +1078,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6337,
           "metadata": {
-            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
-            "source": "policy_refund_v4.txt"
+            "source": "policy_refund_v4.txt",
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
           }
         },
         {
@@ -957,8 +1088,8 @@
           "source": "it_helpdesk_faq.txt",
           "score": 0.6146,
           "metadata": {
-            "section": "Section 3: Phần mềm và license",
-            "source": "it_helpdesk_faq.txt"
+            "source": "it_helpdesk_faq.txt",
+            "section": "Section 3: Phần mềm và license"
           }
         },
         {
@@ -970,17 +1101,38 @@
             "section": "Section 4: Thiết bị và phần cứng",
             "source": "it_helpdesk_faq.txt"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+          "source": "access_control_sop.txt",
+          "score": 0.588,
+          "metadata": {
+            "section": "Section 1: Phạm vi và mục đích",
+            "source": "access_control_sop.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 1: Tài khoản và mật khẩu\nQ: Tôi quên mật khẩu, phải làm gì?\nA: Truy cập https://sso.company.internal/reset hoặc liên hệ Helpdesk qua ext. 9000. Mật khẩu mới sẽ được gửi qua email công ty trong vòng 5 phút.\n\nQ: Tài khoản bị khóa sau bao nhiêu lần đăng nhập sai?\nA: Tài khoản bị khóa sau 5 lần đăng nhập sai liên tiếp. Để mở khóa, liên hệ IT Helpdesk hoặc tự reset qua portal SSO.\n\nQ: Mật khẩu cần thay đổi định kỳ không?\nA: Có. Mật khẩu phải được thay đổi mỗi 90 ngày. Hệ thống sẽ nhắc nhở 7 ngày trước khi hết hạn.",
+          "source": "it_helpdesk_faq.txt",
+          "score": 0.5803,
+          "metadata": {
+            "source": "it_helpdesk_faq.txt",
+            "section": "Section 1: Tài khoản và mật khẩu"
+          }
         }
       ],
       "retrieved_sources": [
+        "policy_refund_v4.txt",
         "it_helpdesk_faq.txt",
-        "policy_refund_v4.txt"
+        "access_control_sop.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.85,
-          "notes": "17/20 words grounded"
+          "grounding_ratio": 0.8,
+          "notes": "16/20 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -1006,36 +1158,37 @@
         "match_ratio": 0.8,
         "sources_match": true,
         "key_facts_found": [
-          "license key",
-          "hoàn tiền",
           "sản phẩm",
-          "thuộc danh mục"
+          "hoàn tiền",
+          "thuộc danh mục",
+          "license key"
         ],
         "key_facts_missing": [
           "theo chính sách"
         ]
       },
-      "latency_ms": 6594,
+      "latency_ms": 11500,
       "history": [
         "[supervisor] received task: Sản phẩm kỹ thuật số (license key) có được hoàn tiền không?",
         "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-        "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'policy_refund_v4.txt']",
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'it_helpdesk_faq.txt', 'access_control_sop.txt']",
         "[policy_tool_worker] policy_applies=False, policy=refund_policy_v4, exceptions=3, mcp_calls=0",
-        "[synthesis_worker] answer generated, confidence=0.47, sources=['it_helpdesk_faq.txt', 'policy_refund_v4.txt']",
-        "[graph] completed in 6593ms"
+        "[synthesis_worker] answer generated, confidence=0.46, sources=['policy_refund_v4.txt', 'it_helpdesk_faq.txt', 'access_control_sop.txt']",
+        "[graph] completed in 11500ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Sản phẩm kỹ thuật số (license key) có được hoàn tiền không?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
+              "policy_refund_v4.txt",
               "it_helpdesk_faq.txt",
-              "policy_refund_v4.txt"
+              "access_control_sop.txt"
             ]
           },
           "error": null
@@ -1044,7 +1197,7 @@
           "worker": "policy_tool_worker",
           "input": {
             "task": "Sản phẩm kỹ thuật số (license key) có được hoàn tiền không?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "needs_tool": true
           },
           "output": {
@@ -1061,22 +1214,23 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Sản phẩm kỹ thuật số (license key) có được hoàn tiền không?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": true
           },
           "output": {
-            "answer_length": 470,
+            "answer_length": 415,
             "sources": [
+              "policy_refund_v4.txt",
               "it_helpdesk_faq.txt",
-              "policy_refund_v4.txt"
+              "access_control_sop.txt"
             ],
-            "confidence": 0.47
+            "confidence": 0.46
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161448.json",
-      "timestamp": "2026-04-14T16:14:54.961400"
+      "trace_file": "artifacts/traces/run_20260414_165703.json",
+      "timestamp": "2026-04-14T16:57:15.395978"
     },
     {
       "id": "q08",
@@ -1088,7 +1242,7 @@
         "sla_p1_2026.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Điều 4: Quy trình xử lý yêu cầu hoàn tiền\n- Bước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category \"Refund Request\".\n- Bước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.\n- Bước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\n- Bước 4: Finance Team xử lý trong 3-5 ngày làm việc và thông báo kết quả cho khách hàng.\n- Điều 2: Điều kiện được hoàn tiền\n\n[Nguon: policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Điều 4: Quy trình xử lý yêu cầu hoàn tiền\n- Bước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category \"Refund Request\".\n- Bước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.\n- Bước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\n- Bước 4: Finance Team xử lý trong 3-5 ngày làm việc và thông báo kết quả cho khách hàng.\n- Khách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n\n[Nguon: policy_refund_v4.txt, access_control_sop.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
       "workers_called": [
@@ -1096,7 +1250,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.66,
+      "confidence": 0.64,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -1105,8 +1259,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6958,
           "metadata": {
-            "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền",
-            "source": "policy_refund_v4.txt"
+            "source": "policy_refund_v4.txt",
+            "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền"
           }
         },
         {
@@ -1115,8 +1269,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6465,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 2: Điều kiện được hoàn tiền"
+            "section": "Điều 2: Điều kiện được hoàn tiền",
+            "source": "policy_refund_v4.txt"
           }
         },
         {
@@ -1125,19 +1279,40 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6334,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+          "source": "access_control_sop.txt",
+          "score": 0.6098,
+          "metadata": {
+            "section": "Section 1: Phạm vi và mục đích",
+            "source": "access_control_sop.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Điều 1: Phạm vi áp dụng\nChính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\nCác đơn hàng đặt trước ngày có hiệu lực sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6063,
+          "metadata": {
+            "section": "Điều 1: Phạm vi áp dụng",
+            "source": "policy_refund_v4.txt"
           }
         }
       ],
       "retrieved_sources": [
-        "policy_refund_v4.txt"
+        "policy_refund_v4.txt",
+        "access_control_sop.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.905,
-          "notes": "19/21 words grounded"
+          "grounding_ratio": 0.875,
+          "notes": "21/24 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -1167,34 +1342,35 @@
         ],
         "key_facts_missing": [
           "10 phút",
+          "5 phút",
+          "thông báo tới",
+          "nhận severity trong",
           "tiếp nhận",
           "24 giờ",
-          "thông báo tới",
           "call engineer xác",
-          "nhận severity trong",
-          "30 phút",
-          "5 phút"
+          "30 phút"
         ]
       },
-      "latency_ms": 6317,
+      "latency_ms": 10843,
       "history": [
         "[supervisor] received task: Quy trình xử lý sự cố P1 gồm mấy bước và bước đầu tiên là gì?",
         "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-        "[retrieval_worker] retrieved 3 chunks from ['policy_refund_v4.txt']",
-        "[synthesis_worker] answer generated, confidence=0.66, sources=['policy_refund_v4.txt']",
-        "[graph] completed in 6317ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'access_control_sop.txt']",
+        "[synthesis_worker] answer generated, confidence=0.64, sources=['policy_refund_v4.txt', 'access_control_sop.txt']",
+        "[graph] completed in 10843ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Quy trình xử lý sự cố P1 gồm mấy bước và bước đầu tiên là gì?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "access_control_sop.txt"
             ]
           },
           "error": null
@@ -1203,21 +1379,22 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Quy trình xử lý sự cố P1 gồm mấy bước và bước đầu tiên là gì?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 487,
+            "answer_length": 552,
             "sources": [
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "access_control_sop.txt"
             ],
-            "confidence": 0.66
+            "confidence": 0.64
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161454.json",
-      "timestamp": "2026-04-14T16:15:01.278975"
+      "trace_file": "artifacts/traces/run_20260414_165715.json",
+      "timestamp": "2026-04-14T16:57:26.240049"
     },
     {
       "id": "q09",
@@ -1227,7 +1404,7 @@
       "expected_answer": "Không tìm thấy thông tin về mã lỗi ERR-403-AUTH trong tài liệu nội bộ hiện có. Hãy liên hệ IT Helpdesk để được hỗ trợ trực tiếp.",
       "expected_sources": [],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Phần 1: Các loại nghỉ phép\n- - Nghỉ sinh con: 6 tháng theo quy định Luật Lao động.\n- - Nghỉ nuôi con nhỏ: 1 tiếng/ngày trong 12 tháng đầu sau sinh.\n- Theo lịch nghỉ lễ quốc gia do HR công bố hàng năm vào tháng 12.\n- Điều 1: Phạm vi áp dụng\n- Chính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\n\n[Nguon: hr_leave_policy.txt, sla_p1_2026.txt, policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- - Nghỉ sinh con: 6 tháng theo quy định Luật Lao động.\n- - Nghỉ nuôi con nhỏ: 1 tiếng/ngày trong 12 tháng đầu sau sinh.\n- Điều 4: Quy trình xử lý yêu cầu hoàn tiền\n- Bước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\n\n[Nguon: policy_refund_v4.txt, hr_leave_policy.txt, it_helpdesk_faq.txt, sla_p1_2026.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "Unknown error code detected + high risk -> human_review [MCP: suspended, awaiting human approval] | human approved -> retrieval",
       "workers_called": [
@@ -1245,8 +1422,8 @@
           "source": "hr_leave_policy.txt",
           "score": 0.4097,
           "metadata": {
-            "section": "Phần 1: Các loại nghỉ phép",
-            "source": "hr_leave_policy.txt"
+            "source": "hr_leave_policy.txt",
+            "section": "Phần 1: Các loại nghỉ phép"
           }
         },
         {
@@ -1268,18 +1445,39 @@
             "section": "Phần 5: Lịch sử phiên bản",
             "source": "sla_p1_2026.txt"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền\nBước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category \"Refund Request\".\nBước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.\nBước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\nBước 4: Finance Team xử lý trong 3-5 ngày làm việc và thông báo kết quả cho khách hàng.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.3922,
+          "metadata": {
+            "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 5: Email và lịch\nQ: Hộp thư đến đầy, phải làm gì?\nA: Xóa email cũ hoặc yêu cầu tăng dung lượng qua ticket IT-ACCESS. Dung lượng tiêu chuẩn là 50GB.\n\nQ: Tôi không nhận được email từ bên ngoài?\nA: Kiểm tra thư mục Spam trước. Nếu vẫn không có, tạo ticket P2 kèm địa chỉ email gửi và thời gian gửi.",
+          "source": "it_helpdesk_faq.txt",
+          "score": 0.3871,
+          "metadata": {
+            "source": "it_helpdesk_faq.txt",
+            "section": "Section 5: Email và lịch"
+          }
         }
       ],
       "retrieved_sources": [
+        "policy_refund_v4.txt",
         "hr_leave_policy.txt",
-        "sla_p1_2026.txt",
-        "policy_refund_v4.txt"
+        "it_helpdesk_faq.txt",
+        "sla_p1_2026.txt"
       ],
       "scoring": {
         "faithfulness": {
-          "score": 5,
-          "grounding_ratio": 0.714,
-          "notes": "10/14 words grounded"
+          "score": 4,
+          "grounding_ratio": 0.688,
+          "notes": "11/16 words grounded"
         },
         "relevance": {
           "score": 1,
@@ -1288,15 +1486,15 @@
         },
         "completeness": {
           "score": 1,
-          "coverage": 0.185,
-          "notes": "Coverage: 18.5%"
+          "coverage": 0.074,
+          "notes": "Coverage: 7.4%"
         },
         "routing": {
           "correct": true,
           "actual": "retrieval_worker",
           "expected": "retrieval_worker"
         },
-        "avg_score": 2.33,
+        "avg_score": 2.0,
         "pass": false,
         "failure_mode": "incomplete",
         "failure_layer": "generation"
@@ -1307,34 +1505,35 @@
         "key_facts_found": [],
         "key_facts_missing": [
           "thông tin",
-          "liệu nội",
           "auth trong tài",
-          "không tìm thấy",
-          "lỗi err"
+          "liệu nội",
+          "lỗi err",
+          "không tìm thấy"
         ]
       },
-      "latency_ms": 6583,
+      "latency_ms": 10930,
       "history": [
         "[supervisor] received task: ERR-403-AUTH là lỗi gì và cách xử lý?",
         "[supervisor] route=human_review reason=Unknown error code detected + high risk -> human_review [MCP: suspended, awaiting human approval]",
         "[human_review] HITL triggered — awaiting human input",
-        "[retrieval_worker] retrieved 3 chunks from ['hr_leave_policy.txt', 'sla_p1_2026.txt', 'policy_refund_v4.txt']",
-        "[synthesis_worker] answer generated, confidence=0.4, sources=['hr_leave_policy.txt', 'sla_p1_2026.txt', 'policy_refund_v4.txt']",
-        "[graph] completed in 6583ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
+        "[synthesis_worker] answer generated, confidence=0.4, sources=['policy_refund_v4.txt', 'hr_leave_policy.txt', 'it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
+        "[graph] completed in 10930ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "ERR-403-AUTH là lỗi gì và cách xử lý?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
+              "policy_refund_v4.txt",
               "hr_leave_policy.txt",
-              "sla_p1_2026.txt",
-              "policy_refund_v4.txt"
+              "it_helpdesk_faq.txt",
+              "sla_p1_2026.txt"
             ]
           },
           "error": null
@@ -1343,23 +1542,24 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "ERR-403-AUTH là lỗi gì và cách xử lý?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 438,
+            "answer_length": 361,
             "sources": [
+              "policy_refund_v4.txt",
               "hr_leave_policy.txt",
-              "sla_p1_2026.txt",
-              "policy_refund_v4.txt"
+              "it_helpdesk_faq.txt",
+              "sla_p1_2026.txt"
             ],
             "confidence": 0.4
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161501.json",
-      "timestamp": "2026-04-14T16:15:07.862708"
+      "trace_file": "artifacts/traces/run_20260414_165726.json",
+      "timestamp": "2026-04-14T16:57:37.171208"
     },
     {
       "id": "q10",
@@ -1371,7 +1571,7 @@
         "policy_refund_v4.txt"
       ],
       "expected_route": "policy_tool_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Điều 5: Hình thức hoàn tiền\n- - Hoàn tiền qua phương thức thanh toán gốc: áp dụng trong 100% trường hợp đủ điều kiện.\n- - Hoàn tiền qua credit nội bộ (store credit): khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn.\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n\n[Nguon: policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Điều 5: Hình thức hoàn tiền\n- - Hoàn tiền qua phương thức thanh toán gốc: áp dụng trong 100% trường hợp đủ điều kiện.\n- - Hoàn tiền qua credit nội bộ (store credit): khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn.\n- Hoàn tiền — Điều kiện áp dụng:\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n\n[Nguon: policy_refund_v4.txt, access_control_sop.txt]",
       "supervisor_route": "policy_tool_worker",
       "route_reason": "Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
       "workers_called": [
@@ -1380,7 +1580,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.48,
+      "confidence": 0.44,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -1389,8 +1589,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.7325,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 5: Hình thức hoàn tiền"
+            "section": "Điều 5: Hình thức hoàn tiền",
+            "source": "policy_refund_v4.txt"
           }
         },
         {
@@ -1412,16 +1612,37 @@
             "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền",
             "source": "policy_refund_v4.txt"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 2: Điều kiện được hoàn tiền\nKhách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n- Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.\n- Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.\n- Đơn hàng chưa được sử dụng hoặc chưa bị mở seal.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.5375,
+          "metadata": {
+            "section": "Điều 2: Điều kiện được hoàn tiền",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+          "source": "access_control_sop.txt",
+          "score": 0.5285,
+          "metadata": {
+            "section": "Section 1: Phạm vi và mục đích",
+            "source": "access_control_sop.txt"
+          }
         }
       ],
       "retrieved_sources": [
-        "policy_refund_v4.txt"
+        "policy_refund_v4.txt",
+        "access_control_sop.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.889,
-          "notes": "16/18 words grounded"
+          "grounding_ratio": 0.87,
+          "notes": "20/23 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -1448,35 +1669,36 @@
         "sources_match": true,
         "key_facts_found": [
           "10%",
+          "110%",
+          "thể chọn nhận",
+          "tiền hoàn",
           "store credit thay",
           "khách hàng",
-          "tiền hoàn",
-          "thế với giá",
-          "thể chọn nhận",
-          "110%"
+          "thế với giá"
         ],
         "key_facts_missing": []
       },
-      "latency_ms": 6266,
+      "latency_ms": 10963,
       "history": [
         "[supervisor] received task: Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
         "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-        "[retrieval_worker] retrieved 3 chunks from ['policy_refund_v4.txt']",
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'access_control_sop.txt']",
         "[policy_tool_worker] policy_applies=False, policy=refund_policy_v4, exceptions=3, mcp_calls=0",
-        "[synthesis_worker] answer generated, confidence=0.48, sources=['policy_refund_v4.txt']",
-        "[graph] completed in 6266ms"
+        "[synthesis_worker] answer generated, confidence=0.44, sources=['policy_refund_v4.txt', 'access_control_sop.txt']",
+        "[graph] completed in 10963ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "access_control_sop.txt"
             ]
           },
           "error": null
@@ -1485,7 +1707,7 @@
           "worker": "policy_tool_worker",
           "input": {
             "task": "Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "needs_tool": true
           },
           "output": {
@@ -1502,21 +1724,22 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Store credit khi hoàn tiền có giá trị bao nhiêu so với tiền gốc?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": true
           },
           "output": {
-            "answer_length": 457,
+            "answer_length": 476,
             "sources": [
-              "policy_refund_v4.txt"
+              "policy_refund_v4.txt",
+              "access_control_sop.txt"
             ],
-            "confidence": 0.48
+            "confidence": 0.44
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161507.json",
-      "timestamp": "2026-04-14T16:15:14.130435"
+      "trace_file": "artifacts/traces/run_20260414_165737.json",
+      "timestamp": "2026-04-14T16:57:48.135279"
     },
     {
       "id": "q11",
@@ -1528,7 +1751,7 @@
         "sla_p1_2026.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Phần 2: SLA theo mức độ ưu tiên\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n- - Phản hồi ban đầu: 3 ngày làm việc.\n- - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).\n- Phần 2: SLA theo mức độ ưu tiên\n\n[Nguon: it_helpdesk_faq.txt, sla_p1_2026.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Phần 2: SLA theo mức độ ưu tiên\n- Ticket P3:\n- - Phản hồi ban đầu: 1 ngày làm việc.\n- - Xử lý và khắc phục: 5 ngày làm việc.\n- Ticket P4:\n- - Phản hồi ban đầu: 3 ngày làm việc.\n- - Xử lý và khắc phục: Theo sprint cycle (thông thường 2-4 tuần).\n\n[Nguon: policy_refund_v4.txt, it_helpdesk_faq.txt, sla_p1_2026.txt, access_control_sop.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
       "workers_called": [
@@ -1536,7 +1759,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.65,
+      "confidence": 0.64,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -1553,7 +1776,7 @@
           "rank": 2,
           "text": "Phần 2: SLA theo mức độ ưu tiên\nTicket P1:\n- Phản hồi ban đầu (first response): 15 phút kể từ khi ticket được tạo.\n- Xử lý và khắc phục (resolution): 4 giờ.\n- Escalation: Tự động escalate lên Senior Engineer nếu không có phản hồi trong 10 phút.\n- Thông báo stakeholder: Ngay khi nhận ticket, update mỗi 30 phút cho đến khi resolve.\n\nTicket P2:\n- Phản hồi ban đầu: 2 giờ.\n- Xử lý và khắc phục: 1 ngày làm việc.\n- Escalation: Tự động escalate sau 90 phút không có phản hồi.",
           "source": "sla_p1_2026.txt",
-          "score": 0.6569,
+          "score": 0.6568,
           "metadata": {
             "section": "Phần 2: SLA theo mức độ ưu tiên",
             "source": "sla_p1_2026.txt"
@@ -1568,27 +1791,49 @@
             "section": "Section 5: Email và lịch",
             "source": "it_helpdesk_faq.txt"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Section 4: Escalation khi cần thay đổi quyền hệ thống\nEscalation chỉ áp dụng khi cần thay đổi quyền hệ thống ngoài quy trình thông thường.\nVí dụ: Khẩn cấp trong sự cố P1, cần cấp quyền tạm thời để fix incident.\n\nQuy trình escalation khẩn cấp:\n1. On-call IT Admin có thể cấp quyền tạm thời (max 24 giờ) sau khi được Tech Lead phê duyệt bằng lời.\n2. Sau 24 giờ, phải có ticket chính thức hoặc quyền bị thu hồi tự động.\n3. Mọi quyền tạm thời phải được ghi log vào hệ thống Security Audit.",
+          "source": "access_control_sop.txt",
+          "score": 0.6259,
+          "metadata": {
+            "section": "Section 4: Escalation khi cần thay đổi quyền hệ thống",
+            "source": "access_control_sop.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Điều 1: Phạm vi áp dụng\nChính sách này áp dụng cho tất cả các đơn hàng được đặt trên hệ thống nội bộ kể từ ngày 01/02/2026.\nCác đơn hàng đặt trước ngày có hiệu lực sẽ áp dụng theo chính sách hoàn tiền phiên bản 3.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6242,
+          "metadata": {
+            "section": "Điều 1: Phạm vi áp dụng",
+            "source": "policy_refund_v4.txt"
+          }
         }
       ],
       "retrieved_sources": [
+        "policy_refund_v4.txt",
         "it_helpdesk_faq.txt",
-        "sla_p1_2026.txt"
+        "sla_p1_2026.txt",
+        "access_control_sop.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.769,
-          "notes": "10/13 words grounded"
+          "grounding_ratio": 0.706,
+          "notes": "12/17 words grounded"
         },
         "relevance": {
           "score": 3,
-          "overlap": 0.25,
-          "notes": "2/8 query keywords in answer"
+          "overlap": 0.375,
+          "notes": "3/8 query keywords in answer"
         },
         "completeness": {
           "score": 1,
-          "coverage": 0.083,
-          "notes": "Coverage: 8.3%"
+          "coverage": 0.111,
+          "notes": "Coverage: 11.1%"
         },
         "routing": {
           "correct": true,
@@ -1605,34 +1850,36 @@
         "sources_match": true,
         "key_facts_found": [],
         "key_facts_missing": [
-          "thông báo gửi",
           "10 phút",
+          "email incident",
+          "ticket được tạo",
           "ngay khi",
           "tới slack",
-          "ticket được tạo",
-          "email incident"
+          "thông báo gửi"
         ]
       },
-      "latency_ms": 6332,
+      "latency_ms": 12235,
       "history": [
         "[supervisor] received task: Ticket P1 được tạo lúc 22:47. Ai sẽ nhận thông báo đầu tiên và qua kênh nào? Esc",
         "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-        "[retrieval_worker] retrieved 3 chunks from ['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
-        "[synthesis_worker] answer generated, confidence=0.65, sources=['it_helpdesk_faq.txt', 'sla_p1_2026.txt']",
-        "[graph] completed in 6332ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'it_helpdesk_faq.txt', 'sla_p1_2026.txt', 'access_control_sop.txt']",
+        "[synthesis_worker] answer generated, confidence=0.64, sources=['policy_refund_v4.txt', 'it_helpdesk_faq.txt', 'sla_p1_2026.txt', 'access_control_sop.txt']",
+        "[graph] completed in 12235ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Ticket P1 được tạo lúc 22:47. Ai sẽ nhận thông báo đầu tiên và qua kênh nào? Escalation xảy ra lúc mấy giờ?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
+              "policy_refund_v4.txt",
               "it_helpdesk_faq.txt",
-              "sla_p1_2026.txt"
+              "sla_p1_2026.txt",
+              "access_control_sop.txt"
             ]
           },
           "error": null
@@ -1641,22 +1888,24 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Ticket P1 được tạo lúc 22:47. Ai sẽ nhận thông báo đầu tiên và qua kênh nào? Escalation xảy ra lúc mấy giờ?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
-            "answer_length": 326,
+            "answer_length": 364,
             "sources": [
+              "policy_refund_v4.txt",
               "it_helpdesk_faq.txt",
-              "sla_p1_2026.txt"
+              "sla_p1_2026.txt",
+              "access_control_sop.txt"
             ],
-            "confidence": 0.65
+            "confidence": 0.64
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161514.json",
-      "timestamp": "2026-04-14T16:15:20.464749"
+      "trace_file": "artifacts/traces/run_20260414_165748.json",
+      "timestamp": "2026-04-14T16:58:00.370856"
     },
     {
       "id": "q12",
@@ -1668,7 +1917,7 @@
         "policy_refund_v4.txt"
       ],
       "expected_route": "policy_tool_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Điều 3: Điều kiện áp dụng và ngoại lệ\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n\n[Nguon: policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Hoàn tiền — Điều kiện áp dụng:\n- Yêu cầu được gửi trong vòng 7 ngày kể từ thời điểm xác nhận đơn hàng.\n- Ngoại lệ không được hoàn tiền:\n- - Sản phẩm thuộc danh mục hàng kỹ thuật số (license key, subscription).\n- - Đơn hàng đã áp dụng mã giảm giá đặc biệt theo chương trình khuyến mãi Flash Sale.\n- - Sản phẩm đã được kích hoạt hoặc đăng ký tài khoản.\n\n[Nguon: policy_refund_v4.txt]",
       "supervisor_route": "policy_tool_worker",
       "route_reason": "Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
       "workers_called": [
@@ -1677,7 +1926,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.61,
+      "confidence": 0.59,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -1686,8 +1935,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.7788,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
+            "source": "policy_refund_v4.txt"
           }
         },
         {
@@ -1696,8 +1945,8 @@
           "source": "policy_refund_v4.txt",
           "score": 0.7621,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 2: Điều kiện được hoàn tiền"
+            "section": "Điều 2: Điều kiện được hoàn tiền",
+            "source": "policy_refund_v4.txt"
           }
         },
         {
@@ -1709,6 +1958,26 @@
             "source": "policy_refund_v4.txt",
             "section": "Điều 1: Phạm vi áp dụng"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền\nBước 1: Khách hàng gửi yêu cầu qua hệ thống ticket nội bộ với category \"Refund Request\".\nBước 2: CS Agent xem xét trong vòng 1 ngày làm việc và xác nhận điều kiện đủ điều kiện.\nBước 3: Nếu đủ điều kiện, chuyển yêu cầu sang Finance Team để xử lý hoàn tiền.\nBước 4: Finance Team xử lý trong 3-5 ngày làm việc và thông báo kết quả cho khách hàng.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.7029,
+          "metadata": {
+            "section": "Điều 4: Quy trình xử lý yêu cầu hoàn tiền",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Điều 5: Hình thức hoàn tiền\n- Hoàn tiền qua phương thức thanh toán gốc: áp dụng trong 100% trường hợp đủ điều kiện.\n- Hoàn tiền qua credit nội bộ (store credit): khách hàng có thể chọn nhận store credit thay thế với giá trị 110% so với số tiền hoàn.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6991,
+          "metadata": {
+            "source": "policy_refund_v4.txt",
+            "section": "Điều 5: Hình thức hoàn tiền"
+          }
         }
       ],
       "retrieved_sources": [
@@ -1717,8 +1986,8 @@
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.895,
-          "notes": "17/19 words grounded"
+          "grounding_ratio": 0.889,
+          "notes": "16/18 words grounded"
         },
         "relevance": {
           "score": 5,
@@ -1745,31 +2014,31 @@
         "sources_match": true,
         "key_facts_found": [],
         "key_facts_missing": [
-          "dụng chính sách",
+          "đơn đặt ngày",
           "trường hợp phức",
-          "trước ngày",
+          "dụng chính sách",
           "temporal scoping",
-          "đơn đặt ngày"
+          "trước ngày"
         ]
       },
-      "latency_ms": 6928,
+      "latency_ms": 11269,
       "history": [
         "[supervisor] received task: Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩ",
         "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-        "[retrieval_worker] retrieved 3 chunks from ['policy_refund_v4.txt']",
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt']",
         "[policy_tool_worker] policy_applies=False, policy=refund_policy_v4, exceptions=3, mcp_calls=0",
-        "[synthesis_worker] answer generated, confidence=0.61, sources=['policy_refund_v4.txt']",
-        "[graph] completed in 6928ms"
+        "[synthesis_worker] answer generated, confidence=0.59, sources=['policy_refund_v4.txt']",
+        "[graph] completed in 11269ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
               "policy_refund_v4.txt"
             ]
@@ -1780,7 +2049,7 @@
           "worker": "policy_tool_worker",
           "input": {
             "task": "Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "needs_tool": true
           },
           "output": {
@@ -1797,21 +2066,21 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Khách hàng đặt đơn ngày 31/01/2026 và yêu cầu hoàn tiền ngày 07/02/2026. Sản phẩm lỗi nhà sản xuất, chưa kích hoạt, không phải Flash Sale. Được hoàn tiền không?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": true
           },
           "output": {
-            "answer_length": 449,
+            "answer_length": 409,
             "sources": [
               "policy_refund_v4.txt"
             ],
-            "confidence": 0.61
+            "confidence": 0.59
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161520.json",
-      "timestamp": "2026-04-14T16:15:27.392782"
+      "trace_file": "artifacts/traces/run_20260414_165800.json",
+      "timestamp": "2026-04-14T16:58:11.640628"
     },
     {
       "id": "q13",
@@ -1824,7 +2093,7 @@
         "sla_p1_2026.txt"
       ],
       "expected_route": "policy_tool_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Section 3: Quy trình yêu cầu cấp quyền\n- Bước 1: Nhân viên tạo Access Request ticket trên Jira (project IT-ACCESS).\n- Bước 2: Line Manager phê duyệt yêu cầu trong 1 ngày làm việc.\n- Bước 3: IT Admin kiểm tra compliance và cấp quyền.\n- Bước 4: IT Security review với Level 3 và Level 4.\n- Bước 5: Nhân viên nhận thông báo qua email khi quyền được cấp.\n\n[Nguon: access_control_sop.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Section 3: Quy trình yêu cầu cấp quyền\n- Bước 1: Nhân viên tạo Access Request ticket trên Jira (project IT-ACCESS).\n- Bước 3: IT Admin kiểm tra compliance và cấp quyền.\n- Bước 4: IT Security review với Level 3 và Level 4.\n- Bước 5: Nhân viên nhận thông báo qua email khi quyền được cấp.\n- Section 2: Phân cấp quyền truy cập\n\n[Nguon: access_control_sop.txt, it_helpdesk_faq.txt]",
       "supervisor_route": "policy_tool_worker",
       "route_reason": "Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
       "workers_called": [
@@ -1833,10 +2102,10 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [
-        "{'mcp_tool_called': 'get_ticket_info', 'mcp_input': {'ticket_id': 'P1-LATEST'}, 'mcp_result': {'ticket_id': 'IT-9847', 'priority': 'P1', 'title': 'API Gateway down — toàn bộ người dùng không đăng nhập được', 'status': 'in_progress', 'assignee': 'nguyen.van.a@company.internal', 'created_at': '2026-04-13T22:47:00', 'sla_deadline': '2026-04-14T02:47:00', 'response_deadline': '2026-04-13T23:02:00', 'escalated': True, 'escalated_to': 'senior_engineer_team', 'notifications_sent': ['slack:#incident-p1', 'email:incident@company.internal', 'pagerduty:oncall'], 'first_notified': 'slack:#incident-p1', 'auto_escalation_at_minutes': 10, 'auto_escalation_action': 'Tự động escalate lên Senior Engineer Team và gửi lại thông báo.'}, 'timestamp': '2026-04-14T16:15:38.521745'}",
-        "{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': True}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': ['Level 3 KHÔNG có emergency bypass. Phải follow quy trình chuẩn.'], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:15:42.815837'}"
+        "{'mcp_tool_called': 'get_ticket_info', 'mcp_input': {'ticket_id': 'P1-LATEST'}, 'mcp_result': {'ticket_id': 'IT-9847', 'priority': 'P1', 'title': 'API Gateway down — toàn bộ người dùng không đăng nhập được', 'status': 'in_progress', 'assignee': 'nguyen.van.a@company.internal', 'created_at': '2026-04-13T22:47:00', 'sla_deadline': '2026-04-14T02:47:00', 'response_deadline': '2026-04-13T23:02:00', 'escalated': True, 'escalated_to': 'senior_engineer_team', 'notifications_sent': ['slack:#incident-p1', 'email:incident@company.internal', 'pagerduty:oncall'], 'first_notified': 'slack:#incident-p1', 'auto_escalation_at_minutes': 10, 'auto_escalation_action': 'Tự động escalate lên Senior Engineer Team và gửi lại thông báo.'}, 'timestamp': '2026-04-14T16:58:23.276501'}",
+        "{'mcp_tool_called': 'check_access_permission', 'mcp_input': {'access_level': 3, 'requester_role': 'employee', 'is_emergency': True}, 'mcp_result': {'access_level': 3, 'can_grant': True, 'required_approvers': ['Line Manager', 'IT Admin', 'IT Security'], 'approver_count': 3, 'emergency_override': False, 'notes': ['Level 3 KHÔNG có emergency bypass. Phải follow quy trình chuẩn.'], 'source': 'access_control_sop.txt'}, 'timestamp': '2026-04-14T16:58:23.280365'}"
       ],
-      "confidence": 0.67,
+      "confidence": 0.65,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -1845,8 +2114,8 @@
           "source": "access_control_sop.txt",
           "score": 0.6816,
           "metadata": {
-            "source": "access_control_sop.txt",
-            "section": "Section 3: Quy trình yêu cầu cấp quyền"
+            "section": "Section 3: Quy trình yêu cầu cấp quyền",
+            "source": "access_control_sop.txt"
           }
         },
         {
@@ -1868,16 +2137,37 @@
             "section": "Section 2: Phân cấp quyền truy cập",
             "source": "access_control_sop.txt"
           }
+        },
+        {
+          "rank": 4,
+          "text": "Section 1: Phạm vi và mục đích\nTài liệu này quy định quy trình cấp phép truy cập vào các hệ thống nội bộ của công ty.\nÁp dụng cho tất cả nhân viên, contractor, và third-party vendor.",
+          "source": "access_control_sop.txt",
+          "score": 0.6339,
+          "metadata": {
+            "source": "access_control_sop.txt",
+            "section": "Section 1: Phạm vi và mục đích"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Section 4: Thiết bị và phần cứng\nQ: Laptop mới được cấp sau bao lâu khi vào công ty?\nA: Laptop được cấp trong ngày onboarding đầu tiên. Nếu có vấn đề, liên hệ HR hoặc IT Admin.\n\nQ: Laptop bị hỏng phải báo cáo như thế nào?\nA: Tạo ticket P2 hoặc P3 tùy mức độ nghiêm trọng. Mang thiết bị đến IT Room (tầng 3) để kiểm tra.",
+          "source": "it_helpdesk_faq.txt",
+          "score": 0.5916,
+          "metadata": {
+            "section": "Section 4: Thiết bị và phần cứng",
+            "source": "it_helpdesk_faq.txt"
+          }
         }
       ],
       "retrieved_sources": [
-        "access_control_sop.txt"
+        "access_control_sop.txt",
+        "it_helpdesk_faq.txt"
       ],
       "scoring": {
         "faithfulness": {
           "score": 5,
-          "grounding_ratio": 0.917,
-          "notes": "22/24 words grounded"
+          "grounding_ratio": 0.87,
+          "notes": "20/23 words grounded"
         },
         "relevance": {
           "score": 3,
@@ -1886,8 +2176,8 @@
         },
         "completeness": {
           "score": 3,
-          "coverage": 0.241,
-          "notes": "Coverage: 24.1%"
+          "coverage": 0.207,
+          "notes": "Coverage: 20.7%"
         },
         "routing": {
           "correct": true,
@@ -1900,40 +2190,40 @@
         "failure_layer": null
       },
       "comparison": {
-        "match_ratio": 0.2,
+        "match_ratio": 0.0,
         "sources_match": false,
-        "key_facts_found": [
-          "line manager"
-        ],
+        "key_facts_found": [],
         "key_facts_missing": [
-          "không thể cấp",
+          "vẫn phải",
+          "line manager",
           "admin access",
           "emergency bypass theo",
-          "vẫn phải"
+          "không thể cấp"
         ]
       },
-      "latency_ms": 15427,
+      "latency_ms": 11640,
       "history": [
         "[supervisor] received task: Contractor cần Admin Access (Level 3) để khắc phục sự cố P1 đang active. Quy trì",
         "[supervisor] route=policy_tool_worker reason=Task contains policy/access keywords -> policy_tool_worker [MCP: will use dispatch_tool(search_kb + check_access_permission)]",
-        "[retrieval_worker] retrieved 3 chunks from ['access_control_sop.txt']",
+        "[retrieval_worker] retrieved 5 chunks from ['access_control_sop.txt', 'it_helpdesk_faq.txt']",
         "[policy_tool_worker] called MCP get_ticket_info",
         "[policy_tool_worker] called MCP check_access_permission (level=3)",
         "[policy_tool_worker] policy_applies=True, policy=access_control_sop, exceptions=0, mcp_calls=2",
-        "[synthesis_worker] answer generated, confidence=0.67, sources=['access_control_sop.txt']",
-        "[graph] completed in 15427ms"
+        "[synthesis_worker] answer generated, confidence=0.65, sources=['access_control_sop.txt', 'it_helpdesk_faq.txt']",
+        "[graph] completed in 11640ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Contractor cần Admin Access (Level 3) để khắc phục sự cố P1 đang active. Quy trình cấp quyền tạm thời như thế nào?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
-              "access_control_sop.txt"
+              "access_control_sop.txt",
+              "it_helpdesk_faq.txt"
             ]
           },
           "error": null
@@ -1942,7 +2232,7 @@
           "worker": "policy_tool_worker",
           "input": {
             "task": "Contractor cần Admin Access (Level 3) để khắc phục sự cố P1 đang active. Quy trình cấp quyền tạm thời như thế nào?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "needs_tool": true
           },
           "output": {
@@ -1959,21 +2249,22 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Contractor cần Admin Access (Level 3) để khắc phục sự cố P1 đang active. Quy trình cấp quyền tạm thời như thế nào?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": true
           },
           "output": {
-            "answer_length": 411,
+            "answer_length": 405,
             "sources": [
-              "access_control_sop.txt"
+              "access_control_sop.txt",
+              "it_helpdesk_faq.txt"
             ],
-            "confidence": 0.67
+            "confidence": 0.65
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161527.json",
-      "timestamp": "2026-04-14T16:15:42.820663"
+      "trace_file": "artifacts/traces/run_20260414_165811.json",
+      "timestamp": "2026-04-14T16:58:23.281602"
     },
     {
       "id": "q14",
@@ -1985,7 +2276,7 @@
         "hr_leave_policy.txt"
       ],
       "expected_route": "retrieval_worker",
-      "answer": "Dua tren tai lieu noi bo:\n- Phần 4: Remote work policy\n- 4.1 Điều kiện remote:\n- - Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- - Team Lead phải phê duyệt lịch remote qua HR Portal.\n- - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n- 4.2 Yêu cầu kỹ thuật khi remote:\n- - Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n\n[Nguon: hr_leave_policy.txt, access_control_sop.txt, policy_refund_v4.txt]",
+      "answer": "Dua tren tai lieu noi bo:\n- Phần 4: Remote work policy\n- 4.1 Điều kiện remote:\n- - Nhân viên sau probation period có thể làm remote tối đa 2 ngày/tuần.\n- - Team Lead phải phê duyệt lịch remote qua HR Portal.\n- - Ngày onsite bắt buộc: Thứ 3 và Thứ 5 theo lịch team.\n- 4.2 Yêu cầu kỹ thuật khi remote:\n- - Kết nối VPN bắt buộc khi làm việc với hệ thống nội bộ.\n\n[Nguon: policy_refund_v4.txt, hr_leave_policy.txt, access_control_sop.txt]",
       "supervisor_route": "retrieval_worker",
       "route_reason": "default fallback route -> retrieval_worker.",
       "workers_called": [
@@ -1993,7 +2284,7 @@
         "synthesis_worker"
       ],
       "mcp_tools_used": [],
-      "confidence": 0.65,
+      "confidence": 0.63,
       "hitl_triggered": false,
       "retrieved_chunks": [
         {
@@ -2012,8 +2303,8 @@
           "source": "access_control_sop.txt",
           "score": 0.634,
           "metadata": {
-            "section": "Section 1: Phạm vi và mục đích",
-            "source": "access_control_sop.txt"
+            "source": "access_control_sop.txt",
+            "section": "Section 1: Phạm vi và mục đích"
           }
         },
         {
@@ -2022,15 +2313,35 @@
           "source": "policy_refund_v4.txt",
           "score": 0.6161,
           "metadata": {
-            "source": "policy_refund_v4.txt",
-            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ"
+            "section": "Điều 3: Điều kiện áp dụng và ngoại lệ",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Điều 2: Điều kiện được hoàn tiền\nKhách hàng được quyền yêu cầu hoàn tiền khi đáp ứng đủ các điều kiện sau:\n- Sản phẩm bị lỗi do nhà sản xuất, không phải do người dùng.\n- Yêu cầu được gửi trong vòng 7 ngày làm việc kể từ thời điểm xác nhận đơn hàng.\n- Đơn hàng chưa được sử dụng hoặc chưa bị mở seal.",
+          "source": "policy_refund_v4.txt",
+          "score": 0.6039,
+          "metadata": {
+            "section": "Điều 2: Điều kiện được hoàn tiền",
+            "source": "policy_refund_v4.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Phần 2: Quy trình xin nghỉ phép\nBước 1: Nhân viên gửi yêu cầu nghỉ phép qua hệ thống HR Portal (https://hr.company.internal) ít nhất 3 ngày làm việc trước ngày nghỉ.\nBước 2: Line Manager phê duyệt hoặc từ chối trong vòng 1 ngày làm việc.\nBước 3: Nhân viên nhận thông báo qua email sau khi được phê duyệt.\n\nTrường hợp khẩn cấp: Có thể gửi yêu cầu muộn hơn nhưng phải được Line Manager đồng ý qua tin nhắn trực tiếp.",
+          "source": "hr_leave_policy.txt",
+          "score": 0.6,
+          "metadata": {
+            "section": "Phần 2: Quy trình xin nghỉ phép",
+            "source": "hr_leave_policy.txt"
           }
         }
       ],
       "retrieved_sources": [
+        "policy_refund_v4.txt",
         "hr_leave_policy.txt",
-        "access_control_sop.txt",
-        "policy_refund_v4.txt"
+        "access_control_sop.txt"
       ],
       "scoring": {
         "faithfulness": {
@@ -2065,34 +2376,34 @@
           "2 ngày"
         ],
         "key_facts_missing": [
-          "nhân viên trong",
-          "được phép làm",
           "probation period không",
+          "nhân viên trong",
           "qua probation period",
+          "được phép làm",
           "chỉ nhân viên"
         ]
       },
-      "latency_ms": 6622,
+      "latency_ms": 11517,
       "history": [
         "[supervisor] received task: Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá ",
         "[supervisor] route=retrieval_worker reason=default fallback route -> retrieval_worker.",
-        "[retrieval_worker] retrieved 3 chunks from ['hr_leave_policy.txt', 'access_control_sop.txt', 'policy_refund_v4.txt']",
-        "[synthesis_worker] answer generated, confidence=0.65, sources=['hr_leave_policy.txt', 'access_control_sop.txt', 'policy_refund_v4.txt']",
-        "[graph] completed in 6622ms"
+        "[retrieval_worker] retrieved 5 chunks from ['policy_refund_v4.txt', 'hr_leave_policy.txt', 'access_control_sop.txt']",
+        "[synthesis_worker] answer generated, confidence=0.63, sources=['policy_refund_v4.txt', 'hr_leave_policy.txt', 'access_control_sop.txt']",
+        "[graph] completed in 11517ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
+              "policy_refund_v4.txt",
               "hr_leave_policy.txt",
-              "access_control_sop.txt",
-              "policy_refund_v4.txt"
+              "access_control_sop.txt"
             ]
           },
           "error": null
@@ -2101,23 +2412,23 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Nhân viên vừa vào thử việc (trong probation period) muốn làm remote vì lý do cá nhân. Điều kiện là gì?",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
             "answer_length": 434,
             "sources": [
+              "policy_refund_v4.txt",
               "hr_leave_policy.txt",
-              "access_control_sop.txt",
-              "policy_refund_v4.txt"
+              "access_control_sop.txt"
             ],
-            "confidence": 0.65
+            "confidence": 0.63
           },
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161542.json",
-      "timestamp": "2026-04-14T16:15:49.443112"
+      "trace_file": "artifacts/traces/run_20260414_165823.json",
+      "timestamp": "2026-04-14T16:58:34.800063"
     },
     {
       "id": "q15",
@@ -2147,8 +2458,8 @@
           "source": "access_control_sop.txt",
           "score": 0.6545,
           "metadata": {
-            "section": "Section 4: Escalation khi cần thay đổi quyền hệ thống",
-            "source": "access_control_sop.txt"
+            "source": "access_control_sop.txt",
+            "section": "Section 4: Escalation khi cần thay đổi quyền hệ thống"
           }
         },
         {
@@ -2167,8 +2478,28 @@
           "source": "access_control_sop.txt",
           "score": 0.6515,
           "metadata": {
-            "source": "access_control_sop.txt",
-            "section": "Section 3: Quy trình yêu cầu cấp quyền"
+            "section": "Section 3: Quy trình yêu cầu cấp quyền",
+            "source": "access_control_sop.txt"
+          }
+        },
+        {
+          "rank": 4,
+          "text": "Section 2: Phân cấp quyền truy cập\nLevel 1 — Read Only:\nÁp dụng cho: Tất cả nhân viên mới trong 30 ngày đầu.\nPhê duyệt: Line Manager.\nThời gian xử lý: 1 ngày làm việc.\n\nLevel 2 — Standard Access:\nÁp dụng cho: Nhân viên chính thức đã qua thử việc.\nPhê duyệt: Line Manager + IT Admin.\nThời gian xử lý: 2 ngày làm việc.\n\nLevel 3 — Elevated Access:\nÁp dụng cho: Team Lead, Senior Engineer, Manager.\nPhê duyệt: Line Manager + IT Admin + IT Security.\nThời gian xử lý: 3 ngày làm việc.",
+          "source": "access_control_sop.txt",
+          "score": 0.6492,
+          "metadata": {
+            "section": "Section 2: Phân cấp quyền truy cập",
+            "source": "access_control_sop.txt"
+          }
+        },
+        {
+          "rank": 5,
+          "text": "Phần 2: SLA theo mức độ ưu tiên\nTicket P1:\n- Phản hồi ban đầu (first response): 15 phút kể từ khi ticket được tạo.\n- Xử lý và khắc phục (resolution): 4 giờ.\n- Escalation: Tự động escalate lên Senior Engineer nếu không có phản hồi trong 10 phút.\n- Thông báo stakeholder: Ngay khi nhận ticket, update mỗi 30 phút cho đến khi resolve.\n\nTicket P2:\n- Phản hồi ban đầu: 2 giờ.\n- Xử lý và khắc phục: 1 ngày làm việc.\n- Escalation: Tự động escalate sau 90 phút không có phản hồi.",
+          "source": "sla_p1_2026.txt",
+          "score": 0.6379,
+          "metadata": {
+            "section": "Phần 2: SLA theo mức độ ưu tiên",
+            "source": "sla_p1_2026.txt"
           }
         }
       ],
@@ -2208,30 +2539,30 @@
         "key_facts_found": [],
         "key_facts_missing": [
           "10 phút",
+          "email incident",
+          "ngay lập tức",
           "gửi slack",
           "song song",
-          "ngay lập tức",
-          "hai quy trình",
-          "email incident"
+          "hai quy trình"
         ]
       },
-      "latency_ms": 6641,
+      "latency_ms": 11483,
       "history": [
         "[supervisor] received task: Ticket P1 lúc 2am. Cần cấp Level 2 access tạm thời cho contractor để thực hiện e",
         "[supervisor] route=retrieval_worker reason=Task contains retrieval keywords (P1/SLA/Ticket) -> retrieval_worker [MCP: not needed, direct ChromaDB retrieval]",
-        "[retrieval_worker] retrieved 3 chunks from ['access_control_sop.txt', 'sla_p1_2026.txt']",
+        "[retrieval_worker] retrieved 5 chunks from ['access_control_sop.txt', 'sla_p1_2026.txt']",
         "[synthesis_worker] answer generated, confidence=0.65, sources=['access_control_sop.txt', 'sla_p1_2026.txt']",
-        "[graph] completed in 6641ms"
+        "[graph] completed in 11483ms"
       ],
       "worker_io_logs": [
         {
           "worker": "retrieval_worker",
           "input": {
             "task": "Ticket P1 lúc 2am. Cần cấp Level 2 access tạm thời cho contractor để thực hiện emergency fix. Đồng thời cần notify stakeholders theo SLA. Nêu đủ cả hai quy trình.",
-            "top_k": 3
+            "top_k": 5
           },
           "output": {
-            "chunks_count": 3,
+            "chunks_count": 5,
             "sources": [
               "access_control_sop.txt",
               "sla_p1_2026.txt"
@@ -2243,7 +2574,7 @@
           "worker": "synthesis_worker",
           "input": {
             "task": "Ticket P1 lúc 2am. Cần cấp Level 2 access tạm thời cho contractor để thực hiện emergency fix. Đồng thời cần notify stakeholders theo SLA. Nêu đủ cả hai quy trình.",
-            "chunks_count": 3,
+            "chunks_count": 5,
             "has_policy": false
           },
           "output": {
@@ -2257,8 +2588,8 @@
           "error": null
         }
       ],
-      "trace_file": "artifacts/traces/run_20260414_161549.json",
-      "timestamp": "2026-04-14T16:15:56.087065"
+      "trace_file": "artifacts/traces/run_20260414_165834.json",
+      "timestamp": "2026-04-14T16:58:46.284538"
     }
   ]
 }

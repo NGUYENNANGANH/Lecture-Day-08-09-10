@@ -42,8 +42,6 @@ def _call_mcp_tool(tool_name: str, tool_input: dict) -> dict:
         # result = dispatch_tool(tool_name, tool_input)
 
         from mcp_server import dispatch_tool_http
-        
-        # Gọi tool thông qua HTTP. Tự động fallback về in-process nếu server không bật.
         result = dispatch_tool_http(tool_name, tool_input)
         
         return {
