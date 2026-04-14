@@ -37,6 +37,9 @@ Quy tắc nghiêm ngặt:
    TRƯỚC ngày hiệu lực → nêu rõ: "Tài liệu hiện tại có hiệu lực từ 
    [ngày]. Sự kiện trước ngày này có thể áp dụng version cũ hơn mà 
    tài liệu hiện có không bao gồm." KHÔNG bịa nội dung version cũ.
+9. Nếu context có dữ liệu từ MCP tool (get_ticket_info, check_access_permission), 
+   ƯU TIÊN sử dụng dữ liệu MCP vì đó là dữ liệu chính xác nhất. 
+   Liệt kê ĐẦY ĐỦ tất cả các kênh notification, approvers, conditions từ MCP.
 """
 
 
