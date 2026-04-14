@@ -38,8 +38,14 @@ def _call_mcp_tool(tool_name: str, tool_input: dict) -> dict:
     try:
         # Import từ mcp_server (cùng thư mục lab/)
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-        from mcp_server import dispatch_tool
-        result = dispatch_tool(tool_name, tool_input)
+        # from mcp_server import dispatch_tool
+        # result = dispatch_tool(tool_name, tool_input)
+
+        from mcp_server import dispatch_tool_http
+        
+        # Gọi tool thông qua HTTP. Tự động fallback về in-process nếu server không bật.
+        result = dispatch_tool_http(tool_name, tool_input)
+        
         return {
             "tool": tool_name,
             "input": tool_input,
