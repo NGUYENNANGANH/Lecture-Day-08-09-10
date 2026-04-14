@@ -96,8 +96,15 @@ retrieval_worker:
     - "Score phải là float trong khoảng [0, 1]"
     - "Stateless: không đọc hoặc ghi state ngoài những gì được khai báo ở trên"
   actual_implementation:
-    status: "TODO Sprint 2" # Update to "done" khi xong
-    notes: ""
+    status: "done"
+    notes: |
+      Sprint 2 (M2): Implemented dense retrieval with ChromaDB.
+      - Embedding: SentenceTransformer (all-MiniLM-L6-v2), fallback OpenAI/random
+      - ChromaDB collection: day09_docs (38 chunks indexed from 5 docs)
+      - Score: cosine similarity [0, 1]
+      - Error handling: RETRIEVAL_FAILED, returns [] on failure
+      - Stateless: only reads task, writes retrieved_chunks + retrieved_sources
+      - worker_io_logs: input/output logged per contract
 
 # ─────────────────────────────────────────────
 # Policy Tool Worker
@@ -220,8 +227,15 @@ synthesis_worker:
     - "confidence < 0.4 → khuyến khích set hitl_triggered=True"
     - "Không được dùng kiến thức ngoài context được cung cấp"
   actual_implementation:
-    status: "TODO Sprint 2"
-    notes: ""
+    status: "done"
+    notes: |
+      Sprint 2 (M2): Implemented LLM-based synthesis with grounded prompt.
+      - LLM chain: OpenAI GPT-4o-mini -> Google Gemini 2.0 Flash -> template fallback
+      - Citation: [source_name] format via SYSTEM_PROMPT rules
+      - Abstain: returns "Khong du thong tin" when chunks=[]
+      - Confidence: weighted avg of chunk scores, penalty for exceptions
+      - Context builder: merges chunks + policy_result exceptions
+      - worker_io_logs: input/output logged per contract
 
 # ─────────────────────────────────────────────
 # MCP Server
