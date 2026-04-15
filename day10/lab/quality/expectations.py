@@ -111,6 +111,40 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
             f"violations={len(bad_hr_annual)}",
         )
     )
+        # --- EXPECTATIONS MỚI (thêm bởi nhóm) ---
+
+    # E7 (mới): exported_at phải là ISO datetime hợp lệ trên cleaned rows
+    # metric_impact: nếu exported_at không đúng format → freshness_check sẽ không tính được SLA
+    import re as _re
+    bad_exported = [
+        r
+        for r in cleaned_rows
+        if not _re.match(
+            r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}",
+            (r.get("exported_at") or "").strip(),
+        )
+    ]
+    ok7 = len(bad_exported) == 0
+    results.append(
+        ExpectationResult(
+            "exported_at_valid_iso_datetime",
+            ok7,
+            "halt",
+            f"invalid_exported_at={len(bad_exported)}",
+        )
+    )
+
+    # E8 (mới): cleaned rows đủ ít nhất 3 dòng cho RAG
+    # metric_impact: nếu quá ít dòng → RAG không đủ context để trả lời chính xác
+    ok8 = len(cleaned_rows) >= 3
+    results.append(
+        ExpectationResult(
+            "min_cleaned_rows_for_rag",
+            ok8,
+            "warn",
+            f"cleaned_rows={len(cleaned_rows)} (minimum=3 for meaningful RAG)",
+        )
+    )
 
     halt = any(not r.passed and r.severity == "halt" for r in results)
     return results, halt
