@@ -159,7 +159,7 @@ def cmd_embed_internal(cleaned_csv: Path, *, run_id: str, log) -> bool:
         drop = sorted(prev_ids - set(ids))
         if drop:
             col.delete(ids=drop)
-            log(f"embed_prune_removed={len(drop)}")
+        log(f"embed_prune_removed={len(drop)}")
     except Exception as e:
         log(f"WARN: embed prune skip: {e}")
     documents = [r["chunk_text"] for r in rows]
