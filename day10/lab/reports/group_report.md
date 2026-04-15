@@ -39,19 +39,25 @@ _________________
 
 > Baseline đã có nhiều rule (allowlist, ngày ISO, HR stale, refund, dedupe…). Nhóm thêm **≥3 rule mới** + **≥2 expectation mới**. Khai báo expectation nào **halt**.
 
+Baseline gồm 6 rule: allowlist `doc_id`, chuẩn hoá `effective_date` (ISO + DD/MM/YYYY), quarantine HR cũ (`effective_date < 2026-01-01`), quarantine `chunk_text` rỗng, dedup nội dung, và fix refund window 14→7 ngày. Với baseline, CSV mẫu (10 dòng) cho ra **cleaned=6, quarantine=4**. Nhóm đã thêm **4 rule mới** vào `transform/cleaning_rules.py`, kết quả **cleaned=5, quarantine=5** — tăng 1 quarantine nhờ Rule 8 bắt row 3 chứa annotation migration bị leak.
+
 ### 2a. Bảng metric_impact (bắt buộc — chống trivial)
 
 | Rule / Expectation mới (tên ngắn) | Trước (số liệu) | Sau / khi inject (số liệu) | Chứng cứ (log / CSV / commit) |
 |-----------------------------------|------------------|-----------------------------|-------------------------------|
-| … | … | … | … |
+| R7 `strip_bom_and_control_chars` | Baseline dedup bỏ sót chunk có BOM prefix | Inject row có `\ufeff` prefix → dedup bắt đúng sau strip | `transform/cleaning_rules.py` L71-96 |
+| R8 `quarantine_migration_note` | cleaned=6, quarantine=4 (row 3 "lỗi migration" lọt qua) | cleaned=5, quarantine=5 (row 3 bị quarantine `leaked_migration_annotation`) | `artifacts/quarantine/` CSV, commit `feature/cleaning` |
+| R9 `normalize_whitespace_chunk` | Chunk có `\xa0` non-breaking space bypass dedup | Normalize `\xa0`→space trước dedup → catch near-duplicate | `transform/cleaning_rules.py` L127-149 |
+| R10 `validate_chunk_min_length` | Baseline chỉ chặn empty text | Inject row text="OK" (2 chars) → quarantine `chunk_too_short` | `transform/cleaning_rules.py` L156-173 |
 
 **Rule chính (baseline + mở rộng):**
 
-- …
+- **Baseline (6 rule):** allowlist `doc_id`, normalize `effective_date`, quarantine HR stale, quarantine empty text, dedup `chunk_text`, fix refund 14→7 ngày
+- **Mở rộng (4 rule mới):** strip BOM/control chars (R7), quarantine migration annotation (R8), normalize whitespace (R9), validate min chunk length ≥10 chars (R10)
 
 **Ví dụ 1 lần expectation fail (nếu có) và cách xử lý:**
 
-_________________
+Khi chạy `--no-refund-fix`, Rule 8 vẫn quarantine row 3 (migration note) trước khi refund fix áp dụng — chứng minh rule hoạt động độc lập. Nếu bỏ Rule 8, row 3 chứa "14 ngày làm việc" sẽ lọt vào cleaned và trigger expectation `refund_no_stale_14d_window` → **halt**.
 
 ---
 
