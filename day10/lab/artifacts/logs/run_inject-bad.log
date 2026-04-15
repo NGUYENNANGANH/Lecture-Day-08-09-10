@@ -2,13 +2,8 @@ run_id=inject-bad
 raw_records=11
 cleaned_records=6
 quarantine_records=5
-<<<<<<< HEAD
 cleaned_csv=artifacts\cleaned\cleaned_inject-bad.csv
 quarantine_csv=artifacts\quarantine\quarantine_inject-bad.csv
-=======
-cleaned_csv=artifacts/cleaned/cleaned_inject-bad.csv
-quarantine_csv=artifacts/quarantine/quarantine_inject-bad.csv
->>>>>>> bf1a25796daf1de083969af23bd76ad8a6a99002
 expectation[min_one_row] OK (halt) :: cleaned_rows=6
 expectation[no_empty_doc_id] OK (halt) :: empty_doc_id_count=0
 expectation[refund_no_stale_14d_window] FAIL (halt) :: violations=1
@@ -16,18 +11,10 @@ expectation[chunk_min_length_8] OK (warn) :: short_chunks=0
 expectation[effective_date_iso_yyyy_mm_dd] OK (halt) :: non_iso_rows=0
 expectation[hr_leave_no_stale_10d_annual] OK (halt) :: violations=0
 expectation[exported_at_valid_iso_datetime] OK (halt) :: invalid_exported_at=0
-<<<<<<< HEAD
 expectation[chunk_text_no_stale_markers] OK (warn) :: stale_marker_chunks=0
 WARN: expectation failed but --skip-validate → tiếp tục embed (chỉ dùng cho demo Sprint 3).
 embed_prune_removed=1
 embed_upsert count=6 collection=day10_kb
 manifest_written=artifacts\manifests\manifest_inject-bad.json
 freshness_check=FAIL {"latest_exported_at": "2026-04-10T08:00:00", "age_hours": 122.49, "sla_hours": 24.0, "reason": "freshness_sla_exceeded"}
-=======
-expectation[min_cleaned_rows_for_rag] OK (warn) :: cleaned_rows=6 (minimum=3 for meaningful RAG)
-WARN: expectation failed but --skip-validate → tiếp tục embed (chỉ dùng cho demo Sprint 3).
-embed_upsert count=6 collection=day10_kb
-manifest_written=artifacts/manifests/manifest_inject-bad.json
-freshness_check=FAIL {"latest_exported_at": "2026-04-10T08:00:00", "age_hours": 122.22, "sla_hours": 24.0, "reason": "freshness_sla_exceeded"}
->>>>>>> bf1a25796daf1de083969af23bd76ad8a6a99002
 PIPELINE_OK
