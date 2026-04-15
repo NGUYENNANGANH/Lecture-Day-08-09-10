@@ -14,11 +14,6 @@ expectation[exported_at_valid_iso_datetime] OK (halt) :: invalid_exported_at=0
 expectation[chunk_text_no_stale_markers] OK (warn) :: stale_marker_chunks=0
 embed_prune_removed=1
 embed_upsert count=6 collection=day10_kb
-<<<<<<< HEAD
 manifest_written=artifacts\manifests\manifest_after-fix.json
 freshness_check=FAIL {"latest_exported_at": "2026-04-10T08:00:00", "age_hours": 122.502, "sla_hours": 24.0, "reason": "freshness_sla_exceeded"}
-=======
-manifest_written=artifacts/manifests/manifest_after-fix.json
-freshness_check=FAIL {"latest_exported_at": "2026-04-10T08:00:00", "age_hours": 122.228, "sla_hours": 24.0, "reason": "freshness_sla_exceeded"}
->>>>>>> bf1a25796daf1de083969af23bd76ad8a6a99002
 PIPELINE_OK
