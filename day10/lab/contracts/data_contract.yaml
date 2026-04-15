@@ -3,7 +3,7 @@
 
 version: "1.0"
 dataset: "kb_chunk_export"
-owner_team: "Nhóm Day10"
+owner_team: "__TODO__"
 
 schema_cleaned:
   chunk_id:
@@ -36,7 +36,7 @@ quality_rules:
 freshness:
   measured_at: "publish"  # ingest | cleaned | publish
   sla_hours: 24
-  alert_channel: "log:artifacts/logs/"
+  alert_channel: "__TODO__"
 
 canonical_sources:
   - path: "data/docs/policy_refund_v4.txt"
