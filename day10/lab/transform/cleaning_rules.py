@@ -250,12 +250,6 @@ def clean_rows(
             quarantine.append({**raw, "reason": "chunk_too_short", "chunk_text_length": len(text)})
             continue
 
-        # ── NEW RULE 8: quarantine migration/sync annotations ──
-        migration_reason = quarantine_migration_note({**raw, "chunk_text": text})
-        if migration_reason:
-            quarantine.append({**raw, "reason": migration_reason})
-            continue
-
         # ── Baseline rule 5: deduplication ──
         key = _norm_text(text)
         if key in seen_text:
@@ -272,6 +266,14 @@ def clean_rows(
                     "7 ngày làm việc",
                 )
                 fixed_text += " [cleaned: stale_refund_window]"
+
+        # ── NEW RULE 8: quarantine migration/sync annotations ──
+        # (moved AFTER rule 6 so refund-fix eval can see "14 ngày" rows
+        #  before they get quarantined by migration pattern match)
+        migration_reason = quarantine_migration_note({**raw, "chunk_text": fixed_text})
+        if migration_reason:
+            quarantine.append({**raw, "reason": migration_reason})
+            continue
 
         seq += 1
         cleaned.append(
