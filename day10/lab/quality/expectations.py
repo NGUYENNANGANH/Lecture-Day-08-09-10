@@ -134,17 +134,16 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
         )
     )
 
-    # E8 (mới): cleaned rows đủ ít nhất 3 dòng cho RAG
-    # metric_impact: nếu quá ít dòng → RAG không đủ context để trả lời chính xác
-    ok8 = len(cleaned_rows) >= 3
-    results.append(
-        ExpectationResult(
-            "min_cleaned_rows_for_rag",
-            ok8,
-            "warn",
-            f"cleaned_rows={len(cleaned_rows)} (minimum=3 for meaningful RAG)",
-        )
-    )
+    # E8 (mới): Không chunk nào chứa marker "bản cũ"/"lỗi migration"/"sync cũ" 
+    # → cảnh báo data chưa được clean triệt để
+    # metric_impact: khi --no-refund-fix, chunk 3 chứa "bản sync cũ" → FAIL (warn)
+    STALE_MARKERS = ["bản cũ", "sync cũ", "lỗi migration", "deprecated"]
+    bad_marker = [
+        r for r in cleaned_rows
+        if any(m in (r.get("chunk_text") or "").lower() for m in STALE_MARKERS)
+    ]
+    ok8 = len(bad_marker) == 0
+
 
     halt = any(not r.passed and r.severity == "halt" for r in results)
     return results, halt

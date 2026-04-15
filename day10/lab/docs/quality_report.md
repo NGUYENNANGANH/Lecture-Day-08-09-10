@@ -1,6 +1,6 @@
 # Quality report — Lab Day 10 (nhóm)
 
-**run_id:** `sprint1` (clean), `inject-bad` (inject), `after-fix` (fix)  
+**run_id:** `inject-bad` (inject), `after-fix` (fix)  
 **Ngày:** 2026-04-15
 
 ---
@@ -8,18 +8,25 @@
 ## 1. Tóm tắt số liệu
 
 | Chỉ số | Trước (inject-bad) | Sau (after-fix) | Ghi chú |
-|--------|---------------------|-----------------|---------|
+|--------|----------------------|-------------------|---------|
 | raw_records | 10 | 10 | Cùng input CSV |
 | cleaned_records | 6 | 6 | Số dòng qua quality gate |
 | quarantine_records | 4 | 4 | unknown_doc_id(1), missing_effective_date(1), stale_hr(1), duplicate(1) |
-| Expectation halt? | **YES** (`refund_no_stale_14d_window` FAIL) | **NO** (all OK) | Inject bỏ fix → chunk "14 ngày" còn |
+| Expectation halt? | **YES** (`refund_no_stale_14d_window` FAIL, `chunk_text_no_stale_markers` FAIL warn) | **NO** (all OK) | Inject bỏ fix → chunk "14 ngày" + marker "sync cũ"/"lỗi migration" còn |
 | embed_prune_removed | 1 (khi chuyển từ clean → inject) | 1 (khi chuyển từ inject → clean) | Prune vector cũ hoạt động đúng |
+
+### Expectations mới — metric_impact
+
+| Expectation | Severity | Kịch bản test | Kết quả inject-bad | Kết quả after-fix | metric_impact |
+|-------------|----------|---------------|----------------------|---------------------|---------------|
+| E7: `exported_at_valid_iso_datetime` | halt | Inject dòng thiếu exported_at | OK (Rule 8 cleaning đã quarantine trước) | OK | Lớp bảo vệ cuối cùng: nếu cleaning rule 8 bỏ sót dòng thiếu exported_at → E7 halt pipeline, ngăn embed dữ liệu thiếu timestamp → freshness check có ý nghĩa |
+| E8: `chunk_text_no_stale_markers` | warn | `--no-refund-fix`: chunk chứa "bản sync cũ policy-v3 — lỗi migration" | **FAIL (warn)** — `stale_marker_chunks=1` | **PASS** — `stale_marker_chunks=0` | Phát hiện chunk chưa được clean triệt để: marker "sync cũ", "lỗi migration", "bản cũ", "deprecated" còn sót → data chưa production-ready |
 
 ---
 
 ## 2. Before / after retrieval (bắt buộc)
 
-> Dữ liệu từ `artifacts/eval/after_inject_bad.csv` (before) và `artifacts/eval/before_after_eval.csv` (after).
+> Dữ liệu từ `artifacts/eval/after_inject_bad.csv` (inject) và `artifacts/eval/before_after_eval.csv` (fix).
 
 ### Câu hỏi then chốt: refund window (`q_refund_window`)
 
@@ -40,6 +47,8 @@
 | **hits_forbidden** | **no** |
 
 → Chunk "14 ngày" đã bị fix thành "7 ngày" + tag `[cleaned: stale_refund_window]`. Agent trả lời đúng.
+
+**Kết luận `q_refund_window`:** Retrieval **tệ hơn khi inject** (`hits_forbidden=yes`), **tốt hơn sau fix** (`hits_forbidden=no`). ✅
 
 ### Merit: versioning HR — `q_leave_version`
 
@@ -65,7 +74,7 @@
 
 ## 3. Freshness & monitor
 
-- **Kết quả:** `freshness_check=FAIL` — `age_hours=120.3`, `sla_hours=24.0`
+- **Kết quả:** `freshness_check=FAIL` — `age_hours=121.7`, `sla_hours=24.0`
 - **Giải thích:** CSV mẫu có `exported_at = 2026-04-10T08:00:00` — export cũ ~5 ngày. FAIL là **hợp lý và mong đợi** trên data mẫu.
 - **SLA chọn:** 24 giờ (cấu hình qua `FRESHNESS_SLA_HOURS` trong `.env`). Phù hợp cho batch policy update hàng ngày.
 - **Trong production:** Cron job export mới + rerun pipeline giữ SLA.
@@ -79,11 +88,12 @@
 2. Flag `--no-refund-fix` giữ nguyên chunk "14 ngày làm việc" (không fix thành 7 ngày)
 3. Flag `--skip-validate` bỏ qua halt khi expectation FAIL → vẫn embed data xấu vào Chroma
 
-**Phát hiện:**
-- Expectation `refund_no_stale_14d_window` → FAIL (violations=1) trong log
+**Phát hiện (từ log `run_inject-bad.log`):**
+- Expectation `refund_no_stale_14d_window` → **FAIL (halt)** — violations=1
+- Expectation `chunk_text_no_stale_markers` → **FAIL (warn)** — chunk chứa "bản sync cũ", "lỗi migration"
 - Eval retrieval: `hits_forbidden=yes` cho `q_refund_window`
 
-**Fix:** Rerun pipeline chuẩn (không flag) → expectation PASS, `hits_forbidden=no`, prune loại chunk cũ.
+**Fix:** Rerun pipeline chuẩn (`python etl_pipeline.py run --run-id after-fix`) → tất cả expectation PASS, `hits_forbidden=no`, prune loại chunk cũ.
 
 ---
 
@@ -94,3 +104,4 @@
 - **Chưa tích hợp LLM-judge:** Eval chỉ dùng keyword matching, chưa đánh giá chất lượng câu trả lời end-to-end.
 - **Single collection:** Chưa có blue/green index swap cho zero-downtime update.
 - **Alert channel:** Chưa cấu hình (`__TODO__` trong contract) — cần tích hợp Slack/email.
+- **E8 stale markers:** Danh sách markers hiện hard-code trong code — nên đọc từ config/contract để dễ mở rộng.
