@@ -99,17 +99,7 @@ Chạy `python etl_pipeline.py run --run-id inject-bad --no-refund-fix --skip-va
 
 > SLA bạn chọn, ý nghĩa PASS/WARN/FAIL trên manifest mẫu.
 
-SLA freshness được đặt là **24 giờ** (`FRESHNESS_SLA_HOURS=24` trong `.env`). Pipeline đo freshness bằng trường `latest_exported_at` trong manifest — là giá trị `exported_at` lớn nhất của các cleaned rows.
-
-Trên data mẫu, `latest_exported_at = 2026-04-10T08:00:00` (cũ hơn thời điểm chạy pipeline ~121 giờ) → kết quả là **FAIL** (`age_hours=121.21, reason=freshness_sla_exceeded`).
-
-| Trạng thái | Ý nghĩa | Hành động |
-|-----------|---------|-----------|
-| PASS | Data mới hơn SLA 24h | Tiếp tục bình thường |
-| WARN | Không có timestamp trong manifest | Kiểm tra pipeline có ghi `exported_at` không |
-| FAIL | Data cũ hơn SLA | Cảnh báo team data — cần re-export từ nguồn |
-
-> **Lưu ý:** FAIL trên data mẫu là **hợp lý và có chủ đích** — CSV mẫu dùng ngày cố định để minh hoạ cơ chế freshness, không phải data production thật.
+_[Người 5 — Monitoring Owner điền]_
 
 ---
 
