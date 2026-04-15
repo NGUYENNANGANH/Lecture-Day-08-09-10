@@ -6,4 +6,4 @@ __pycache__/
 .DS_Store
 chroma_db/
 .pytest_cache/
-*.log
+# *.log  # bỏ ignore để commit artifact log cho grading
