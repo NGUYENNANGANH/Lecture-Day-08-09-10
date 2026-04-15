@@ -1,7 +1,12 @@
 {
   "run_id": "after-fix",
+<<<<<<< HEAD
+  "run_timestamp": "2026-04-15T10:30:08.400435+00:00",
+  "raw_path": "data\\raw\\policy_export_dirty.csv",
+=======
   "run_timestamp": "2026-04-15T10:13:42.387514+00:00",
   "raw_path": "data/raw/policy_export_dirty.csv",
+>>>>>>> bf1a25796daf1de083969af23bd76ad8a6a99002
   "raw_records": 11,
   "cleaned_records": 6,
   "quarantine_records": 5,

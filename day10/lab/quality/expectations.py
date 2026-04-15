@@ -143,6 +143,14 @@ def run_expectations(cleaned_rows: List[Dict[str, Any]]) -> Tuple[List[Expectati
         if any(m in (r.get("chunk_text") or "").lower() for m in STALE_MARKERS)
     ]
     ok8 = len(bad_marker) == 0
+    results.append(
+        ExpectationResult(
+            "chunk_text_no_stale_markers",
+            ok8,
+            "warn",
+            f"stale_marker_chunks={len(bad_marker)}",
+        )
+    )
 
 
     halt = any(not r.passed and r.severity == "halt" for r in results)

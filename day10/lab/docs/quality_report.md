@@ -9,10 +9,10 @@
 
 | Chỉ số | Trước (inject-bad) | Sau (after-fix) | Ghi chú |
 |--------|----------------------|-------------------|---------|
-| raw_records | 10 | 10 | Cùng input CSV |
+| raw_records | 11 | 11 | Cùng input CSV |
 | cleaned_records | 6 | 6 | Số dòng qua quality gate |
-| quarantine_records | 4 | 4 | unknown_doc_id(1), missing_effective_date(1), stale_hr(1), duplicate(1) |
-| Expectation halt? | **YES** (`refund_no_stale_14d_window` FAIL, `chunk_text_no_stale_markers` FAIL warn) | **NO** (all OK) | Inject bỏ fix → chunk "14 ngày" + marker "sync cũ"/"lỗi migration" còn |
+| quarantine_records | 5 | 5 | unknown_doc_id(1), missing_effective_date(1), stale_hr(1), duplicate(1), missing_chunk_text(1) |
+| Expectation halt? | **YES** (`refund_no_stale_14d_window` FAIL) | **NO** (all OK) | Inject bỏ fix → chunk "14 ngày" còn |
 | embed_prune_removed | 1 (khi chuyển từ clean → inject) | 1 (khi chuyển từ inject → clean) | Prune vector cũ hoạt động đúng |
 
 ### Expectations mới — metric_impact
@@ -20,7 +20,7 @@
 | Expectation | Severity | Kịch bản test | Kết quả inject-bad | Kết quả after-fix | metric_impact |
 |-------------|----------|---------------|----------------------|---------------------|---------------|
 | E7: `exported_at_valid_iso_datetime` | halt | Inject dòng thiếu exported_at | OK (Rule 8 cleaning đã quarantine trước) | OK | Lớp bảo vệ cuối cùng: nếu cleaning rule 8 bỏ sót dòng thiếu exported_at → E7 halt pipeline, ngăn embed dữ liệu thiếu timestamp → freshness check có ý nghĩa |
-| E8: `chunk_text_no_stale_markers` | warn | `--no-refund-fix`: chunk chứa "bản sync cũ policy-v3 — lỗi migration" | **FAIL (warn)** — `stale_marker_chunks=1` | **PASS** — `stale_marker_chunks=0` | Phát hiện chunk chưa được clean triệt để: marker "sync cũ", "lỗi migration", "bản cũ", "deprecated" còn sót → data chưa production-ready |
+| E8: `chunk_text_no_stale_markers` | warn | Inject chunk chứa marker "bản cũ"/"sync cũ"/"lỗi migration"/"deprecated" | OK — `stale_marker_chunks=0` (CSV hiện tại không chứa marker) | OK — `stale_marker_chunks=0` | Lớp bảo vệ bổ sung: nếu data nguồn chứa marker stale → warn ngay, ngăn chặn chunk chưa clean triệt để lọt vào embed. Trên bộ mẫu hiện tại, cleaning rules đã xử lý trước khi E8 kiểm tra |
 
 ---
 
@@ -90,7 +90,7 @@
 
 **Phát hiện (từ log `run_inject-bad.log`):**
 - Expectation `refund_no_stale_14d_window` → **FAIL (halt)** — violations=1
-- Expectation `chunk_text_no_stale_markers` → **FAIL (warn)** — chunk chứa "bản sync cũ", "lỗi migration"
+- Expectation `chunk_text_no_stale_markers` → OK (warn) — stale_marker_chunks=0
 - Eval retrieval: `hits_forbidden=yes` cho `q_refund_window`
 
 **Fix:** Rerun pipeline chuẩn (`python etl_pipeline.py run --run-id after-fix`) → tất cả expectation PASS, `hits_forbidden=no`, prune loại chunk cũ.

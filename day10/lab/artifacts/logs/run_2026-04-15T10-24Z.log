@@ -1,0 +1,19 @@
+run_id=2026-04-15T10-24Z
+raw_records=11
+cleaned_records=6
+quarantine_records=5
+cleaned_csv=artifacts\cleaned\cleaned_2026-04-15T10-24Z.csv
+quarantine_csv=artifacts\quarantine\quarantine_2026-04-15T10-24Z.csv
+expectation[min_one_row] OK (halt) :: cleaned_rows=6
+expectation[no_empty_doc_id] OK (halt) :: empty_doc_id_count=0
+expectation[refund_no_stale_14d_window] FAIL (halt) :: violations=1
+expectation[chunk_min_length_8] OK (warn) :: short_chunks=0
+expectation[effective_date_iso_yyyy_mm_dd] OK (halt) :: non_iso_rows=0
+expectation[hr_leave_no_stale_10d_annual] OK (halt) :: violations=0
+expectation[exported_at_valid_iso_datetime] OK (halt) :: invalid_exported_at=0
+expectation[chunk_text_no_stale_markers] OK (warn) :: stale_marker_chunks=0
+WARN: expectation failed but --skip-validate → tiếp tục embed (chỉ dùng cho demo Sprint 3).
+embed_upsert count=6 collection=day10_kb
+manifest_written=artifacts\manifests\manifest_2026-04-15T10-24Z.json
+freshness_check=FAIL {"latest_exported_at": "2026-04-10T08:00:00", "age_hours": 122.414, "sla_hours": 24.0, "reason": "freshness_sla_exceeded"}
+PIPELINE_OK
