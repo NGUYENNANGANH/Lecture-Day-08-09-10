@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import re
+import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -25,6 +26,16 @@ ALLOWED_DOC_IDS = frozenset(
 
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DMY_SLASH = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
+
+# Các pattern phát hiện ghi chú migration / sync nội bộ bị leak vào dữ liệu production.
+_MIGRATION_PATTERNS = re.compile(
+    r"lỗi migration|sync cũ|bản cũ|migrated from|legacy merge",
+    re.IGNORECASE,
+)
+
+# Minimum meaningful chunk length — chunks shorter than this are unlikely to
+# carry useful policy information and can pollute retrieval results.
+MIN_CHUNK_LENGTH = 10
 
 
 def _norm_text(s: str) -> str:
@@ -51,6 +62,115 @@ def _normalize_effective_date(raw: str) -> Tuple[str, str]:
         dd, mm, yyyy = m.group(1), m.group(2), m.group(3)
         return f"{yyyy}-{mm}-{dd}", ""
     return "", "invalid_effective_date_format"
+
+
+# ──────────────────────────────────────────────────────────────────────
+# NEW RULE 7 — Strip BOM & invisible control characters
+# ──────────────────────────────────────────────────────────────────────
+
+def strip_bom_and_control_chars(text: str) -> str:
+    """Loại bỏ BOM (\ufeff), zero-width spaces và ký tự điều khiển vô hình.
+
+    Các ký tự này có thể lọt vào khi export từ Excel / legacy DB, khiến
+    dedup bằng string comparison bị sai (2 chunk giống nhau nhưng hash khác).
+
+    metric_impact:
+        - Ngăn false-negative dedup: chunk có BOM prefix sẽ vượt qua
+          _norm_text() check ở baseline, tạo vector trùng trong index.
+        - Khi inject dòng có BOM vào Sprint 3, rule này bắt được trong khi
+          baseline thì không.
+    """
+    # Loại BOM đầu chuỗi
+    text = text.lstrip("\ufeff")
+    # Loại zero-width spaces, soft hyphens, zero-width joiners
+    text = text.replace("\u200b", "")   # zero-width space
+    text = text.replace("\u200c", "")   # zero-width non-joiner
+    text = text.replace("\u200d", "")   # zero-width joiner
+    text = text.replace("\u00ad", "")   # soft hyphen
+    text = text.replace("\ufeff", "")   # BOM ở giữa chuỗi
+    # Loại control chars (category Cc) nhưng giữ whitespace thường
+    text = "".join(
+        ch for ch in text
+        if ch in ("\n", "\r", "\t", " ") or unicodedata.category(ch) != "Cc"
+    )
+    return text
+
+
+# ──────────────────────────────────────────────────────────────────────
+# NEW RULE 8 — Quarantine rows with leaked migration/sync annotations
+# ──────────────────────────────────────────────────────────────────────
+
+def quarantine_migration_note(row: Dict[str, Any]) -> str | None:
+    """Phát hiện chunk_text chứa ghi chú migration / sync nội bộ bị leak.
+
+    Các annotation như "lỗi migration", "sync cũ", "bản cũ" là metadata
+    quy trình nội bộ — không nên phục vụ cho end-user qua RAG.
+
+    metric_impact:
+        - Trên CSV mẫu, row 4 (chunk_id=3, policy_refund_v4) chứa
+          "ghi chú: bản sync cũ policy-v3 — lỗi migration" → bị quarantine.
+        - quarantine_records tăng 4 → 5, cleaned_records giảm 6 → 5.
+
+    Returns:
+        Reason string nếu cần quarantine, None nếu row sạch.
+    """
+    text = row.get("chunk_text", "")
+    if _MIGRATION_PATTERNS.search(text):
+        return "leaked_migration_annotation"
+    return None
+
+
+# ──────────────────────────────────────────────────────────────────────
+# NEW RULE 9 — Normalize whitespace (non-breaking, tabs, multi-space)
+# ──────────────────────────────────────────────────────────────────────
+
+def normalize_whitespace_chunk(text: str) -> str:
+    """Chuẩn hoá khoảng trắng: collapse \\xa0, tab, multi-space thành 1 space.
+
+    Đảm bảo văn bản đồng nhất trước embedding — tránh near-duplicate vectors
+    chỉ khác nhau bởi loại khoảng trắng.
+
+    metric_impact:
+        - Khi inject row có \\xa0 (non-breaking space) thay vì space thường,
+          baseline dedup KHÔNG bắt vì _norm_text() chỉ xử lý ASCII space.
+          Rule này normalize trước khi so sánh, giúp dedup catch đúng.
+        - Cải thiện embedding consistency: chunks giống nhau sinh vector
+          gần nhau hơn.
+    """
+    # Thay thế non-breaking space và các biến thể Unicode space
+    text = text.replace("\xa0", " ")       # non-breaking space
+    text = text.replace("\u2007", " ")      # figure space
+    text = text.replace("\u202f", " ")      # narrow no-break space
+    text = text.replace("\u2003", " ")      # em space
+    text = text.replace("\u2002", " ")      # en space
+    text = text.replace("\t", " ")          # tab
+    # Collapse multiple spaces thành single space
+    text = re.sub(r" {2,}", " ", text)
+    return text.strip()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# NEW RULE 10 — Validate minimum meaningful chunk length
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_chunk_min_length(text: str, min_len: int = MIN_CHUNK_LENGTH) -> bool:
+    """Kiểm tra chunk_text đạt độ dài tối thiểu có nghĩa.
+
+    Baseline chỉ kiểm tra empty; rule này nâng ngưỡng lên min_len ký tự.
+    Chunk quá ngắn thường là noise (punctuation lẻ, số đơn, stub) và
+    làm giảm precision khi retrieval.
+
+    metric_impact:
+        - Khi inject row với text = "OK" hay "N/A", baseline cho qua nhưng
+          rule này quarantine → quarantine_records tăng.
+        - Expectation chunk_min_length_8 kiểm tương tự ở tầng validate;
+          rule này chặn sớm hơn ở tầng clean, giảm false positive
+          trong embedding layer.
+
+    Returns:
+        True nếu chunk đủ dài (hợp lệ), False nếu quá ngắn.
+    """
+    return len(text.strip()) >= min_len
 
 
 def load_raw_csv(path: Path) -> List[Dict[str, str]]:
@@ -89,10 +209,12 @@ def clean_rows(
         eff_raw = raw.get("effective_date", "")
         exported_at = raw.get("exported_at", "")
 
+        # ── Baseline rule 1: allowlist doc_id ──
         if doc_id not in ALLOWED_DOC_IDS:
             quarantine.append({**raw, "reason": "unknown_doc_id"})
             continue
 
+        # ── Baseline rule 2: effective_date normalization ──
         eff_norm, eff_err = _normalize_effective_date(eff_raw)
         if eff_err == "empty_effective_date":
             quarantine.append({**raw, "reason": "missing_effective_date"})
@@ -101,6 +223,7 @@ def clean_rows(
             quarantine.append({**raw, "reason": eff_err, "effective_date_raw": eff_raw})
             continue
 
+        # ── Baseline rule 3: quarantine stale HR records ──
         if doc_id == "hr_leave_policy" and eff_norm < "2026-01-01":
             quarantine.append(
                 {
@@ -111,16 +234,36 @@ def clean_rows(
             )
             continue
 
+        # ── NEW RULE 7: strip BOM & control chars ──
+        text = strip_bom_and_control_chars(text)
+
+        # ── NEW RULE 9: normalize whitespace ──
+        text = normalize_whitespace_chunk(text)
+
+        # ── Baseline rule 4: quarantine empty chunk_text ──
         if not text:
             quarantine.append({**raw, "reason": "missing_chunk_text"})
             continue
 
+        # ── NEW RULE 10: min chunk length ──
+        if not validate_chunk_min_length(text):
+            quarantine.append({**raw, "reason": "chunk_too_short", "chunk_text_length": len(text)})
+            continue
+
+        # ── NEW RULE 8: quarantine migration/sync annotations ──
+        migration_reason = quarantine_migration_note({**raw, "chunk_text": text})
+        if migration_reason:
+            quarantine.append({**raw, "reason": migration_reason})
+            continue
+
+        # ── Baseline rule 5: deduplication ──
         key = _norm_text(text)
         if key in seen_text:
             quarantine.append({**raw, "reason": "duplicate_chunk_text"})
             continue
         seen_text.add(key)
 
+        # ── Baseline rule 6: fix stale refund window ──
         fixed_text = text
         if apply_refund_window_fix and doc_id == "policy_refund_v4":
             if "14 ngày làm việc" in fixed_text:
